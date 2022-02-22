@@ -1,13 +1,14 @@
 *.o
 tmp
 log
+*.log
 vgcore.*
 *.sqlite
+*.sqlite3
 *.db
 
 compile_commands.json
-include/
-lib/
+bin/
 build/
 CMakeLists.txt.user
 CMakeCache.txt

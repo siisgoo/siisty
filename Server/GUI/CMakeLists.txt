@@ -53,6 +53,7 @@ target_link_libraries(
     PUBLIC
         QLedIndicator
         SslServer
+        General
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)

@@ -57,7 +57,6 @@ target_link_libraries(
         Qt${QT_VERSION_MAJOR}::Network
         GUI
         SslServer
-        siigix::Data
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
