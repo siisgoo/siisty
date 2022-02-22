@@ -6,23 +6,6 @@
 #include <QString>
 #include <QSslSocket>
 
-enum messageTypes { jsonMessageType = 1, binaryMessageType = 2 };
-
-struct messageHeader {
-    uint32_t length;
-    uint32_t type;
-};
-
-struct jsonMessage {
-    struct messageHeader header;
-    uint8_t* data[];
-};
-
-struct binaryMessage {
-    struct messageHeader header;
-    uint8_t* data[];
-};
-
 class SslSocketManager : public QObject
 {
     Q_OBJECT
@@ -34,20 +17,17 @@ class SslSocketManager : public QObject
         QSharedPointer<QSslSocket> getSocket() const;
 
     public Q_SLOTS:
-        void sendMessage(QByteArray _data);
-        void sendJson(QByteArray _jsonDocument);
+        void sendIIPack(QByteArray data);
 
     Q_SIGNALS:
-        void receivedMessage(QByteArray _data);
-        void receivedJson(QByteArray _jsonDocument);
+        void receivedMessage(QByteArray data);
         void logMessage(QString _message);
 
     protected:
         // socket
         QSharedPointer<QSslSocket> connection;
 
-        // receive data
-        void sendData(QByteArray _messageHeader, QByteArray _data);
+        void sendData(QByteArray header, QByteArray data);
 
     protected Q_SLOTS:
         virtual void dataAvailable();

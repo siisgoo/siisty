@@ -8,36 +8,62 @@
  *
  */
 
-
+#include <QPair>
+#include <QJsonDocument>
 #include <QByteArray>
+#include <QDataStream>
+#include <QIODevice>
+#include <QDateTime>
 
-struct iiNetworkPacket {
-    enum class Operation : quint8
+/*
+ * siisty Network Packet
+ */
+struct iiNPack {
+    enum class PacketType : quint8
     {
-        AUTORIZATION_REQUEST = 0x1,
-        GET_REQUEST = 0x2,
-        PUT_REQUEST = 0x3,
+        AUTORIZATION_REQUEST,
+        GET_REQUEST,
+        PUT_REQUEST,
+        RESPONSE,
+        ERROR_MESSAGE, //first byte contain ResponseError, other - errstr
     };
 
-    enum class ResponceError : quint8
+    enum class PacketLoadType : quint8
     {
-        ACCESS_DENIED = 0x1,
-        REQUEST_ERROR = 0x2,
+        JSON = 0,
+        XML,
+        RAW,
     };
 
-    //use pragma push?
+    enum class ResponseError : quint8
+    {
+        ACCESS_DENIED = 0,
+        REQUEST_ERROR,
+    };
+
     struct Header
     {
-/* 0x0  - 0x4  */ quint32 Size;         /* Overall packet load size in bytes */
-/* 0x4  - 0x12 */ qint64  SendStamp;    /* Send time; using QDateTime SecsSinceEpoch */
-/* 0x12 - 0x13 */ quint8  PacketType;   /* Type of packet; not implemented, reserved */
-/* 0x13 - 0x14 */ quint8  Operation;    /* Operation type, see enum class Operation */
-/* 0x14 - 0x24 */ char    Specific[10]; /* specific info(username and password separator bit, etc) */
+/* 0x0  - 0x4  */ quint32 Size;           /* Overall packet load size in bytes */
+/* 0x4  - 0x12 */ qint64  SendStamp;      /* Send time; using QDateTime SecsSinceEpoch */
+/* 0x12 - 0x13 */ quint8  PacketType;     /* Type of packet; enum class PacketType */
+/* 0x13 - 0x14 */ quint8  PacketLoadType; /* Operation type, see enum class PacketLoadType */
     };
 
-    // the load
-    Header     header;
-    QByteArray data;
+    static const qsizetype HeaderSize;
+    static QByteArray pack(const QByteArray& load, const PacketType);
+    static QByteArray packError(const QString& errDesc, const ResponseError err);
+        // package creators
+
+    static Header unpack(QByteArray& input, QByteArray& res);
+    static ResponseError extractErrno(const QByteArray& load);
+    static QString extractErrStr(const QByteArray& load);
+
+    private:
+        iiNPack();
+        iiNPack(const iiNPack&) = delete;
+        iiNPack(const iiNPack&&) = delete;
+        iiNPack& operator = (const iiNPack&) = delete;
+            // not creatable
 };
 
 #endif /* end of include guard: IINETWORKPACKET_HPP_T3ZVG9UF */

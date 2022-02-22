@@ -10,6 +10,7 @@
 #include <QList>
 #include <cstdint>
 
+#include "iiNetworkPacket/iiNetworkPacket.hpp"
 #include "General/SslSocketManager.hpp"
 
 // Purpose: to read/write to sockets in dedicated threads
@@ -38,10 +39,8 @@ class SslSocket : public QObject
 
     Q_SIGNALS:
         void close();
-        void sendMessage(QByteArray _data);
-        void sendJson(QByteArray _jsonDocument);
+        void sendIIPack(QByteArray _data);
         void receivedMessage(QByteArray _data);
-        void receiveJson(QByteArray _jsonDocument);
         void logMessage(QString _message);
 
     private:
