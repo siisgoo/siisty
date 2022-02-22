@@ -1,0 +1,10 @@
+2022-25-22 10:25:59.999 - Starting log
+2022-26-22 10:26:01.498 - Socket Connected
+2022-26-22 10:26:08.891 - Closing Socket
+2022-26-22 10:26:08.891 - Socket Disconnected
+2022-26-22 10:26:10.177 - ERROR: Connection Refused by peer or time-out occurred
+2022-26-22 10:26:10.177 - Socket Disconnected
+2022-26-22 10:26:28.678 - Socket Connected
+2022-26-22 10:26:29.726 - Closing Socket
+2022-26-22 10:26:29.726 - Socket Disconnected
+2022-26-22 10:26:36.958 - Stopping log
