@@ -14,6 +14,22 @@ logger::logger(int level, QString _name, QString _dir, QObject* _parent)
         dir(_dir),
         _level(level)
 {
+    openLogFile();
+    logDebug(tr("Starting log"));
+}
+
+logger::~logger()
+{
+    logDebug(tr("Stopping log"));
+    if (logFile.isOpen() == true)
+    {
+        logFile.close();
+    }
+}
+
+void
+logger::openLogFile()
+{
     QDateTime utcnow = QDateTime::currentDateTimeUtc();
     QString filename = QString("%2_%1.log").arg(utcnow.toString("yyyymmdd_HHmmss-zzz")).arg(name);
 
@@ -29,17 +45,21 @@ logger::logger(int level, QString _name, QString _dir, QObject* _parent)
     logFile.setFileName(dir + QDir::separator() + filename);
     logFile.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Unbuffered);
     theLog.setDevice(&logFile);
-
-    logDebug(tr("Starting log"));
 }
 
-logger::~logger()
+int  logger::loggingLevel() const       { return _level; }
+void logger::setLoggingLevel(int level) { _level = level; }
+
+//its properly???
+QString logger::logPath() const { return dir+QDir::separator()+logFile.fileName(); }
+
+void
+logger::setLogPath(QString path)
 {
-    logDebug(tr("Stopping log"));
-    if (logFile.isOpen() == true)
-    {
-        logFile.close();
-    }
+    logFile.close();
+    name = QFileInfo(path).fileName();
+    dir  = QDir(path).dirName();
+    openLogFile();
 }
 
 void logger::logMessage(QString _message, int level)

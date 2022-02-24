@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(SslServer LANGUAGES CXX VERSION 0.0.1 DESCRIPTION "siisty Server Core")
+project(Database LANGUAGES CXX VERSION 0.0.1 DESCRIPTION "siisty Database driver")
 
 #####################
 #  finding sources  #
@@ -41,9 +41,8 @@ target_link_libraries(
     ${PROJECT_NAME}
     PRIVATE
         Qt${QT_VERSION_MAJOR}::Core
+        Qt${QT_VERSION_MAJOR}::Sql
         General
-    PUBLIC
-        Qt${QT_VERSION_MAJOR}::Network
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)

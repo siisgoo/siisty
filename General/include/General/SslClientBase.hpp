@@ -6,48 +6,105 @@
 #include <QSslSocket>
 #include <QSharedPointer>
 #include <QPointer>
+#include <QIODevice>
+#include <QAbstractSocket>
 
 class SslClientBase : public QObject {
     Q_OBJECT
 
     public:
-        SslClientBase();
-        SslClientBase(QSslSocket *);
+        SslClientBase(QSslSocket * socket, QObject * parent = nullptr);
         virtual ~SslClientBase();
 
-        void setSocket(QSslSocket *);
-        QSslSocket * socket();
+        void create();
 
-        const QSslKey& privateKey() const;
-        void setPrivateKey(const QSslKey& key);
+        void disconnectFromHost();
 
-        const QSslCertificate& localCertificate() const;
-        void setLocalCertificate(const QSslCertificate& certificate);
+        bool         isValid() const;
+        QHostAddress localAddress() const;
+        quint16      localPort() const;
+        QHostAddress peerAddress() const;
+        QString      peerName() const;
+        quint16      peerPort() const;
+
+        void connectToHost(
+            const QString &hostName, quint16 port,
+            QIODeviceBase::OpenMode openMode = QAbstractSocket::ReadWrite,
+            QAbstractSocket::NetworkLayerProtocol protocol =
+                QAbstractSocket::AnyIPProtocol);
+        void connectToHost(
+            const QHostAddress &address, quint16 port,
+            QIODeviceBase::OpenMode openMode = QAbstractSocket::ReadWrite);
+
+        void connectToHostEncrypted(
+            const QString &hostName, quint16 port,
+            QIODeviceBase::OpenMode mode = QAbstractSocket::ReadWrite,
+            QAbstractSocket::NetworkLayerProtocol protocol =
+                QAbstractSocket::AnyIPProtocol);
+        void connectToHostEncrypted(
+            const QString &hostName, quint16 port, const QString &sslPeerName,
+            QIODeviceBase::OpenMode mode = QAbstractSocket::ReadWrite,
+            QAbstractSocket::NetworkLayerProtocol protocol =
+                QAbstractSocket::AnyIPProtocol);
+
+        qint64  bytesAvailable() const;
+        qint64  bytesToWrite() const;
+
+        /* bool waitForBytesWritten(int msecs = 30000); */
+        /* bool waitForConnected(int msecs = 30000); */
+        /* bool waitForDisconnected(int msecs = 30000); */
+        /* bool waitForReadyRead(int msecs = 30000); */
+        /* bool waitForEncrypted(int msecs = 30000); */
+
+        bool isEncrypted() const;
+
+        void setLocalCertificate(const QSslCertificate &certificate);
+        void setLocalCertificate(const QString &path, QSsl::EncodingFormat format = QSsl::Pem);
+        void setLocalCertificateChain(const QList<QSslCertificate> &localChain);
+        void setPeerVerifyDepth(int depth);
+        void setPeerVerifyMode(QSslSocket::PeerVerifyMode mode);
+        void setPeerVerifyName(const QString &hostName);
+        void setPrivateKey(const QSslKey &key);
+        void setPrivateKey(const QString &fileName,
+                           QSsl::KeyAlgorithm algorithm = QSsl::Rsa,
+                           QSsl::EncodingFormat format = QSsl::Pem,
+                           const QByteArray &passPhrase = QByteArray());
+        void setProtocol(QSsl::SslProtocol protocol);
+        void setSslConfiguration(const QSslConfiguration &configuration);
+
+        void ignoreSslErrors();
+        void startClientEncryption();
+        void startServerEncryption();
 
     Q_SIGNALS:
         void recivedMessage(iiNPack::Header, QByteArray _data);
-        void logMessage(QString, int);
 
+        void connected();
         void disconnected();
+        void encrypted();
+
+        void peerVerifyError(const QSslError &);
+        void sslErrors(const QList<QSslError>&);
+        void errorOccurred(QAbstractSocket::SocketError socketError);
+        void proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator);
+        void stateChanged(QAbstractSocket::SocketState socketState);
+
+        void logMessage(QString, int);
 
     public Q_SLOTS:
         virtual void sendMessage(QByteArray);
-        void close();
 
     protected Q_SLOTS:
         virtual void dataAvailable();
-        void socketStateChanged(QAbstractSocket::SocketState);
+        virtual void socketStateChanged(QAbstractSocket::SocketState);
 
-    private Q_SLOTS:
-        void onSocketError(QAbstractSocket::SocketError);
-        void onSslErrors(const QList<QSslError>&);
+        virtual void onSocketError(QAbstractSocket::SocketError);
+        virtual void onSslErrors(const QList<QSslError>&);
 
     protected:
-        QSslSocket *    _socket;
-        QSslKey         _sslKey;
-        QSslCertificate _sslCertificate;
-
         virtual void sendData(const QByteArray& header, const QByteArray& load);
+
+        QSslSocket * _control;
 };
 
 #endif /* end of include guard: SSLCLIENTBASE_HPP_NQAPT2TY */

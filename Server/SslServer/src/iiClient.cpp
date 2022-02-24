@@ -1,7 +1,7 @@
 #include "SslServer/iiClient.hpp"
 
-iiClient::iiClient(QSslSocket* socket)
-    : SslClientBase(socket),
+iiClient::iiClient(QSslSocket * socket, QObject * parent)
+    : SslClientBase(socket, parent),
         _autorized(false)
 {
 }

@@ -26,9 +26,29 @@ iiServer::~iiServer()
     _clients.clear();
 }
 
+int  iiServer::maxPendingConnections() const     { return _server.maxPendingConnections(); }
+void iiServer::setMaxPendingConnections(int max) { _server.setMaxPendingConnections(max); }
+bool iiServer::isListening() const               { return _server.isListening(); }
+
+void
+iiServer::setForseUseSsl(bool use)
+{
+    if (_forseUseSsl != use) {
+        Q_EMIT logMessage(tr((use ? "Enabling %1" : "Disabling %1")).arg("forse use SSL"), Debug);
+        _forseUseSsl = use;
+        if (_server.isListening()) {
+            Q_EMIT logMessage("Rebooting server", Debug);
+            ToggleStartStopListening(_address, _port);
+        }
+    }
+}
+
 void iiServer::ToggleStartStopListening(const QHostAddress &address,
                                         quint16 port)
 {
+    _address = address;
+    _port = port;
+
     if (_server.isListening()) {
         _server.close();
         Q_EMIT listeningStateChanged(address, port, false);
@@ -36,10 +56,10 @@ void iiServer::ToggleStartStopListening(const QHostAddress &address,
     }
 
     if (_server.listen(address, port)) {
-        Q_EMIT listeningStateChanged(address, port, true);
         Q_EMIT logMessage("Start serving on: " + address.toString() + ":" + QString::number(port), Debug);
+        Q_EMIT listeningStateChanged(address, port, true);
     } else {
-        Q_EMIT logMessage("Could not bind", Fatal);
+        Q_EMIT logMessage("Could not bind " + _server.errorString(), Fatal);
     }
 }
 
@@ -72,41 +92,35 @@ void iiServer::LoadCertificates(const QString& certPath, const QString& keyPath)
 // Accept connection from server and initiate the SSL handshake
 void iiServer::acceptConnection()
 {
-    if (_clients.empty() == false) {
-        Q_EMIT logMessage("iiServer is mad efor 1 connection also. Need to update "
-                "to handle multiple connections", Fatal);
-        return;
-    }
-
     QSslSocket *socket =
         reinterpret_cast<QSslSocket *>(_server.nextPendingConnection());
     assert(socket);
 
-    // QSslSocket emits the encrypted() signal after the encrypted connection is
-    // established
+    iiClient * client(new iiClient(socket));
+
     if (QSslSocket::supportsSsl() && _forseUseSsl)
     {
-        connect(socket, SIGNAL(encrypted()), this, SLOT(handshakeComplete()));
-        socket->setPrivateKey(_key);
-        socket->setLocalCertificate(_certificate);
+        connect(client, SIGNAL(encrypted()), this, SLOT(handshakeComplete()));
+        client->setPrivateKey(_key);
+        client->setLocalCertificate(_certificate);
 
-        socket->setPeerVerifyMode(QSslSocket::VerifyNone);
-        socket->startServerEncryption();
+        client->setPeerVerifyMode(QSslSocket::VerifyNone);
+        client->startServerEncryption();
     }
     else
     {
-        ptrClient client(new iiClient(socket));
+        connect(client, SIGNAL(disconnected()), this, SLOT(clientDisconnected()));
+        connect(client, SIGNAL(recivedMessage(iiNPack::Header, QByteArray)),
+                this, SLOT(recivedMessage(iiNPack::Header, QByteArray)));
 
-        connect(client.data(), SIGNAL(logMessage(QString)),        this, SIGNAL(logMessage(QString)));
-        connect(client.data(), SIGNAL(recivedMessage(iiNPack::Header, QByteArray)), this, SLOT(recivedMessage(iiNPack::Header, QByteArray)));
-        connect(client.data(), SIGNAL(disconnected()),             this, SLOT(clientDisconnected()));
-//        connect(client.data(), SIGNAL(reciveMessage()),            this, SLOT(receivedMessage()));
+        connect(client, SIGNAL(logMessage(QString, int)), this, SIGNAL(logMessage(QString, int)));
+
         _clients.append(client);
 
         Q_EMIT logMessage("Accepted connection from "
-                  + socket->peerAddress().toString() + ":"
-                  + QString::number(socket->peerPort())
-                  + " .Encrypted : " + (socket->isEncrypted() ? "yes" : "no"), Debug);
+                  + client->peerAddress().toString() + ":"
+                  + QString::number(client->peerPort())
+                  + " .Encrypted : " + (client->isEncrypted() ? "yes" : "no"), Debug);
     }
 }
 
@@ -114,19 +128,18 @@ void iiServer::acceptConnection()
 void
 iiServer::handshakeComplete()
 {
-    QSslSocket *socket = dynamic_cast<QSslSocket *>(sender());
-    assert(socket);
-    ptrClient client(new iiClient(socket));
+    iiClient * client = reinterpret_cast<iiClient *>(sender());
+    assert(client);
 
-    connect(client.data(), SIGNAL(logMessage(QString)),         this, SIGNAL(logMessage(QString)));
-    connect(client.data(), SIGNAL(recivedMessage(iiNPack::Header, QByteArray)), this, SLOT(recivedMessage(iiNPack::Header, QByteArray)));
-    connect(client.data(), SIGNAL(disconnected()),              this, SLOT(clientDisconnected()));
-    connect(client.data(), SIGNAL(receiveMessage()),            this, SLOT(receivedMessage()));
+    connect(client, SIGNAL(logMessage(QString, int)), this, SIGNAL(logMessage(QString, int)));
+    connect(client, SIGNAL(disconnected()),      this, SLOT(clientDisconnected()));
+    connect(client, SIGNAL(recivedMessage(iiNPack::Header, QByteArray)),
+            this, SLOT(recivedMessage(iiNPack::Header, QByteArray)));
 
     Q_EMIT logMessage("Accepted connection from "
-              + socket->peerAddress().toString() + ":"
-              + QString::number(socket->peerPort())
-              + " .Encrypted : " + (socket->isEncrypted() ? "yes" : "no"), Debug);
+              + client->peerAddress().toString() + ":"
+              + QString::number(client->peerPort())
+              + " .Encrypted : " + (client->isEncrypted() ? "yes" : "no"), Debug);
 
     _clients.append(client);
 }
@@ -137,19 +150,43 @@ iiServer::recivedMessage(iiNPack::Header header, QByteArray msg)
     iiClient * client = dynamic_cast<iiClient *>(sender());
     assert(client);
 
-    Q_EMIT logMessage("Recived message" + msg, Debug);
+    Q_EMIT logMessage("Recived message " + msg, Debug);
 
-    QByteArray pack = iiNPack::pack("Heelooo", iiNPack::PacketType::RESPONSE);
-    client->sendMessage(pack);
+    if (header.Size <= iiNPack::HeaderSize) {
+        Q_EMIT logMessage("Skipping header only package...", Debug);
+        return;
+    }
+
+    //check send stamp?
+    //add experation time?
+
+    using PacketType = iiNPack::PacketType;
+    using PacketLoadType = iiNPack::PacketLoadType;
+
+    switch (header.PacketType) {
+        case (quint8)PacketType::AUTORIZATION_REQUEST:
+            /* if (client->) */
+            break;
+        case (quint8)PacketType::ERROR_MESSAGE:
+            break;
+        case (quint8)PacketType::GET_REQUEST:
+            break;
+        case (quint8)PacketType::PUT_REQUEST:
+            break;
+        case (quint8)PacketType::RESPONSE:
+            break;
+    }
+
+    /* QByteArray pack = iiNPack::pack("Heelooo", iiNPack::PacketType::RESPONSE); */
+    /* client->sendMessage(pack); */
 }
 
 void
 iiServer::clientDisconnected()
 {
-    iiClient * client = dynamic_cast<iiClient *>(sender());
+    iiClient *client = dynamic_cast<iiClient *>(sender());
     assert(client);
 
-    Q_EMIT logMessage("Client disconnect: " + client->socket()->peerAddress().toString(), Debug);
-    _clients.removeOne(client);
-    delete client;
+    Q_EMIT logMessage("Client disconnect: " + client->peerAddress().toString(), Debug);
+    _clients.removeOne(client); //mem lack?
 }

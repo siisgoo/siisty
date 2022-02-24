@@ -2,57 +2,116 @@
 #include "General/iiNPack.hpp"
 #include "General/logger.hpp"
 
-SslClientBase::SslClientBase(QSslSocket * socket)
-    : _socket(socket)
+SslClientBase::SslClientBase(QSslSocket * socket, QObject * parent)
+    : QObject(parent),
+        _control(socket)
 {
-    connect(_socket, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
-    connect(_socket, SIGNAL(readyRead()), this, SLOT(dataAvailable()));
-    connect(_socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
+    connect(_control, SIGNAL(readyRead()), this, SLOT(dataAvailable()));
+
+    connect(_control, SIGNAL(connected()),    this, SIGNAL(connected()));
+    connect(_control, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
+    connect(_control, SIGNAL(encrypted()),    this, SIGNAL(encrypted()));
+
+    connect(_control, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
             this, SLOT(socketStateChanged(QAbstractSocket::SocketState)));
-    connect(_socket, SIGNAL(errorOccurred(QAbstractSocket::SocketError)),
+    connect(_control, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
+            this, SIGNAL(stateChanged(QAbstractSocket::SocketState)));
+
+    connect(_control, SIGNAL(errorOccurred(QAbstractSocket::SocketError)),
             this, SLOT(onSocketError(QAbstractSocket::SocketError)));
-    connect(_socket, SIGNAL(sslErrors(const QList<QSslError>&)), this,
-            SLOT(onSslErrors(const QList<QSslError>&)));
-}
+    connect(_control, SIGNAL(errorOccurred(QAbstractSocket::SocketError)),
+            this, SIGNAL(errorOccurred(QAbstractSocket::SocketError)));
 
-SslClientBase::SslClientBase()
-    : _socket(nullptr)
-{
-}
+    connect(_control, SIGNAL(sslErrors(const QList<QSslError>&)),
+            this, SLOT(onSslErrors(const QList<QSslError>&)));
+    connect(_control, SIGNAL(sslErrors(const QList<QSslError>&)),
+            this, SIGNAL(sslErrors(const QList<QSslError>&)));
 
-void
-SslClientBase::close()
-{
-    if (_socket) {
-        _socket->close();
-    }
-}
-
-//TODO
-void
-SslClientBase::setSocket(QSslSocket* socket)
-{
-    _socket = socket;
-    connect(_socket, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
-    connect(_socket, SIGNAL(readyRead()), this, SLOT(dataAvailable()));
-    connect(_socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
-            this, SLOT(socketStateChanged(QAbstractSocket::SocketState)));
-    connect(_socket, SIGNAL(errorOccurred(QAbstractSocket::SocketError)),
-            this, SLOT(onSocketError(QAbstractSocket::SocketError)));
-    connect(_socket, SIGNAL(sslErrors(const QList<QSslError>&)), this,
-            SLOT(onSslErrors(const QList<QSslError>&)));
+    connect(_control, SIGNAL(peerVerifyError(const QSslError &)), this, SIGNAL(peerVerifyError(const QSslError&)));
+    connect(_control, SIGNAL(proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *)),
+            this, SIGNAL(proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *)));
 }
 
 SslClientBase::~SslClientBase()
 {
-    if (_socket) {
-        delete _socket;
+    if (_control) {
+        delete _control;
     }
 }
+
+bool         SslClientBase::isValid() const      { return _control->isValid(); }
+QHostAddress SslClientBase::localAddress() const { return _control->localAddress(); }
+quint16      SslClientBase::localPort() const    { return _control->localPort(); }
+QHostAddress SslClientBase::peerAddress() const  { return _control->peerAddress(); }
+QString      SslClientBase::peerName() const     { return _control->peerName(); }
+quint16      SslClientBase::peerPort() const     { return _control->peerPort(); }
+
+void SslClientBase::disconnectFromHost() { _control->disconnectFromHost(); }
+
+void SslClientBase::connectToHost(
+    const QString &hostName, quint16 port,
+    QIODeviceBase::OpenMode openMode,
+    QAbstractSocket::NetworkLayerProtocol protocol)
+{
+    _control->connectToHost(hostName, port, openMode, protocol);
+}
+
+void SslClientBase::connectToHost(
+    const QHostAddress &address, quint16 port,
+    QIODeviceBase::OpenMode openMode)
+{
+    _control->connectToHost(address, port, openMode);
+}
+
+void SslClientBase::connectToHostEncrypted(
+    const QString &hostName, quint16 port,
+    QIODeviceBase::OpenMode mode,
+    QAbstractSocket::NetworkLayerProtocol protocol)
+{
+    _control->connectToHostEncrypted(hostName, port, mode, protocol);
+}
+
+void SslClientBase::connectToHostEncrypted(
+    const QString &hostName, quint16 port, const QString &sslPeerName,
+    QIODeviceBase::OpenMode mode,
+    QAbstractSocket::NetworkLayerProtocol protocol)
+{
+    _control->connectToHostEncrypted(hostName, port, sslPeerName, mode, protocol);
+}
+
+qint64  SslClientBase::bytesAvailable() const { return _control->bytesAvailable(); }
+qint64  SslClientBase::bytesToWrite() const   { return _control->bytesToWrite(); }
+
+/* bool waitForBytesWritten(int msecs = 30000) */
+/* bool waitForConnected(int msecs = 30000) */
+/* bool waitForDisconnected(int msecs = 30000) */
+/* bool waitForReadyRead(int msecs = 30000) */
+/* bool waitForEncrypted(int msecs = 30000) */
+
+bool SslClientBase::isEncrypted() const { return _control->isEncrypted(); }
+
+void SslClientBase::setLocalCertificate(const QSslCertificate &certificate)               { _control->setLocalCertificate(certificate); }
+void SslClientBase::setLocalCertificate(const QString &path, QSsl::EncodingFormat format) { _control->setLocalCertificate(path, format); }
+void SslClientBase::setLocalCertificateChain(const QList<QSslCertificate> &localChain)    { _control->setLocalCertificateChain(localChain); }
+void SslClientBase::setPeerVerifyDepth(int depth)                                         { _control->setPeerVerifyDepth(depth); }
+void SslClientBase::setPeerVerifyMode(QSslSocket::PeerVerifyMode mode)                    { _control->setPeerVerifyMode(mode); }
+void SslClientBase::setPeerVerifyName(const QString &hostName)                            { _control->setPeerVerifyName(hostName); }
+void SslClientBase::setPrivateKey(const QSslKey &key)                                     { _control->setPrivateKey(key); }
+void SslClientBase::setPrivateKey(const QString &fileName,
+                   QSsl::KeyAlgorithm algorithm,
+                   QSsl::EncodingFormat format,
+                   const QByteArray &passPhrase)                                          { _control->setPrivateKey(fileName, algorithm, format, passPhrase); }
+void SslClientBase::setProtocol(QSsl::SslProtocol protocol)                               { _control->setProtocol(protocol); }
+void SslClientBase::setSslConfiguration(const QSslConfiguration &configuration)           { _control->setSslConfiguration(configuration); }
+void SslClientBase::ignoreSslErrors()                                                     { _control->ignoreSslErrors(); }
+void SslClientBase::startClientEncryption()                                               { _control->startClientEncryption(); }
+void SslClientBase::startServerEncryption()                                               { _control->startServerEncryption(); }
 
 void
 SslClientBase::sendMessage(QByteArray data)
 {
+    Q_EMIT logMessage("Sending data...", Debug);
+
     QDataStream io(&data, QIODevice::ReadOnly);
 
     QByteArray header(iiNPack::HeaderSize, 0);
@@ -69,83 +128,50 @@ SslClientBase::sendMessage(QByteArray data)
 void
 SslClientBase::sendData(const QByteArray& _messageHeader, const QByteArray& _data)
 {
-    if (_socket) {
-        qint64 header_write = _socket->write(_messageHeader);
+    qint64 header_write = _control->write(_messageHeader);
 
-        if (header_write == _messageHeader.length()) {
-            qint64 data_write = _socket->write(_data);
+    if (header_write == _messageHeader.length()) {
+        qint64 data_write = _control->write(_data);
 
-        } else {
-            Q_EMIT logMessage(
-                tr("DEBUG: Failed to write message header. Only wrote %1 bytes")
-                    .arg(header_write), Debug);
-        }
+    } else {
+        Q_EMIT logMessage(
+            tr("DEBUG: Failed to write message header. Only wrote %1 bytes")
+                .arg(header_write), Debug);
     }
 }
 
 void
 SslClientBase::dataAvailable()
 {
-    if (_socket) {
-        const size_t header_size = iiNPack::HeaderSize;
-        QDataStream io(_socket);
+    const size_t header_size = iiNPack::HeaderSize;
+    QDataStream io(_control);
 
-        if (_socket->bytesAvailable() > header_size)
+    Q_EMIT logMessage("Recived some data...", Debug);
+    if (this->bytesAvailable() > header_size)
+    {
+        iiNPack::Header header;
+        io >> header.Size >>
+            header.SendStamp >>
+            header.PacketType >>
+            header.PacketLoadType;
+        if ((quint32)this->bytesAvailable() >= header.Size-iiNPack::HeaderSize)
         {
-            iiNPack::Header header;
-            io >> header.Size >>
-                header.SendStamp >>
-                header.PacketType >>
-                header.PacketLoadType;
-            if ((quint32)_socket->bytesAvailable() >= header.Size-iiNPack::HeaderSize)
-            {
-                QByteArray message(header.Size-iiNPack::HeaderSize, 0);
-                io.readRawData(message.data(), message.size());
+            QByteArray message(header.Size-iiNPack::HeaderSize, 0);
+            io.readRawData(message.data(), message.size());
 
-                Q_EMIT logMessage(tr("DEBUG: Recived Message"), Debug);
-                Q_EMIT recivedMessage(header, message);
-            }
-            else
-            {
-                Q_EMIT logMessage(tr("DEBUG: Failed to read message "
-                             "header. Only read %1 bytes").arg(header.Size-iiNPack::HeaderSize), Debug);
-            }
+            Q_EMIT logMessage(tr("DEBUG: Recived Message"), Debug);
+            Q_EMIT recivedMessage(header, message);
         }
         else
         {
-            Q_EMIT logMessage(tr("DEBUG: Recived unhendled data packet"), Debug);
+            Q_EMIT logMessage(tr("DEBUG: Failed to read message "
+                         "header. Only read %1 bytes").arg(header.Size-iiNPack::HeaderSize), Debug);
         }
     }
-}
-
-QSslSocket *
-SslClientBase::socket()
-{
-    return _socket;
-}
-
-const QSslKey&
-SslClientBase::privateKey() const
-{
-    return _sslKey;
-}
-
-void
-SslClientBase::setPrivateKey(const QSslKey& key)
-{
-    _sslKey = key;
-}
-
-const QSslCertificate&
-SslClientBase::localCertificate() const
-{
-    return _sslCertificate;
-}
-
-void
-SslClientBase::setLocalCertificate(const QSslCertificate& certificate)
-{
-    _sslCertificate = certificate;
+    else
+    {
+        Q_EMIT logMessage(tr("DEBUG: Recived unhendled data packet"), Debug);
+    }
 }
 
 void

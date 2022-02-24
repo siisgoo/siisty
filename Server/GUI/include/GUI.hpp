@@ -33,7 +33,16 @@ class GUI : public QMainWindow
         void setupLogger();
         void setupServer();
 
-        ~GUI();
+        void setForseUseSsl(bool);
+        void setSslCertificatesPath(QString&, QString&, QString&);
+        void setServeAddress(QHostAddress& add, quint16 port);
+        void setLoggingLeve(int);
+        void setLogPath(QString&);
+        void setDefaultPage(QString&);
+        void setMaxThreads(int);
+        void setMaxPendingConnections(int);
+
+        virtual ~GUI();
 
     Q_SIGNALS:
         void send_to_log(QString, int);
@@ -51,10 +60,8 @@ class GUI : public QMainWindow
         void logMessage(QString, int);
 
     private:
-        void applyConfig(const QString& path);
-
         QHostAddress _serveAddress;
-        quint16      _serverPort;
+        quint16      _servePort;
 
         QThread    _serverThread;
         iiServer * _server;
@@ -62,6 +69,7 @@ class GUI : public QMainWindow
         QThread   _loggingThread;
         logger  * _log;
 
+        QWidget * _defaultPage = nullptr;
         QWidget * _cur_page = nullptr;
         QLabel  * _listenIndicator;
         Ui::GUI * ui;

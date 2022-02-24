@@ -22,8 +22,7 @@ iiNPack::pack(const QByteArray& load, const PacketType type)
     out.device()->seek(0);
     out << (quint32)(packet.size());
 
-    qDebug() << QString::number(iiNPack::HeaderSize);
-    qDebug() << QString::number((quint32)(packet.size() - sizeof(quint32)));
+    qDebug() << QString::number((quint32)(packet.size()));
 
     return packet;
 }

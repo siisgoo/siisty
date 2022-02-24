@@ -25,6 +25,12 @@ class logger: public QObject
         logger(int level, QString filename, QObject* parent=nullptr);
         virtual ~logger();
 
+        int loggingLevel() const;
+        void setLoggingLevel(int);
+
+        QString logPath() const;
+        void setLogPath(QString);
+
     public Q_SLOTS:
         void logMessage(QString _message, int level);
 
@@ -34,6 +40,9 @@ class logger: public QObject
         void logWarning(QString _message);
         void logError(QString   _message);
         void logFatal(QString   _message);
+
+    private:
+        void openLogFile();
 
     protected:
         void write(const QString& msg);

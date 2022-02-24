@@ -17,9 +17,15 @@ class iiServer : public QObject {
         explicit iiServer(QObject * p = nullptr);
         ~iiServer();
 
+        bool isListening() const;
+
         // Slots to receive signals from UI
         void ToggleStartStopListening(const QHostAddress &address = QHostAddress::Any, quint16 port = 0);
         void LoadCertificates(const QString& certPath, const QString& keyPath);
+
+        int maxPendingConnections() const;
+        void setMaxPendingConnections(int);
+        void setForseUseSsl(bool);
 
     Q_SIGNALS:
         void logMessage(QString, int);
@@ -37,10 +43,13 @@ class iiServer : public QObject {
 
         /* void pauseListening(); */
 
-        private:
-        QString            _key;
-        QString            _certificate;
-        SslServer          _server;
+    private:
+        QHostAddress _address;
+        quint16 _port;
+
+        QString          _key;
+        QString          _certificate;
+        SslServer        _server;
         QList<iiClient *> _clients;
 
         bool _forseUseSsl = false;

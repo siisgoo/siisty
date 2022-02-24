@@ -51,7 +51,6 @@ target_link_libraries(
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Core
     PUBLIC
-        # QLedIndicator
         SslServer
         General
 )

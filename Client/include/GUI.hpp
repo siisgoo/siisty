@@ -10,7 +10,7 @@
 
 #include "General/logger.hpp"
 #include "General/iiNPack.hpp"
-#include "Manager.hpp"
+#include "Service.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class GUI; }
@@ -27,10 +27,6 @@ class userInterface : public QMainWindow
     public Q_SLOTS:
         void recivedMessage(iiNPack::Header, QByteArray);
 
-        void startService();
-        void stopService();
-        void logMessage(QString _message);
-
         void onSendMessageClicked();
 
         void on_actionLoginTriggered();
@@ -38,19 +34,19 @@ class userInterface : public QMainWindow
 
         void on_connetedToServer();
         void on_disconnetedFromServer();
-            // on socket connected/encrypted
 
         void on_logined();
         void on_login_failed();
         void on_logouted();
 
+        void logMessage(QString _message, int);
+
     Q_SIGNALS:
-        void start_service();
-        void stop_service();
-        void send_to_log(QString _message);
+        void send_to_log(QString message, int level);
 
     private:
         void applyConfig();
+        void adjustUi();
         void setupLogger();
         void setupService();
 
@@ -61,8 +57,13 @@ class userInterface : public QMainWindow
         QThread   _serviceThread;
         Service * _service;
 
+        QHostAddress _serverAddress;
+        quint16      _serverPort;
+
         QString _login;
         QString _password;
+
+        bool _forseUseSsl = false;
 
         Ui::GUI * ui;
 };
