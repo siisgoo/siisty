@@ -54,7 +54,8 @@ struct iiNPack {
     static QByteArray packError(const QString& errDesc, const ResponseError err);
         // package creators
 
-    static Header unpack(QByteArray& input, QByteArray& res);
+    static Header unpackHeader(QDataStream& input);
+    static QByteArray unpackLoad(Header, QDataStream& input);
     static ResponseError extractErrno(const QByteArray& load);
     static QString extractErrStr(const QByteArray& load);
 

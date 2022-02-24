@@ -1,8 +1,6 @@
 #include "Pages/ServerInfoPage.hpp"
 #include "ui_ServerInfoPage.h"
 
-#include "SslServer/SslServerManager.hpp"
-
 #include <QTimer>
 #include <QDateTime>
 
@@ -36,18 +34,17 @@ ServerInfoPage::updateOnlineTime()
 }
 
 void
-ServerInfoPage::onServerListningStateChanged(bool listening)
+ServerInfoPage::onServerListningStateChanged(QHostAddress address, quint16 port, bool listening)
 {
-    SslServerManager * manager = (SslServerManager*)sender();
     if (listening) {
         _startTime = QTime::currentTime();
         _timer->start(1000);
-        ui->server_port_edit->setText(QString::number(manager->getPort()));
-        ui->label_server_status->setText("Listening");
+        ui->server_port_edit->setText(QString::number(port));
+        ui->label_server_status->setText(tr("Listening"));
     } else {
         _timer->stop();
-        ui->server_port_edit->setText(QString::number(manager->getPort()));
-        ui->label_server_status->setText("Offline");
+        ui->server_port_edit->setText(QString::number(port));
+        ui->label_server_status->setText(tr("Offline"));
         ui->label_online_time->setText("h : m : s");
     }
 }

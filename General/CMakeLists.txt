@@ -40,6 +40,7 @@ target_link_libraries(
     PRIVATE
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Network
+        Qt${QT_VERSION_MAJOR}::Widgets
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)

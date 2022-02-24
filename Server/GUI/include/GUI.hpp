@@ -1,6 +1,8 @@
 #ifndef SERVERMANAGER_H
 #define SERVERMANAGER_H
 
+#include <QThread>
+#include <QLabel>
 #include <QStatusBar>
 #include <QListWidget>
 #include <QFileInfo>
@@ -13,11 +15,8 @@
 #include "Pages/DataUsagePage.hpp"
 #include "Pages/SystemLoadPage.hpp"
 
-#include "QLedIndicator/QLedIndicator.hpp"
-
 #include "General/logger.hpp"
-#include "General/SslSocketManager.hpp"
-#include "SslServer/SslServerManager.hpp"
+#include "SslServer/iiServer.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class GUI; }
@@ -30,40 +29,41 @@ class GUI : public QMainWindow
     public:
         GUI(QWidget *parent = nullptr);
 
-        void setup();
         void adjustUi();
+        void setupLogger();
         void setupServer();
 
         ~GUI();
 
     Q_SIGNALS:
-        void send_to_log(QString);
+        void send_to_log(QString, int);
 
     private Q_SLOTS:
         void onItemClicked(const QModelIndex&);
             // change page
 
-        void changeLedState(bool listening);
-
-        void logMessage(QString);
-
+        void on_listeningStateChanged(QHostAddress, quint16, bool);
         void on_actionQuit_triggered();
         void on_actionStart_server_triggered();
         void on_actionStop_server_triggered();
 
-    private:
-        void connect_db(const QString& path);
-        void apply_config(const QString& path);
+        void changeIndicatorState(QHostAddress, quint16, bool);
+        void logMessage(QString, int);
 
-        QThread             _managerThread;
-        ptrSslServerManager _manager;
+    private:
+        void applyConfig(const QString& path);
+
+        QHostAddress _serveAddress;
+        quint16      _serverPort;
+
+        QThread    _serverThread;
+        iiServer * _server;
+
+        QThread   _loggingThread;
+        logger  * _log;
 
         QWidget * _cur_page = nullptr;
-
-        QThread _loggingThread;
-        logger  _log;
-
-        QLedIndicator * _led;
-        Ui::GUI       * ui;
+        QLabel  * _listenIndicator;
+        Ui::GUI * ui;
 };
 #endif // SERVERMANAGER_H

@@ -1,6 +1,7 @@
 #ifndef SERVER_INFO_H
 #define SERVER_INFO_H
 
+#include <QHostAddress>
 #include <QWidget>
 #include <QTimer>
 #include <QDateTime>
@@ -16,7 +17,7 @@ class ServerInfoPage : public QWidget {
 
     private slots:
         void updateOnlineTime();
-        void onServerListningStateChanged(bool);
+        void onServerListningStateChanged(QHostAddress, quint16, bool);
 
 
 private:

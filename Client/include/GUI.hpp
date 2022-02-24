@@ -8,8 +8,8 @@
 #include <QTextEdit>
 #include <QThread>
 
-#include "iiNetworkPacket/iiNetworkPacket.hpp"
 #include "General/logger.hpp"
+#include "General/iiNPack.hpp"
 #include "Manager.hpp"
 
 QT_BEGIN_NAMESPACE
@@ -22,10 +22,10 @@ class userInterface : public QMainWindow
 
     public:
         userInterface(QWidget *parent = NULL);
-        virtual ~userInterface();
 
+        virtual ~userInterface();
     public Q_SLOTS:
-        void receivedMessage(QByteArray);
+        void recivedMessage(iiNPack::Header, QByteArray);
 
         void startService();
         void stopService();
@@ -36,22 +36,33 @@ class userInterface : public QMainWindow
         void on_actionLoginTriggered();
         void on_actionLogoutTriggered();
 
+        void on_connetedToServer();
+        void on_disconnetedFromServer();
+            // on socket connected/encrypted
+
+        void on_logined();
+        void on_login_failed();
+        void on_logouted();
+
     Q_SIGNALS:
         void start_service();
         void stop_service();
         void send_to_log(QString _message);
 
+    private:
+        void applyConfig();
+        void setupLogger();
+        void setupService();
+
     protected:
-        void connectToServer();
+        QThread   _loggingThread;
+        logger  * _log;
 
-        QThread loggingThread;
-        logger log;
+        QThread   _serviceThread;
+        Service * _service;
 
-        QThread serviceThread;
-        Manager _manager;
-
-        QHostAddress _serverAddress;
-        quint16 _serverPort;
+        QString _login;
+        QString _password;
 
         Ui::GUI * ui;
 };

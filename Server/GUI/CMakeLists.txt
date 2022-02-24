@@ -7,7 +7,7 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/src/Ui)
 #  finding sources  #
 #####################
 
-add_subdirectory(QLedIndicator)
+# add_subdirectory(QLedIndicator)
 
 set(SRCS "")
 
@@ -51,7 +51,7 @@ target_link_libraries(
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Core
     PUBLIC
-        QLedIndicator
+        # QLedIndicator
         SslServer
         General
 )

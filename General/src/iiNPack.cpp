@@ -1,4 +1,4 @@
-#include "iiNetworkPacket/iiNetworkPacket.hpp"
+#include "General/iiNPack.hpp"
 #include "General/logger.hpp"
 
 const qsizetype iiNPack::HeaderSize =
@@ -9,17 +9,21 @@ const qsizetype iiNPack::HeaderSize =
 QByteArray
 iiNPack::pack(const QByteArray& load, const PacketType type)
 {
-    QByteArray packet(0);
+    QByteArray packet(iiNPack::HeaderSize + load.size(), 0);
     QDataStream out(&packet, QIODevice::WriteOnly);
 
     out << (quint32)0 <<
         (qint64)QDateTime::currentDateTimeUtc().toSecsSinceEpoch() <<
         (quint8)type <<
-        (quint8)PacketLoadType::JSON <<
-        load;
+        (quint8)PacketLoadType::JSON;
+
+    out.writeRawData(load.data(), load.size());
 
     out.device()->seek(0);
-    out << (quint32)(packet.size() - sizeof(quint32));
+    out << (quint32)(packet.size());
+
+    qDebug() << QString::number(iiNPack::HeaderSize);
+    qDebug() << QString::number((quint32)(packet.size() - sizeof(quint32)));
 
     return packet;
 }
@@ -35,29 +39,31 @@ iiNPack::packError(const QString& errDesc, const ResponseError err)
 }
 
 iiNPack::Header
-iiNPack::unpack(QByteArray& input, QByteArray& res)
+iiNPack::unpackHeader(QDataStream& io)
 {
-    QDataStream io(&input, QIODevice::ReadOnly);
+    io.device()->seek(0);
     Header header;
     std::memset(&header, 0, HeaderSize);
-
-    if (input.size() < sizeof(quint32)) {
-        //log
-        return header;
-    } else if (input.size() < HeaderSize) {
-        //log
-        return header;
-    }
 
     io >> header.Size >>
         header.SendStamp >>
         header.PacketType >>
         header.PacketLoadType;
 
-    //work?
-    io >> res;
+    io.device()->seek(0);
 
     return header;
+}
+
+QByteArray
+iiNPack::unpackLoad(Header header, QDataStream& io)
+{
+    QByteArray load(header.Size - iiNPack::HeaderSize, 0);
+
+    io.device()->seek(iiNPack::HeaderSize);
+    io.readRawData(load.data(), load.size());
+
+    return load;
 }
 
 iiNPack::ResponseError

@@ -1,6 +1,8 @@
 #ifndef DATABASE_HPP_DP4AIHQZ
 #define DATABASE_HPP_DP4AIHQZ
 
+#include <QSqlDatabase>
+
 /*
  * Defenitions to work with data base
  */

@@ -6,17 +6,12 @@
 GUI::GUI(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::GUI),
-        _manager(new SslServerManager()),
-        _log("siisty", nullptr)
+        _serveAddress("127.0.0.1"),
+        _serverPort(9000)
 {
     ui->setupUi(this);
 
-    connect(this, SIGNAL(send_to_log(QString)), &_log, SLOT(logMessage(QString)));
-    _log.moveToThread(&_loggingThread);
-    _loggingThread.start();
-
-    apply_config("");
-    connect_db("");
+    applyConfig("");
     adjustUi();
     setupServer();
 }
@@ -24,18 +19,16 @@ GUI::GUI(QWidget *parent)
 GUI::~GUI()
 {
     _loggingThread.quit();
-    _loggingThread.wait();
+    _serverThread.quit();
 
-    delete _manager;
-    delete _led;
+    _loggingThread.wait();
+    _serverThread.wait();
+
+    delete _server;
+    delete _log;
+    delete _listenIndicator;
     delete ui;
 }
-
-void
-GUI::setup()
-{
-}
-    //remove it
 
 void
 GUI::adjustUi()
@@ -55,26 +48,36 @@ GUI::adjustUi()
     ui->page_view->setCurrentWidget(l_ServerInfoPage);
         // TODO add variant from confing
 
-    connect(_manager, SIGNAL(listenStateChanged(bool)), l_ServerInfoPage, SLOT(onServerListningStateChanged(bool)));
+    connect(_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
+            l_ServerInfoPage, SLOT(onServerListningStateChanged(QHostAddress, quint16, bool)));
 
-    connect(_manager, SIGNAL(listenStateChanged(bool)), this, SLOT(changeLedState(bool)));
+    connect(_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
+            this, SLOT(changeIndicatorState(QHostAddress, quint16, bool)));
+    connect(_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
+            this, SLOT(on_listeningStateChanged(QHostAddress, quint16, bool)));
 
-    _led = new QLedIndicator("", QLedIndicator::LabelPosition::Hide);
-    _led->setLedSize(10);
-    _led->setText("");
-    _led->setLedState(QLedIndicator::LedState::Inactive);
-    ui->statusbar->setMinimumSize(QSize(0, 20));
-    ui->statusbar->addPermanentWidget(_led);
+    _listenIndicator = new QLabel("Offline");
+    ui->statusbar->addPermanentWidget(_listenIndicator);
     ui->statusbar->showMessage("Initializing", 1000);
-    _led->setStyleSheet(""); //erase
 
     ui->actionStop_server->setEnabled(false);
 }
 
 void
+GUI::setupLogger()
+{
+    _log = new logger(Trace, "sIIsTy-Server", nullptr);
+    connect(this, SIGNAL(send_to_log(QString, int)), _log, SLOT(logMessage(QString, int)));
+    _log->moveToThread(&_loggingThread);
+    _loggingThread.start();
+}
+
+void
 GUI::setupServer()
 {
-    connect(_manager, SIGNAL(logMessage(QString)), this, SLOT(logMessage(QString)));
+    _server = new iiServer(nullptr);
+
+    connect(_server, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)));
     /* connect(_server, SIGNAL(clientConnected(const Server::Client*)),    this,                SLOT(onClientConnected(const Server::Client*))); */
     /* connect(_server, SIGNAL(clientDisconnected(const Server::Client*)), this,                SLOT(onClientDisconnected(const Server::Client*))); */
     /* connect(_server, SIGNAL(requestRecived(const Server::Client*,       const QByteArray&)), this, SLOT(on_requestRecived(const Server::Client*, const QByteArray&))); */
@@ -83,27 +86,13 @@ GUI::setupServer()
     /* connect(_server, SIGNAL(clientSslError(const Server::Client*, const QSslError&)),                this, SLOT(on_clientSslError(const Server::Client*, const QSslError&))); */
     /* connect(_server, SIGNAL(clientSslError(const Server::Client*, const QList<QSslError>&)),         this, SLOT(on_clientSslError(const Server::Client*, const QList<QSslError>&))); */
         // Errors
+    _server->moveToThread(&_serverThread);
+    _serverThread.start();
 }
 
 void
-GUI::connect_db(const QString& path)
+GUI::applyConfig(const QString& path)
 {
-    if (QFileInfo::exists(path)) {
-
-    } else {
-
-    }
-}
-
-void
-GUI::apply_config(const QString& path)
-{
-    /* _server->setHost(QHostAddress("127.0.0.1")); */
-    /* _server->setPort(8080); */
-    /* _server->setSslLocalCertificate("red_local.pem"); */
-    /* _server->setSslPrivateKey("red_local.key"); */
-    /* _server->setSslProtocol(QSsl::TlsV1_2); */
-        // TLS setup
 }
 
 void
@@ -113,12 +102,24 @@ GUI::onItemClicked(const QModelIndex& model)
 }
 
 void
-GUI::changeLedState(bool listening)
+GUI::changeIndicatorState(QHostAddress address, quint16 port, bool listening)
 {
     if (listening) {
-        _led->setLedState(QLedIndicator::LedState::Active);
+        _listenIndicator->setText(tr("Listening"));
     } else {
-        _led->setLedState(QLedIndicator::LedState::Inactive);
+        _listenIndicator->setText(tr("Offline"));
+    }
+}
+
+void
+GUI::on_listeningStateChanged(QHostAddress dummy, quint16 dummy1, bool listening)
+{
+    if (listening) {
+        ui->actionStop_server->setEnabled(true);
+        ui->actionStart_server->setEnabled(false);
+    } else {
+        ui->actionStop_server->setEnabled(false);
+        ui->actionStart_server->setEnabled(true);
     }
 }
 
@@ -133,22 +134,17 @@ GUI::on_actionQuit_triggered()
 void
 GUI::on_actionStart_server_triggered()
 {
-    ui->actionStop_server->setEnabled(true);
-    ui->actionStart_server->setEnabled(false);
-    _manager->start_service();
+    _server->ToggleStartStopListening(_serveAddress, _serverPort);
 }
 
 void GUI::on_actionStop_server_triggered()
 {
-    ui->actionStop_server->setEnabled(false);
-    ui->actionStart_server->setEnabled(true);
-    _manager->stop_service();
+    _server->ToggleStartStopListening(_serveAddress, _serverPort);
 }
 
 void
-GUI::logMessage(QString str)
+GUI::logMessage(QString str, int level)
 {
-    /* if () */
-
-    Q_EMIT send_to_log(str);
+    ui->loggingOutput->append(str);
+    Q_EMIT send_to_log(str, level);
 }
