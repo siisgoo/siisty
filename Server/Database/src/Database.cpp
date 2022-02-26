@@ -21,9 +21,6 @@ namespace Database {
     };
 #undef XX
 
-#undef Q
-#undef QUOTE
-
 QSqlError
 initDb(const QString& path)
 {
