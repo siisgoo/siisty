@@ -32,13 +32,14 @@ enum class Weekdays {
     Sunday,
 };
 
+#include <array>
 class Human;
 using HumanVector = QVector<Human>;
-using WeekVector = QVector<Weekdays>;
+using Week = Weekdays[7];
 
 // presets
 struct Weekends {
-    static WeekVector five_on_two; //{Weekdays::Saturday, Weekdays::Sunday};
+    static Week five_on_two; //{Weekdays::Saturday, Weekdays::Sunday};
 };
 
 enum class PrivilegiesOperations : int {
@@ -182,7 +183,7 @@ class Contract : TableEntry {
     QString     _wayPoint;
     QDate       _startDate;
     QDate       _experationData;
-    WeekVector  _weekends;
+    Week  _weekends;
 
     public:
         virtual bool fetch(QVariant);
@@ -191,19 +192,19 @@ class Contract : TableEntry {
         static Contract create(Human& employee, Human& customer, ObjectType& ot,
                                QString& address, QDate experation,
                                QDate start = QDate::currentDate(),
-                               WeekVector weekends = Weekends::five_on_two,
+                               Week weekends = Weekends::five_on_two,
                                int id = -1);
         static Contract create(HumanVector& employees, Human& customer,
                                ObjectType& ot, QString& address,
                                QDate experation,
                                QDate start = QDate::currentDate(),
-                               WeekVector weekends = Weekends::five_on_two,
+                               Week weekends = Weekends::five_on_two,
                                int id = -1);
         static Contract create(HumanVector& employees, Human& customer,
                                ObjectType& ot, QString& address,
                                QString& wayPoint, QDate experation,
                                QDate start = QDate::currentDate(),
-                               WeekVector weekends = Weekends::five_on_two,
+                               Week weekends = Weekends::five_on_two,
                                int id = -1);
 
         int id() const;
@@ -214,7 +215,7 @@ class Contract : TableEntry {
         QString& wayPoint() const;
         QDate& startDate() const;
         QDate& experationDate() const;
-        WeekVector weekends() const;
+        Week weekends() const;
 };
 
 class Accident : public TableEntry {
@@ -262,16 +263,16 @@ class AccountingEntry : public TableEntry {
 // contain all days of one employee
 class DutySchedule :public TableEntry {
     Human _employee;
-    WeekVector _workdays;
+    Week _workdays;
 
     public:
         virtual bool fetch(QVariant); //by employee
         virtual bool update();
 
-        static DutySchedule create(Human& employee, WeekVector workdays);
+        static DutySchedule create(Human& employee, Week workdays);
 
         Human& employee() const;
-        WeekVector& workdays() const;
+        Week& workdays() const;
 };
 
 using ptrTableEntry = QPointer<TableEntry>;
