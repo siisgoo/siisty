@@ -114,6 +114,7 @@ GUI::setupDatabase()
     try {
         _database = new Database::SQLite(_settings.databasePath, nullptr);
         connect(_database, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)));
+        connect(_database, SIGNAL(failed(Database::CmdError)), this, SLOT(on_databaseError(Database::CmdError)));
     } catch (QSqlError e) {
         QString error = "Error in statment: " + e.databaseText() +
             "\nError type: " + QString::number(e.type()) +
@@ -174,6 +175,12 @@ GUI::on_actionQuit_triggered()
 void GUI::on_actionToggle_server_triggered()
 {
     _server->ToggleStartStopListening(_settings.serveAddress, _settings.servePort);
+}
+
+void
+GUI::on_databaseError(Database::CmdError err)
+{
+    Q_EMIT logMessage(err.String(), LoggingLevel::Error);
 }
 
 void

@@ -5,44 +5,69 @@
 #include <QJsonDocument>
 #include <QRunnable>
 
+namespace Database {
+
 #define COMMANDS_ERRNO_MAP(XX) \
     XX( 0, OK,             "Success" )                   \
     XX( 1, InvalidParam,   "Invalid command parameter" ) \
     XX( 2, AccessDenied,   "Access denied" )             \
     XX( 3, InvalidCommand, "Invalid command passed" )    \
+    XX( 4, MiscError,      "Misc error" )                \
+    XX( 5, SQLError,       "SQL Query Error" )           \
 
-namespace Database {
+class CmdError {
+    public:
+        #define XX(id, name, str) name = id,
+            enum ErrorNo {
+                COMMANDS_ERRNO_MAP(XX)
+            };
+        #undef XX
 
-    using command_exec_t = std::function<int(QJsonObject&)>;
+        CmdError(); //mean no error
+        CmdError(CmdError::ErrorNo, QString = "");
 
-    int exec_make_contract(QJsonObject& d);
-    int exec_make_duty_schedule(QJsonObject& d);
-    int exec_register_accident(QJsonObject& d);
-    int exec_register_employee(QJsonObject& d);
-    int exec_register_customer(QJsonObject& d);
-    int exec_register_object_type(QJsonObject& d);
-    int exec_register_wapon(QJsonObject& d);
-    int exec_assign_wapon(QJsonObject& d);
-    int exec_pay_ammo(QJsonObject& d);
-    int exec_pay_employee(QJsonObject& d);
-    int exec_pay_accident(QJsonObject& d);
-    int exec_add_object_type(QJsonObject& d);
-    int exec_edit_object_type(QJsonObject& d);
-    int exec_update_role(QJsonObject& d);
-    int exec_get_employee_entry(QJsonObject& d);
-    int exec_get_customer_entry(QJsonObject& d);
-    int exec_get_accident_details(QJsonObject& d);
-    int exec_get_accounting_entry(QJsonObject& d);
-    int exec_get_object_detalils(QJsonObject& d);
-    int exec_get_role_details(QJsonObject& d);
-    int exec_get_wapon_details(QJsonObject& d);
-    int exec_get_duty_schedule(QJsonObject& d);
-        // mean validate and execute
-        // on success return 0 or CommandErrno::OK
-        // on faild return error number
+        bool Ok();
 
-    /* int exec_do_payment(); */
-    /* int exec_ */
+        int Type();
+        QString String();
+        QString Name();
+        QString Details();
+
+    private:
+        CmdError::ErrorNo _errno;
+        QString _details;
+};
+
+using command_exec_t = std::function<CmdError(QJsonObject&)>;
+
+CmdError exec_make_contract(QJsonObject& d);
+CmdError exec_make_duty_schedule(QJsonObject& d);
+CmdError exec_register_accident(QJsonObject& d);
+CmdError exec_register_employee(QJsonObject& d);
+CmdError exec_register_customer(QJsonObject& d);
+CmdError exec_register_object_type(QJsonObject& d);
+CmdError exec_register_wapon(QJsonObject& d);
+CmdError exec_assign_wapon(QJsonObject& d);
+CmdError exec_pay_ammo(QJsonObject& d);
+CmdError exec_pay_employee(QJsonObject& d);
+CmdError exec_pay_accident(QJsonObject& d);
+CmdError exec_add_object_type(QJsonObject& d);
+CmdError exec_edit_object_type(QJsonObject& d);
+CmdError exec_update_role(QJsonObject& d);
+CmdError exec_get_employee_entry(QJsonObject& d);
+CmdError exec_get_customer_entry(QJsonObject& d);
+CmdError exec_get_accident_details(QJsonObject& d);
+CmdError exec_get_accounting_entry(QJsonObject& d);
+CmdError exec_get_object_detalils(QJsonObject& d);
+CmdError exec_get_role_details(QJsonObject& d);
+CmdError exec_get_wapon_details(QJsonObject& d);
+CmdError exec_get_duty_schedule(QJsonObject& d);
+    // mean validate and execute
+    // on success return 0 or CommandErrno::OK
+    // on faild return error number
+
+/* int exec_do_payment(); */
+/* int exec_ */
 
 // id, name, executor, sendback
 #define COMMANDS_MAP(XX) \
@@ -73,12 +98,6 @@ namespace Database {
     enum class CommandId {
         COMMANDS_MAP(XX)
         COMMANDS_COUNT
-    };
-#undef XX
-
-#define XX(id, name, str) name = id,
-    enum class CommandErrno {
-        COMMANDS_ERRNO_MAP(XX)
     };
 #undef XX
 

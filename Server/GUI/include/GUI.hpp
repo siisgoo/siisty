@@ -38,7 +38,7 @@ struct Settings {
 
     QString databasePath = "./database.db";
 
-    int logginLeve = LoggingLevel::Debug;
+    int logginLeve = LoggingLevel::Trace;
     QString logFile = "./log";
 
     QString defultPage = "Server Info";
@@ -69,6 +69,8 @@ class GUI : public QMainWindow
         void on_listeningStateChanged(QHostAddress, quint16, bool);
         void on_actionQuit_triggered();
         void on_actionToggle_server_triggered();
+
+        void on_databaseError(Database::CmdError);
 
         void changeIndicatorState(QHostAddress, quint16, bool);
         void logMessage(QString, int = LoggingLevel::Trace);

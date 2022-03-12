@@ -3,18 +3,19 @@
 
 // id, name, base price
 #define OBJECT_TYPE_MAP(XX) \
-    XX( 0, JOB_ADMIN,        0 ) \
-    XX( 1, JOB_ECURITY,      0 ) \
-    XX( 2, JOB_NKOSOR,       0 ) \
-    XX( 3, JOB_APON_MANAGER, 0 ) \
-    XX( 4, JOB_ECRUTER,      0 ) \
-    XX( 5, GUARD_HOUSE,      0 ) \
-    XX( 6, GUARD_OFFICE,     0 ) \
-    XX( 7, INKOS_MONEY,      0 ) \
+    XX( 0, JOB_ADMIN,         10000 ) \
+    XX( 1, JOB_SECURITY,      20000 ) \
+    XX( 2, JOB_INKOSOR,       15000 ) \
+    XX( 3, JOB_WAPON_MANAGER, 30000 ) \
+    XX( 4, JOB_RECRUTER,      20000 ) \
+    XX( 5, GUARD_HOUSE,       20000 ) \
+    XX( 6, GUARD_OFFICE,      10000 ) \
+    XX( 7, INKOS_MONEY,       30000 ) \
 
 #define XX(id, name, price) name = id,
     enum class ObjectType {
         OBJECT_TYPE_MAP(XX)
+        COUNT,
     };
 #undef XX
 

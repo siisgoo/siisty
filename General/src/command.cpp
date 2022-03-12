@@ -1,12 +1,63 @@
 #include "Database/command.hpp"
 #include "Database/Utility.hpp"
 
+#include <QtSql>
+
 #include <exception>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonValue>
 
 namespace Database {
+
+#define XX(id, name, desc) { QUOTE(name), QUOTE(desc) },
+    static struct CommandErrorDesc_t {
+        const char * name;
+        const char * desc;
+    } const CommandErrorDesc[] {
+        COMMANDS_ERRNO_MAP(XX)
+    };
+#undef XX
+
+CmdError::CmdError()
+    : CmdError(CmdError::ErrorNo::OK, "Success")
+{
+}
+
+CmdError::CmdError(CmdError::ErrorNo error_n, QString details)
+    : _errno(error_n), _details(details)
+{
+}
+
+bool
+CmdError::Ok()
+{
+    return _errno == OK;
+}
+
+int
+CmdError::Type()
+{
+    return _errno;
+}
+
+QString
+CmdError::String()
+{
+    return QString(CommandErrorDesc[_errno].desc) + ": " + _details;
+}
+
+QString
+CmdError::Name()
+{
+    return CommandErrorDesc[_errno].name;
+}
+
+QString
+CmdError::Details()
+{
+    return _details;
+}
 
 /*
  * employees: Array<int>,
@@ -18,7 +69,7 @@ namespace Database {
  * start: int,
  * weekends: Array<int>,
  */
-int
+CmdError
 exec_make_contract(QJsonObject& obj)
 {
     QVector<int> employees;
@@ -36,47 +87,47 @@ exec_make_contract(QJsonObject& obj)
             if (emp.isDouble()) {
                 employees.push_back(obj["employees"].toInt());
             } else {
-                return (int)CommandErrno::InvalidParam;
+                return CmdError(CmdError::InvalidParam, "");
             }
         }
     } else {
-        return (int)CommandErrno::InvalidParam;
+        return CmdError(CmdError::InvalidParam, "");
     }
 
     if (auto val = obj["customer"]; val.isDouble()) {
         customer = val.toInt();
     } else {
-        return (int)CommandErrno::InvalidParam;
+        return CmdError(CmdError::InvalidParam, "");
     }
 
     if (auto val = obj["objectType"]; val.isDouble()) {
         objType = val.toInt();
     } else {
-        return (int)CommandErrno::InvalidParam;
+        return CmdError(CmdError::InvalidParam, "");
     }
 
     if (auto val = obj["address"]; val.isString()) {
         addr = val.toString();
     } else {
-        return (int)CommandErrno::InvalidParam;
+        return CmdError(CmdError::InvalidParam, "");
     }
 
     if (auto val = obj["address"]; val.isDouble()) {
         addr = val.toString();
     } else {
-        return (int)CommandErrno::InvalidParam;
+        return CmdError(CmdError::InvalidParam, "");
     }
 
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 /*
  * contract: int,
  */
-int
+CmdError
 exec_make_duty_schedule(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 /*
@@ -89,10 +140,10 @@ exec_make_duty_schedule(QJsonObject& obj)
  *                          guiltyPercent: double
  *                        }
  */
-int
+CmdError
 exec_register_accident(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 /*
@@ -104,7 +155,7 @@ exec_register_accident(QJsonObject& obj)
  * password: string,
  * image: string, <- optional
  */
-int
+CmdError
 exec_register_employee(QJsonObject& obj)
 {
     QString name;
@@ -115,7 +166,29 @@ exec_register_employee(QJsonObject& obj)
     QString password;
     QByteArray image;
 
-    return (int)CommandErrno::OK;
+    if (auto val = obj["name"]; val.isString()) {
+        name = val.toString();
+    } else {
+        return CmdError(CmdError::InvalidParam, "No \"name\" entry");
+    }
+
+    if (auto val = obj["role"]; val.isDouble()) {
+        role = val.toInt();
+    } else {
+        return CmdError(CmdError::InvalidParam, "No \"role\" entry");
+    }
+
+    if (auto val = obj["wapon"]; val.isDouble()) {
+        wapon = val.toInt();
+    }
+
+    if (auto val = obj["login"]; val.isString()) {
+
+    } else {
+        return CmdError(CmdError::InvalidParam, "No \"login\" entry");
+    }
+
+    return CmdError();
 }
 
 /*
@@ -125,20 +198,20 @@ exec_register_employee(QJsonObject& obj)
  * password: string,
  * image: string, < optional
  */
-int
+CmdError
 exec_register_customer(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 /*
  * name: string,
  * price: double,
  */
-int
+CmdError
 exec_register_object_type(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 /*
@@ -148,58 +221,82 @@ exec_register_object_type(QJsonObject& obj)
  * ammoPrice: double,
  * image: string,
  */
-int
+CmdError
 exec_register_wapon(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 /*
  * wapon: int,
  * employee: int,
  */
-int
+CmdError
 exec_assign_wapon(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 /*
  * wapon: int,
  * count: int,
  */
-int
+CmdError
 exec_pay_ammo(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 /*
  * employee: int
  */
-int
+CmdError
 exec_pay_employee(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 /*
  * accident: int
  */
-int
+CmdError
 exec_pay_accident(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 /*
  * name: string,
  * price: double,
  */
-int
+CmdError
 exec_add_object_type(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    QString name;
+    double price;
+
+    if (auto val = obj["name"]; val.isString()) {
+        name = val.toString();
+    } else {
+        return (int)CommandErrno::InvalidParam;
+    }
+
+    if (auto val = obj["price"]; val.isDouble()) {
+        price = val.toDouble();
+    } else {
+        return (int)CommandErrno::InvalidParam;
+    }
+
+    QSqlQuery q;
+    q.prepare("INSERT INTO objectType (name, price) "
+              "VALUES (:name, :price)");
+    q.bindValue(":name", name);
+    q.bindValue(":price", price);
+    if (!q.exec()) {
+        return (int)CommandErrno::SQLError;
+    }
+
+    return CmdError();
 }
 
 /*
@@ -207,10 +304,10 @@ exec_add_object_type(QJsonObject& obj)
  * name: string, <- optional
  * price: double, <- optional
  */
-int
+CmdError
 exec_edit_object_type(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 /*
@@ -220,82 +317,82 @@ exec_edit_object_type(QJsonObject& obj)
  * payPeriod: optional, <- optional
  * commands: Array<int> <- optional
  */
-int
+CmdError
 exec_update_role(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 /*
  * employee: int
  */
-int
+CmdError
 exec_get_employee_entry(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 /*
  * customer: int
  */
-int
+CmdError
 exec_get_customer_entry(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 /*
  * accident: int
  */
-int
+CmdError
 exec_get_accident_details(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 /*
  * accounting: int
  */
-int
+CmdError
 exec_get_accounting_entry(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 /*
  * object: int
  */
-int
+CmdError
 exec_get_object_detalils(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 /*
  * role: int
  */
-int
+CmdError
 exec_get_role_details(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 /*
  * wapon: int
  */
-int
+CmdError
 exec_get_wapon_details(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 /*
  * employee: int
  */
-int
+CmdError
 exec_get_duty_schedule(QJsonObject& obj)
 {
-    return (int)CommandErrno::OK;
+    return CmdError();
 }
 
 

@@ -17,19 +17,25 @@ class SQLite : public QObject {
         SQLite(const QString& path, QObject * p = nullptr);
         virtual ~SQLite();
 
-        QString errorToString(CommandErrno);
-
     Q_SIGNALS:
-        void failed(CommandErrno);
+        void failed(Database::CmdError);
         void success(QJsonObject&);
-        void logMessage(QString&, int = LoggingLevel::Trace);
+        void logMessage(QString, int = LoggingLevel::Trace);
 
     public Q_SLOTS:
-     void executeCommand(const QString& login, const QString& password,
-                         const QJsonDocument& d);
-        // authorize and execute
+        void executeCommand(const QString& login, const QString& password,
+                            const QJsonDocument& d);
+        void executeCommand(const QString& login, const QString& password,
+                            const QJsonObject& o);
+
+        void autoCommand(const QJsonDocument& d); // for AUTO role(all permissions)
+        void autoCommand(const QJsonObject& o);
 
     private:
+        void checkTables();
+        void insertDefaultsRoles();
+        void insertDefaultsObjectTypes();
+
         QSqlDatabase _db;
 };
 
