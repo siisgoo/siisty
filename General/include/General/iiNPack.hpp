@@ -15,6 +15,8 @@
 #include <QIODevice>
 #include <QDateTime>
 
+#include "Database/command.hpp"
+
 /*
  * siisty Network Packet
  */

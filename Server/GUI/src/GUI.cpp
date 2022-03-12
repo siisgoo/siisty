@@ -1,18 +1,20 @@
 #include "GUI.hpp"
 
+#include <QException>
+
 #include "./ui_GUI.h"
 #include <qnamespace.h>
 
-GUI::GUI(QWidget *parent)
+GUI::GUI(Settings settings, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::GUI),
-        _serveAddress("127.0.0.1"),
-        _servePort(9000)
+        _settings(settings)
 {
     ui->setupUi(this);
 
     setupLogger();
     setupServer();
+    setupDatabase();
     adjustUi();
 }
 
@@ -27,38 +29,30 @@ GUI::~GUI()
     delete _server;
     delete _log;
     delete _listenIndicator;
+    if (_database) {
+        delete _database;
+    }
     delete ui;
 }
 
 void
-GUI::setForseUseSsl(bool use)
+GUI::changeServeAddress(QHostAddress& add, quint16 port)
 {
-    _server->setForseUseSsl(use);
-}
+    if (_settings.serveAddress != add || _settings.servePort != port ) {
+        _settings.serveAddress = add;
+        _settings.servePort = port;
 
-void
-GUI::setSslCertificatesPath(QString& certPath, QString& caPath, QString& keyPath)
-{
-    _server->LoadCertificates(certPath, keyPath);
-}
+        if (_server->isListening()) {
 
-void
-GUI::setServeAddress(QHostAddress& add, quint16 port)
-{
-    _serveAddress = add;
-    _servePort = port;
-
-    if (_server->isListening()
-            && (_serveAddress != add || _servePort != port ))
-    {
-        Q_EMIT logMessage("Rebooting server after change Serve address and port", Debug);
-        _server->ToggleStartStopListening(_serveAddress, _servePort);
-        _server->ToggleStartStopListening(_serveAddress, _servePort);
+            Q_EMIT logMessage("Rebooting server after change Serve address and port", Debug);
+            _server->ToggleStartStopListening(add, port);
+            _server->ToggleStartStopListening(add, port);
+        }
     }
 }
 
 void
-GUI::setLoggingLeve(int level)
+GUI::changeLoggingLeve(int level)
 {
     if (_log->loggingLevel() != level) {
         Q_EMIT logMessage("Changing logging level", Debug);
@@ -67,55 +61,31 @@ GUI::setLoggingLeve(int level)
 }
 
 void
-GUI::setLogPath(QString& path)
-{
-    _log->setLogPath(path);
-}
-
-void
-GUI::setDefaultPage(QString& pageName)
-{
-    QWidget * p = PagesManager::getPage(pageName);
-    if (p) {
-        _defaultPage = p;
-        //TODO write to config
-    } else {
-        Q_EMIT logMessage(tr("Cannot set default page with name %1, thats page not exist").arg(pageName), Error);
-    }
-}
-
-void
-GUI::setMaxThreads(int)
-{
-    // TODO add thread pool
-}
-
-void
-GUI::setMaxPendingConnections(int max)
-{
-    _server->setMaxPendingConnections(max);
-}
-
-void
 GUI::adjustUi()
 {
     connect(ui->pages_list, SIGNAL(clicked(const QModelIndex&)), this, SLOT(onItemClicked(const QModelIndex&)));
         // Click on docked pages Menu/List
 
-    QWidget * l_ServerInfoPage  = new ServerInfoPage(ui->page_view),
-            * l_ConnectionsPage = new ConnectionsPage(ui->page_view);
+    QVector<QWidget*> l_pages({
+            new WelcomePage(ui->page_view),
+            new ServerInfoPage(ui->page_view),
+            new ConnectionsPage(ui->page_view),
+            new SystemLoadPage(ui->page_view),
+            new DatabasePage(ui->page_view),
+    });
 
-    PagesManager::addPage(l_ServerInfoPage);
-    PagesManager::addPage(l_ConnectionsPage);
+    for (auto l_page : l_pages) {
+        PagesManager::addPage(l_page);
+        ui->page_view->addWidget(l_page);
+    }
 
-    ui->page_view->addWidget(l_ServerInfoPage);
-    ui->page_view->addWidget(l_ConnectionsPage);
+    ui->page_view->setCurrentWidget(_defaultPage ? _defaultPage : l_pages[0]);
 
-    ui->page_view->setCurrentWidget(_defaultPage ? _defaultPage : l_ServerInfoPage);
-        // TODO add variant from confing
-
-    connect(_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
-            l_ServerInfoPage, SLOT(onServerListningStateChanged(QHostAddress, quint16, bool)));
+    connect(_server,
+            SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
+            std::find_if(l_pages.begin(), l_pages.end(),
+                [](QObject* o) {return o->objectName() == "Server info";} )[0],
+            SLOT(onServerListningStateChanged(QHostAddress, quint16, bool)));
 
     connect(_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
             this, SLOT(changeIndicatorState(QHostAddress, quint16, bool)));
@@ -126,7 +96,7 @@ GUI::adjustUi()
     ui->statusbar->addPermanentWidget(_listenIndicator);
     ui->statusbar->showMessage("Initializing", 1000);
 
-    ui->actionStop_server->setEnabled(false);
+    ui->actionToggle_server->setText("Start");
 }
 
 void
@@ -139,9 +109,27 @@ GUI::setupLogger()
 }
 
 void
+GUI::setupDatabase()
+{
+    try {
+        _database = new Database::SQLite(_settings.databasePath, nullptr);
+        connect(_database, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)));
+    } catch (QSqlError e) {
+        QString error = "Error in statment: " + e.databaseText() +
+            "\nError type: " + QString::number(e.type()) +
+            "\nReason: " + e.text() +
+            "\nDriver: " + e.driverText();
+        logMessage(error, LoggingLevel::Fatal);
+        _database = nullptr;
+    }
+}
+
+void
 GUI::setupServer()
 {
     _server = new iiServer(nullptr);
+    _server->setForseUseSsl(_settings.useSsl);
+    _server->LoadCertificates(_settings.certPath, _settings.keyPath);
 
     connect(_server, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)));
 
@@ -169,11 +157,9 @@ void
 GUI::on_listeningStateChanged(QHostAddress dummy, quint16 dummy1, bool listening)
 {
     if (listening) {
-        ui->actionStop_server->setEnabled(true);
-        ui->actionStart_server->setEnabled(false);
+        ui->actionToggle_server->setText("Stop");
     } else {
-        ui->actionStop_server->setEnabled(false);
-        ui->actionStart_server->setEnabled(true);
+        ui->actionToggle_server->setText("Start");
     }
 }
 
@@ -185,15 +171,9 @@ GUI::on_actionQuit_triggered()
     QApplication::quit();
 }
 
-void
-GUI::on_actionStart_server_triggered()
+void GUI::on_actionToggle_server_triggered()
 {
-    _server->ToggleStartStopListening(_serveAddress, _servePort);
-}
-
-void GUI::on_actionStop_server_triggered()
-{
-    _server->ToggleStartStopListening(_serveAddress, _servePort);
+    _server->ToggleStartStopListening(_settings.serveAddress, _settings.servePort);
 }
 
 void

@@ -9,14 +9,14 @@ class iiClient : public SslClientBase {
         iiClient(QSslSocket * socket, QObject* parent = nullptr);
         virtual ~iiClient();
 
-        bool isAutorized() const;
+        bool isAuth() const;
 
     public Q_SLOTS:
-        void performAutorization();
+        void performAuthentification();
 
     Q_SIGNALS:
-        void autorized(int emploeeID);
-        void autorirationFailed(QString& errorMsg);
+        void authentificated(int emploeeID);
+        void authentificationFailed(QString& errorMsg);
 
     private:
         bool    _autorized;

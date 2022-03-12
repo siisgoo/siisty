@@ -153,7 +153,7 @@ border-style: groove;</string>
     <set>Qt::ImhNone</set>
    </property>
    <property name="sizeGripEnabled">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
   </widget>
   <widget class="QDockWidget" name="pages_dock">
@@ -355,8 +355,7 @@ border-style: groove;</string>
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionStart_server"/>
-   <addaction name="actionStop_server"/>
+   <addaction name="actionToggle_server"/>
   </widget>
   <action name="actionVisit_shelly_wiki">
    <property name="text">
@@ -378,14 +377,12 @@ border-style: groove;</string>
     <string>Properties</string>
    </property>
   </action>
-  <action name="actionStart_server">
+  <action name="actionToggle_server">
    <property name="text">
     <string>Start server</string>
    </property>
-  </action>
-  <action name="actionStop_server">
-   <property name="text">
-    <string>Stop server</string>
+   <property name="toolTip">
+    <string>Toggle server state</string>
    </property>
   </action>
  </widget>

@@ -4,7 +4,12 @@
 #include <array>
 #include <QVector>
 
+#define Q(x) #x
+#define QUOTE(x) Q(x)
+
 namespace Database {
+
+    using money_t = float;
 
     const auto TABLE_ARRAY_SEPARATOR = R"(:)";
 

@@ -9,11 +9,15 @@
 #include <QScopedPointer>
 #include <QMainWindow>
 
+#include "Database/Database.hpp"
+
 #include "PagesManager.hpp"
+#include "Pages/WelcomePage.hpp"
 #include "Pages/ServerInfoPage.hpp"
 #include "Pages/ConnectionsPage.hpp"
 #include "Pages/DataUsagePage.hpp"
 #include "Pages/SystemLoadPage.hpp"
+#include "Pages/DatabasePage.hpp"
 
 #include "General/logger.hpp"
 #include "SslServer/iiServer.hpp"
@@ -22,25 +26,36 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class GUI; }
 QT_END_NAMESPACE
 
+struct Settings {
+    bool useSsl = false;
+
+    QString certPath = "./cert.pem";
+    QString caPath = "./ca.pem";
+    QString keyPath = "./key.pem";
+
+    QHostAddress serveAddress = QHostAddress::AnyIPv4;
+    quint16 servePort = 2142;
+
+    QString databasePath = "./database.db";
+
+    int logginLeve = LoggingLevel::Debug;
+    QString logFile = "./log";
+
+    QString defultPage = "Server Info";
+
+    int maxThreads = QThread::idealThreadCount();
+    int maxPendingConnections = 100;
+};
+
 class GUI : public QMainWindow
 {
     Q_OBJECT
 
     public:
-        GUI(QWidget *parent = nullptr);
+        GUI(Settings settings, QWidget *parent = nullptr);
 
-        void adjustUi();
-        void setupLogger();
-        void setupServer();
-
-        void setForseUseSsl(bool);
-        void setSslCertificatesPath(QString&, QString&, QString&);
-        void setServeAddress(QHostAddress& add, quint16 port);
-        void setLoggingLeve(int);
-        void setLogPath(QString&);
-        void setDefaultPage(QString&);
-        void setMaxThreads(int);
-        void setMaxPendingConnections(int);
+        void changeServeAddress(QHostAddress&, quint16);
+        void changeLoggingLeve(int level);
 
         virtual ~GUI();
 
@@ -53,18 +68,23 @@ class GUI : public QMainWindow
 
         void on_listeningStateChanged(QHostAddress, quint16, bool);
         void on_actionQuit_triggered();
-        void on_actionStart_server_triggered();
-        void on_actionStop_server_triggered();
+        void on_actionToggle_server_triggered();
 
         void changeIndicatorState(QHostAddress, quint16, bool);
-        void logMessage(QString, int);
+        void logMessage(QString, int = LoggingLevel::Trace);
 
     private:
-        QHostAddress _serveAddress;
-        quint16      _servePort;
+        void adjustUi();
+        void setupLogger();
+        void setupDatabase();
+        void setupServer();
+
+        Settings _settings;
 
         QThread    _serverThread;
         iiServer * _server;
+
+        Database::SQLite * _database;
 
         QThread   _loggingThread;
         logger  * _log;

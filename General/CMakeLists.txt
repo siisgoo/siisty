@@ -5,6 +5,8 @@ project(General LANGUAGES CXX VERSION 0.0.1 DESCRIPTION "siisty General")
 #  finding sources  #
 #####################
 
+set(SRCS "")
+
 # Sources
 file(GLOB SRCS_G "src/*.cpp")
 POCO_SOURCES_AUTO(SRCS ${SRCS_G})
@@ -37,10 +39,11 @@ endif()
 
 target_link_libraries(
     ${PROJECT_NAME}
-    PRIVATE
+    PUBLIC
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Network
         Qt${QT_VERSION_MAJOR}::Widgets
+        Qt${QT_VERSION_MAJOR}::Sql
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
