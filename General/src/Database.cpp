@@ -109,6 +109,7 @@ SQLite::checkTables()
     }
 }
 
+// TODO add AUTO command
 void
 SQLite::insertDefaultsRoles()
 {

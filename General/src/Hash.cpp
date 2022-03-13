@@ -1,46 +1,58 @@
 #include "Crypto/Hash.hpp"
 
+#include <functional>
+
+#include <QMap>
 #include <QLatin1String>
 #include <QCryptographicHash>
 #include <QString>
+#include <QVector>
 #include <QByteArray>
 #include <QRandomGenerator>
-
-/* // 10 - 32 chars */
-/* // actual - 20 */
-/* static const QVector<QByteArray> salts({ */
-/*     R"(0@1.*$1j}7{9$=G&03U+)", // no spec no nums */
-/*     R"(12jsdlJO198TG12pQ12v)", // no nums no alpha */
-/*     R"(*l@?,05492*(#`27<>?%)", // no spec no alpha */
-/*     R"(nqlkjASlIasjdipauLKu)", // no alpha */
-/*     R"(32578301987-29855879)", // no nums */
-/*     R"(#$!><?{%.*!@[^(*)}`~)", // no spec */
-/* }); */
-
-static const int salt_length(32);
-    // mean xxx system max unique password
-    // if /dev/urandom will not fail :)
-
-static const QLatin1String specials(R"(!”#$%&'()*+,-./:;?@[\]^_`{ |  }~`]')");
-static const QLatin1String alphabet(R"(abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ)");
-static const QLatin1String digits(R"(0123456789)");
-    // for salt gen
-
-enum PasswordWeaknesses : quint8 {
-    Alpha = 0x1,
-    Digit = 0x2,
-    Special = 0x4,
-};
 
 static void setBit(unsigned long& num, unsigned long bit) { num |= (1 << bit); }
 static int getBit(unsigned long num, unsigned long bit) { return (num & ( 1 << bit  )) >> bit; }
 
-static const QByteArray saltGen(quint8 w)
-{
+static const QLatin1String specials(R"(!"”#$%&'()*+,-./:;?@[\]^_{| }~`)");
+static const QLatin1String alphabet(R"(abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ)");
+static const QLatin1String digits(R"(0123456789)");
+    // for salt gen
 
+static quint32 strongRand(quint32 min,
+                          quint32 max = std::numeric_limits<quint32>::max())
+{
+    return QRandomGenerator::securelySeeded().generate() % (max+1 - min) + min;
 }
 
-static const quint8 passWeaknesses(const QByteArray& data) {
+static char randCharFrom(const QLatin1String& d, quint32 rand32) { return d[rand32 % (d.size()+1)].toLatin1(); }
+
+static QMap<quint8, std::function<char(quint32)>> saltCharGen(
+        {
+            { Alpha,           [](quint32 rand32) { return alphabet[rand32 % (alphabet.size()+1)].toLatin1(); } },
+            { Digit,           [](quint32 rand32) { return digits[rand32 % (digits.size() +1)].toLatin1(); } },
+            { Special,         [](quint32 rand32) { return specials[rand32 % (specials.size() +1)].toLatin1(); } },
+            { Alpha & Digit,   [](quint32 rand32) { return (strongRand(0, 1) ? randCharFrom(alphabet, rand32) : randCharFrom(digits, rand32)); } },
+            { Alpha & Special, [](quint32 rand32) { return (strongRand(0, 1) ? randCharFrom(alphabet, rand32) : randCharFrom(specials, rand32)); } },
+            { Special & Digit, [](quint32 rand32) { return (strongRand(0, 1) ? randCharFrom(specials, rand32) : randCharFrom(digits, rand32)); } },
+        });
+
+QByteArray saltGen(quint8 w)
+{
+    QByteArray salt;
+    QVector<quint32> rand;
+    rand.resize(salt_length);
+    QRandomGenerator::securelySeeded().fillRange(rand.data(), rand.size());
+    auto genf = saltCharGen[w];
+
+    for (int i = 0; i < salt_length; i++) {
+        salt[i] = genf(rand[i]);
+    }
+
+    return salt;
+}
+
+quint8 passWeaknesses(const QByteArray& data)
+{
     int spec = 0;
     int nums = 0;
     int alph = 0;
@@ -55,71 +67,73 @@ static const quint8 passWeaknesses(const QByteArray& data) {
     double spec_c = static_cast<double>(spec)/len;
     double nums_c = static_cast<double>(nums)/len;
     double alph_c = static_cast<double>(alph)/len;
+        // coef
 
-    if (spec_c > nums_c && spec_c > alph_c) {
-        if (spec_c > 0.5) {
-            return Digit & Alpha; //no num no alpha
-        } else {
-            if (std::max(nums_c, alph_c) - std::min(nums_c, alph_c) < 0.1) {
-                return (nums_c > alph_c ? 3 : 4);
+    // weakness determinission algo:
+    //  1. find max coef char type - mostch
+    //  2. if mostch count grater then 50% of password mean that weak in both other char types;
+    //  3. if diff of other char types grater then 10% mean that weak only in one min char type;
+    //  4. if diff less or eq to 10% - weak in both;
+    auto determWeakness = [](double f, double s, double t, quint8 wf, quint8 ws, quint8 wt) -> quint8 {
+        if (f > s && f > t) {
+            if (f > 0.5) {
+                return ws & wt;
             } else {
-                return Digit & Alpha;
+                if (std::abs(s - t) > 0.1) {
+                    return (s > t ? wt : ws);
+                } else {
+                    return ws & wt;
+                }
             }
         }
-    } else if (nums_c > spec_c && nums_c > alph_c) {
-        if (nums_c > 0.5) {
-            return 2; // no spec no alpha
-        } else {
-            if (std::max(spec_c, alph_c) - std::min(spec_c, alph_c) < 0.1) {
-                return (spec_c > alph_c ? 3 : 5);
-            } else {
-                return 2;
-            }
-        }
-    } else {
-        if (alph_c > 0.5) {
-            return 0; // no spec no nums
-        } else {
-            if (std::max(spec_c, nums_c) - std::min(spec_c, nums_c) < 0.1) {
-                return (spec_c > nums_c ? 4 : 5);
-            } else {
-                return 0;
-            }
-        }
-    }
+
+        return 0;
+    };
+
+    quint8 w1 = determWeakness(spec_c, nums_c, alph_c, Special, Digit, Alpha);
+    quint8 w2 = determWeakness(nums_c, spec_c, alph_c, Digit, Special, Alpha);
+    quint8 w3 = determWeakness(alph_c, spec_c, nums_c, Alpha, Special, Digit);
+
+    return std::max(w1, std::max(w2, w3)); // only one gr then 0
 }
 
 // There is no check bit or little endiang, may currupt on db export to another machine :) im not care :)
-//Proposed Algorithm from IAENG International Journal of Computer Science, 43:1, IJCS_43_1_04
-QString encryptPassword(const QByteArray& data)
+// Implmented by Algorithm struct published in "Proposed Algorithm from IAENG International Journal of Computer Science, 43:1, IJCS_43_1_04"
+QByteArray encryptPassword(const QByteArray& pass, const QByteArray& salt, QCryptographicHash::Algorithm hashAlgo)
 {
-    using algo = QCryptographicHash::Algorithm;
-
     QByteArray toCrypt;
-    QByteArray salt = saltGen(passWeaknesses(data));
-    QByteArray hash = QCryptographicHash::hash(data, algo::Sha512);
+    QByteArray hash = QCryptographicHash::hash(pass, hashAlgo);
 
     int prev = -1;
     int cur;
     int inserted = 0;
-    for (int i = 0; i < data.length() && inserted < salt_length; i++) {
-        cur = getBit(data[i], sizeof(data[i])) ^ getBit(hash[i], sizeof(hash[i]));
-        toCrypt.push_back(data[i]);
-        if (cur == 1) {
-            toCrypt.push_back(salt[inserted++]);
-        } else if (cur == 0 && prev == 0) { //may only prev == 0 :)
-            toCrypt.push_back(salt[inserted++]);
-            toCrypt.push_back(salt[inserted++]);
+    for (int i = 0; i < pass.length(); i++) {
+        toCrypt.push_back(pass[i]);
+            // push real password char
+
+        // used Rule №2
+        if (inserted < salt_length) {
+            cur = getBit(pass[i], sizeof(pass[i])) ^
+                  getBit(hash[i], sizeof(hash[i]));
+
+            if (cur == 1) {
+                toCrypt.push_back(salt[inserted++]);
+            } else if (prev == 0) { // two consecutive zeros
+                toCrypt.push_back(salt[inserted++]);
+                toCrypt.push_back(salt[inserted++]);
+                i++; //skip 2
+            }
+            prev = cur;
         }
-        prev = cur;
     }
 
-    if (inserted != salt_length-1) {
+    // append remaining salt
+    if (inserted < salt_length) {
         for (int i = inserted; i < salt_length; i++) {
             toCrypt.push_back(salt[i]);
         }
     }
 
-    return QCryptographicHash::hash(toCrypt, algo::Sha512);
+    return QCryptographicHash::hash(toCrypt, hashAlgo);
 }
 

@@ -1,6 +1,6 @@
 #include "Database/command.hpp"
 #include "Database/Utility.hpp"
-#include <QCryptographicHash>
+#include "Crypto/Hash.hpp"
 
 #include <QLatin1String>
 #include <QtSql>
@@ -10,6 +10,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonValue>
+
+// IMAGES are stored as QLatin1String(QByteArray().toBase64)
 
 namespace Database {
 
@@ -32,35 +34,11 @@ CmdError::CmdError(CmdError::ErrorNo error_n, QString details)
 {
 }
 
-bool
-CmdError::Ok()
-{
-    return _errno == OK;
-}
-
-int
-CmdError::Type()
-{
-    return _errno;
-}
-
-QString
-CmdError::String()
-{
-    return QString(CommandErrorDesc[_errno].desc) + ": " + _details;
-}
-
-QString
-CmdError::Name()
-{
-    return CommandErrorDesc[_errno].name;
-}
-
-QString
-CmdError::Details()
-{
-    return _details;
-}
+bool    CmdError::Ok()      { return _errno == OK; }
+int     CmdError::Type()    { return _errno; }
+QString CmdError::String()  { return QString(CommandErrorDesc[_errno].desc) +  ": " + _details; }
+QString CmdError::Name()    { return CommandErrorDesc[_errno].name; }
+QString CmdError::Details() { return _details; }
 
 /*
  * employees: Array<int>,
@@ -149,8 +127,8 @@ exec_register_accident(QJsonObject& obj)
     return CmdError();
 }
 
-/* TODO add check LOGIN and PASSWORD with pattern
- * login and password passed as not encrypted
+/*
+ * login and password must be passed as plaintext
  *
  * name: string,
  * entryDate: int, <- optional (default today)
@@ -167,11 +145,23 @@ exec_register_employee(QJsonObject& obj)
     QString name;
     qint64 entryDate;
     int role;
-    int wapon = -1;
+    int wapon;
     QString email;
     QString login;
-    QString password;
+    QByteArray password;
     QByteArray image;
+
+    try {
+        name = obj.take("name").toString();
+        entryDate = obj.take("entryDate").toInteger();
+        role = obj.take("role").toInt();
+        wapon = (obj["wapon"].isDouble() ? obj.take("wapon").toInt() : -1);
+        email = (obj["email"].isString() ? obj.take("email").toString() : "");;
+        login = obj.take("login").toString();
+        password = obj.take("password").toString().toLocal8Bit();
+    } catch (int) {
+
+    }
 
     if (auto val = obj["name"]; val.isString()) {
         name = val.toString();
@@ -198,10 +188,11 @@ exec_register_employee(QJsonObject& obj)
         return CmdError(CmdError::InvalidParam, "No \"login\" entry");
     }
     if (auto val = obj["password"]; val.isString()) {
-        password = val.toString();
-        if (password.length() < 8) { //TODO make it editable or write to config.hpp file
+        auto str = val.toString();
+        password = str.toLocal8Bit(); //ITS OK?
+        if (password.length() < 8) {
             return CmdError(CmdError::InvalidParam, "Too small password. Minimum 8 symbols");
-        } else if (password.length() > 64) {
+        } else if (password.length() > 64) { // sha512 bytes
             return CmdError(CmdError::InvalidParam, "Too long password. Maximum 64 symbols");
         }
     } else {
@@ -210,6 +201,9 @@ exec_register_employee(QJsonObject& obj)
     if (auto val = obj["image"]; val.isString()) {
         image = val.toString().toLocal8Bit(); //TODO test :_)
     }
+
+    QByteArray passHash =
+        encryptPassword(password, saltGen(passWeaknesses(password)));
 
     QSqlQuery q;
     q.prepare("INSERT INTO EmployeesAndCustomers"
@@ -220,8 +214,12 @@ exec_register_employee(QJsonObject& obj)
     q.bindValue(":role_id", role);
     q.bindValue(":wapon_id", (wapon == -1 ? QVariant() : wapon));
     q.bindValue(":login", login);
-    q.bindValue(":password", password);
+    q.bindValue(":password", passHash);
     q.bindValue(":image", (image.length() == 0 ? QVariant() : image));
+
+    if (!q.exec()) {
+        return CmdError(CmdError::SQLError, q.lastError().text());
+    }
 
     return CmdError();
 }
