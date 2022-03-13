@@ -1044,8 +1044,59 @@ border-color: #051a39;
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <layout class="QFormLayout" name="formLayout">
-    <item row="0" column="1">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>-&gt; root -&gt; some -&gt; other -&gt; page</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QTreeWidget" name="pages_list">
+      <column>
+       <property name="text">
+        <string>Pages</string>
+       </property>
+      </column>
+      <item>
+       <property name="text">
+        <string>Server</string>
+       </property>
+       <item>
+        <property name="text">
+         <string>Server info</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Connections</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Data usage</string>
+        </property>
+       </item>
+      </item>
+      <item>
+       <property name="text">
+        <string>Databases</string>
+       </property>
+       <item>
+        <property name="text">
+         <string>Edit tables</string>
+        </property>
+       </item>
+      </item>
+      <item>
+       <property name="text">
+        <string>Users</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="0" column="1" rowspan="2">
      <widget class="QStackedWidget" name="page_view">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -1148,71 +1199,6 @@ border-style: groove;</string>
     <bool>false</bool>
    </property>
   </widget>
-  <widget class="QDockWidget" name="pages_dock">
-   <property name="acceptDrops">
-    <bool>false</bool>
-   </property>
-   <property name="layoutDirection">
-    <enum>Qt::LeftToRight</enum>
-   </property>
-   <property name="floating">
-    <bool>false</bool>
-   </property>
-   <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetVerticalTitleBar</set>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_2">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QTreeWidget" name="pages_list">
-       <column>
-        <property name="text">
-         <string>Pages</string>
-        </property>
-       </column>
-       <item>
-        <property name="text">
-         <string>Server</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>Server info</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Connections</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Data usage</string>
-         </property>
-        </item>
-       </item>
-       <item>
-        <property name="text">
-         <string>Databases</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>Edit tables</string>
-         </property>
-        </item>
-       </item>
-       <item>
-        <property name="text">
-         <string>Users</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
   <widget class="QDockWidget" name="info_dock">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -1234,19 +1220,16 @@ border-style: groove;</string>
         <enum>QFrame::Raised</enum>
        </property>
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="0" column="0">
-         <widget class="QPushButton" name="clearLogButton">
+        <item row="0" column="1">
+         <widget class="QLabel" name="label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
           <property name="text">
-           <string>Clear</string>
+           <string>Log level:</string>
           </property>
          </widget>
         </item>
@@ -1290,19 +1273,6 @@ border-style: groove;</string>
           </item>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="QLabel" name="label">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Log level:</string>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="0" colspan="4">
          <widget class="QTextEdit" name="loggingOutput">
           <property name="sizePolicy">
@@ -1324,10 +1294,26 @@ border-style: groove;</string>
            </size>
           </property>
           <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
+           <enum>QFrame::Box</enum>
           </property>
           <property name="readOnly">
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QPushButton" name="clearLogButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="text">
+           <string>Clear</string>
           </property>
          </widget>
         </item>

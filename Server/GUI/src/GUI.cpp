@@ -107,6 +107,8 @@ GUI::adjustUi()
     ui->statusbar->addWidget(_progress);
 
     ui->actionToggle_server->setText("Start");
+
+    connect(ui->clearLogButton, SIGNAL(clicked()), this, SLOT(on_clearLogClicked()));
 }
 
 void
@@ -231,4 +233,10 @@ void
 GUI::endProgress()
 {
     _progress->hide();
+}
+
+void
+GUI::on_clearLogClicked()
+{
+    ui->loggingOutput->clear();
 }

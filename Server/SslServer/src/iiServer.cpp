@@ -52,6 +52,7 @@ void iiServer::ToggleStartStopListening(const QHostAddress &address,
     if (_server.isListening()) {
         _server.close();
         Q_EMIT listeningStateChanged(address, port, false);
+        Q_EMIT logMessage("Server shutdowned", LoggingLevel::Debug);
         return;
     }
 

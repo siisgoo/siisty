@@ -79,6 +79,8 @@ class GUI : public QMainWindow
         void endProgress();
         void setProgress(int, int);
 
+        void on_clearLogClicked();
+
     private:
         void adjustUi();
         void setupLogger();
