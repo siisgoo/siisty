@@ -71,9 +71,13 @@ class GUI : public QMainWindow
         void on_actionToggle_server_triggered();
 
         void on_databaseError(Database::CmdError);
+        void on_databaseInited();
 
         void changeIndicatorState(QHostAddress, quint16, bool);
         void logMessage(QString, int = LoggingLevel::Trace);
+
+        void endProgress();
+        void setProgress(int, int);
 
     private:
         void adjustUi();
@@ -86,10 +90,13 @@ class GUI : public QMainWindow
         QThread    _serverThread;
         iiServer * _server;
 
+        QThread            _databaseThread;
         Database::SQLite * _database;
 
         QThread   _loggingThread;
         logger  * _log;
+
+        QProgressBar * _progress;
 
         QWidget * _defaultPage = nullptr;
         QWidget * _cur_page = nullptr;

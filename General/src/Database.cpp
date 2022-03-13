@@ -77,20 +77,34 @@ namespace Database {
 
 SQLite::SQLite(const QString& path, QObject * p)
     : QObject(p),
-        _db(QSqlDatabase::addDatabase("QSQLITE"))
+        _path(path)
 {
-    _db.setDatabaseName(path);
-    if (!_db.open())
-        throw _db.lastError();
+}
 
+void
+SQLite::Initialize()
+{
+    Q_EMIT setProgress(0, 3);
+    connect(this, SIGNAL(failed(Database::CmdError)), this, SLOT(cmdLogMessage(Database::CmdError)));
+    _db = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE"));
+    _db->setDatabaseName(_path);
+    if (!_db->open())
+        throw _db->lastError();
+
+    checkTables();
+    Q_EMIT setProgress(1, 3);
     insertDefaultsRoles();
+    Q_EMIT setProgress(2, 3);
     insertDefaultsObjectTypes();
+    Q_EMIT setProgress(3, 3);
+
+    Q_EMIT Inited();
 }
 
 SQLite::~SQLite()
 {
-    if (_db.isOpen()) {
-        _db.close();
+    if (_db->isOpen()) {
+        _db->close();
     }
 }
 
@@ -98,13 +112,15 @@ void
 SQLite::checkTables()
 {
     int i;
-    QSqlQuery q;
-    QStringList tables = _db.tables();
+    QStringList tables = _db->tables();
     for (i = 0; i < (int)Tables::TablesCount ; i++) {
         if (!tables.contains(tablesDefenitions[i].name)) {
-            if (!q.exec(tablesDefenitions[i].createQuery)) {
-                throw q.lastError();
-            }
+            this->autoCommand(QJsonObject{
+                    {"command", (int)CommandId::CREATE_TABLE},
+                    {"arg",
+                        QJsonObject{ { "query", tablesDefenitions[i].createQuery } }
+                    }
+            });
         }
     }
 }
@@ -114,6 +130,7 @@ void
 SQLite::insertDefaultsRoles()
 {
     QSqlQuery q;
+    bool deleted = false;
     for (int i = 0; i < (int)RoleId::ROLES_COUNT; i++) {
         auto role = Accessability[i];
         q.clear();
@@ -124,11 +141,14 @@ SQLite::insertDefaultsRoles()
             throw q.lastError();
         }
         if (!q.next()) { // insert
-            if (!q.exec("DELETE FROM Roles")) {
-                throw q.lastError();
-            }
-            if (!q.exec("DELETE FROM RoleCommands")) {
-                throw q.lastError();
+            if (!deleted) {
+                if (!q.exec("DELETE FROM Roles")) {
+                    throw q.lastError();
+                }
+                if (!q.exec("DELETE FROM RoleCommands")) {
+                    throw q.lastError();
+                }
+                deleted = true;
             }
 
             q.clear();
@@ -193,6 +213,12 @@ SQLite::insertDefaultsObjectTypes()
             this->autoCommand(obj);
         }
     }
+}
+
+void
+SQLite::cmdLogMessage(CmdError e)
+{
+    Q_EMIT logMessage(e.String(), LoggingLevel::Error);
 }
 
 void

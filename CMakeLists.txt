@@ -29,8 +29,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 COMPONENTS Core Widgets Network Sql REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Widgets Network Sql REQUIRED)
-find_package(Threads REQUIRED)
-find_package(siigix COMPONENTS Data REQUIRED)
 
 add_subdirectory(General)
 add_subdirectory(Client)

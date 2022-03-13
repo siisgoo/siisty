@@ -94,7 +94,7 @@
            <x>0</x>
            <y>0</y>
            <width>469</width>
-           <height>364</height>
+           <height>342</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout">
@@ -221,14 +221,14 @@
            </sizepolicy>
           </property>
           <property name="styleSheet">
-           <string notr="true"/>
+           <string notr="true">margin: 9px; padding: 5px</string>
           </property>
           <property name="text">
            <string>Apply</string>
           </property>
          </widget>
         </item>
-        <item>
+        <item alignment="Qt::AlignLeft">
          <widget class="QPushButton" name="pushButton_2">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -237,7 +237,7 @@
            </sizepolicy>
           </property>
           <property name="styleSheet">
-           <string notr="true"/>
+           <string notr="true">margin: 9px; padding: 5px</string>
           </property>
           <property name="text">
            <string>Clence</string>

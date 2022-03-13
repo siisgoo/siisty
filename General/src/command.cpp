@@ -6,6 +6,9 @@
 #include <QtSql>
 #include <ctype.h>
 
+#include <QElapsedTimer>
+    // onlye for Debug
+
 #include <exception>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -39,6 +42,26 @@ int     CmdError::Type()    { return _errno; }
 QString CmdError::String()  { return QString(CommandErrorDesc[_errno].desc) +  ": " + _details; }
 QString CmdError::Name()    { return CommandErrorDesc[_errno].name; }
 QString CmdError::Details() { return _details; }
+
+/*
+ * query: string
+ */
+CmdError
+exec_create_table(QJsonObject& obj)
+{
+    QSqlQuery q;
+    QString query_s = obj.take("query").toString();
+
+    if (!query_s.length()) {
+        return CmdError(CmdError::InvalidParam, "No query passed");
+    }
+
+    if (!q.exec(query_s)) {
+        return CmdError(CmdError::SQLError, q.lastError().text());
+    }
+
+    return CmdError();
+}
 
 /*
  * employees: Array<int>,
@@ -151,70 +174,53 @@ exec_register_employee(QJsonObject& obj)
     QByteArray password;
     QByteArray image;
 
-    try {
-        name = obj.take("name").toString();
-        entryDate = obj.take("entryDate").toInteger();
-        role = obj.take("role").toInt();
-        wapon = (obj["wapon"].isDouble() ? obj.take("wapon").toInt() : -1);
-        email = (obj["email"].isString() ? obj.take("email").toString() : "");;
-        login = obj.take("login").toString();
-        password = obj.take("password").toString().toLocal8Bit();
-    } catch (int) {
+    QJsonValue buf;
 
-    }
+    buf = obj.take("entryDate");
+    entryDate = (buf.isUndefined() ? QDateTime::currentSecsSinceEpoch() : buf.toInteger());
 
-    if (auto val = obj["name"]; val.isString()) {
-        name = val.toString();
-    } else {
-        return CmdError(CmdError::InvalidParam, "No \"name\" entry");
-    }
-    if (auto val = obj["entryDate"]; val.isDouble()) {
-        entryDate = val.toInteger();
-    }
-    if (auto val = obj["role"]; val.isDouble()) {
-        role = val.toInt();
-    } else {
-        return CmdError(CmdError::InvalidParam, "No \"role\" entry");
-    }
-    if (auto val = obj["wapon"]; val.isDouble()) {
-        wapon = val.toInt();
-    }
-    if (auto val = obj["email"]; val.isString()) {
-        email = val.toString();
-    }
-    if (auto val = obj["login"]; val.isString()) {
-        login = val.toString();
-    } else {
-        return CmdError(CmdError::InvalidParam, "No \"login\" entry");
-    }
-    if (auto val = obj["password"]; val.isString()) {
-        auto str = val.toString();
-        password = str.toLocal8Bit(); //ITS OK?
-        if (password.length() < 8) {
-            return CmdError(CmdError::InvalidParam, "Too small password. Minimum 8 symbols");
-        } else if (password.length() > 64) { // sha512 bytes
-            return CmdError(CmdError::InvalidParam, "Too long password. Maximum 64 symbols");
-        }
-    } else {
-        return CmdError(CmdError::InvalidParam, "No \"password\" entry");
-    }
-    if (auto val = obj["image"]; val.isString()) {
-        image = val.toString().toLocal8Bit(); //TODO test :_)
+    buf = obj.take("role");
+    role = (buf.isUndefined() ? -1 : buf.toInteger());
+
+    buf = obj.take("wapon");
+    wapon = (buf.isUndefined() ? -1 : buf.toInteger());
+
+    name = obj.take("name").toString();
+    email = obj.take("email").toString();
+    login = obj.take("login").toString();
+    password = obj.take("password").toString().toLatin1();
+    image = obj.take("image").toString().toLatin1();
+
+    // check values
+    if (!name.length() ||
+            !login.length() ||
+            !password.length() ||
+            role < 0)
+    {
+        return CmdError(CmdError::InvalidParam, "Some parapeter not passed or is NULL");
     }
 
+    // check password
+    if (passwordQuality(password) == PasswordQuality::UNAVALIBLE) {
+        return CmdError(CmdError::InvalidParam, "Unavalible password"); // add more informative message aha
+    }
+
+    QByteArray salt = saltGen(passWeaknesses(password));
     QByteArray passHash =
-        encryptPassword(password, saltGen(passWeaknesses(password)));
+        encryptPassword(password, salt);
 
     QSqlQuery q;
     q.prepare("INSERT INTO EmployeesAndCustomers"
-              "(name, entryDate, role_id, wapon_id, email, login, password, image) "
-              "VALUES (:name, :entryDate, :role_id, :wapon_id, :login, :password, :image)");
+                     "(name,   entryDate,  role_id,  wapon_id,  email,  login,  password,  salt,  image) "
+              "VALUES (:name, :entryDate, :role_id, :wapon_id, :email, :login, :password, :salt, :image)");
     q.bindValue(":name", name);
     q.bindValue(":entryDate", entryDate);
     q.bindValue(":role_id", role);
     q.bindValue(":wapon_id", (wapon == -1 ? QVariant() : wapon));
+    q.bindValue(":email", (email.length() > 0 ? email : QVariant()));
     q.bindValue(":login", login);
     q.bindValue(":password", passHash);
+    q.bindValue(":salt", salt);
     q.bindValue(":image", (image.length() == 0 ? QVariant() : image));
 
     if (!q.exec()) {
@@ -234,7 +240,7 @@ exec_register_employee(QJsonObject& obj)
 CmdError
 exec_register_customer(QJsonObject& obj)
 {
-    return CmdError();
+    return exec_register_employee(obj); //TODO add some checks maybe
 }
 
 /*
@@ -366,7 +372,7 @@ exec_get_employee_entry(QJsonObject& obj)
 }
 
 /*
- * customer: int
+ * customer: int OR customer: string,
  */
 CmdError
 exec_get_customer_entry(QJsonObject& obj)
@@ -375,7 +381,7 @@ exec_get_customer_entry(QJsonObject& obj)
 }
 
 /*
- * accident: int
+ * accident: int OR accident: string
  */
 CmdError
 exec_get_accident_details(QJsonObject& obj)
@@ -384,7 +390,7 @@ exec_get_accident_details(QJsonObject& obj)
 }
 
 /*
- * accounting: int
+ * accounting: int OR date: int
  */
 CmdError
 exec_get_accounting_entry(QJsonObject& obj)
@@ -393,7 +399,7 @@ exec_get_accounting_entry(QJsonObject& obj)
 }
 
 /*
- * object: int
+ * object: int OR object: string
  */
 CmdError
 exec_get_object_detalils(QJsonObject& obj)
@@ -402,7 +408,7 @@ exec_get_object_detalils(QJsonObject& obj)
 }
 
 /*
- * role: int
+ * role: int OR role: name
  */
 CmdError
 exec_get_role_details(QJsonObject& obj)
@@ -411,7 +417,7 @@ exec_get_role_details(QJsonObject& obj)
 }
 
 /*
- * wapon: int
+ * wapon: int OR wapon: string
  */
 CmdError
 exec_get_wapon_details(QJsonObject& obj)
@@ -420,7 +426,9 @@ exec_get_wapon_details(QJsonObject& obj)
 }
 
 /*
- * employee: int
+ * employee: int OR employee: string
+ * dateStart: int <- optional
+ * dateEnd: int <- optional
  */
 CmdError
 exec_get_duty_schedule(QJsonObject& obj)

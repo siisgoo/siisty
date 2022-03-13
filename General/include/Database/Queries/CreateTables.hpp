@@ -7,20 +7,20 @@ static const auto CREATE_ACCIDENTS_TABLE =
     "contract_id" INTEGER NOT NULL, "usedAmmoCount" INTEGER, "damagePrice" DECIMAL(10, 3),
     "assignedEmployees_id" INTEGER, FOREIGN KEY("contract_id") REFERENCES "Contracts"("id") ON
     DELETE RESTRICT, FOREIGN KEY("assignedEmployees_id") REFERENCES "AssignedEmployees"("id")
-    ON DELETE RESTRICT, PRIMARY KEY("id") ) WITHOUT ROWID
+    ON DELETE RESTRICT, PRIMARY KEY("id") )
     )";
 
 static const auto CREATE_ACCOUNTING_TABLE =
     R"(
     CREATE TABLE IF NOT EXISTS "Accounting" ( "id" INTEGER NOT NULL UNIQUE, "accountingType_id" INTEGER NOT
     NULL, "pay" DECIMAL(10, 3) NOT NULL, "date" TEXT NOT NULL, FOREIGN KEY("accountingType_id")
-    REFERENCES "AccountingType"("id") ON DELETE RESTRICT, PRIMARY KEY("id") ) WITHOUT ROWID
+    REFERENCES "AccountingType"("id") ON DELETE RESTRICT, PRIMARY KEY("id") )
     )";
 
 static const auto CREATE_ACCOUNTING_TYPE_TABLE =
     R"(
     CREATE TABLE IF NOT EXISTS "AccountingType" ( "id" INTEGER NOT NULL UNIQUE, "name" TEXT NOT NULL UNIQUE,
-    PRIMARY KEY("id","name") ) WITHOUT ROWID
+    PRIMARY KEY("id","name") )
     )";
 
 static const auto CREATE_ASSIGNED_EMPLOYEES_TABLE =
@@ -53,8 +53,7 @@ static const auto CREATE_EMPLOYEES_AND_CUSTOMERS_TABLE =
     "entryDate" TEXT NOT NULL, "role_id" INTEGER NOT NULL, "wapon_id" INTEGER UNIQUE, "email"
     TEXT UNIQUE, "login" TEXT NOT NULL UNIQUE, "password" TEXT NOT NULL UNIQUE, "salt" TEXT NOT NULL UNIQUE, "image" BLOB,
     FOREIGN KEY("wapon_id") REFERENCES "Wapons"("id") ON DELETE RESTRICT, FOREIGN
-    KEY("role_id") REFERENCES "Roles"("id") ON DELETE RESTRICT, PRIMARY KEY("id") ) WITHOUT
-    ROWID
+    KEY("role_id") REFERENCES "Roles"("id") ON DELETE RESTRICT, PRIMARY KEY("id" AUTOINCREMENT) )
     )";
 
 static const auto CREATE_ROLES_TABLE =
@@ -69,7 +68,7 @@ static const auto CREATE_WAPONS_TABLE =
     R"(
     CREATE TABLE IF NOT EXISTS "Wapons" ( "id" INTEGER NOT NULL UNIQUE, "name" TEXT NOT NULL, "ammo" INTEGER
     NOT NULL, "price" DECIMAL(10, 3) NOT NULL, "ammoPrice" DECIMAL(10, 3) NOT NULL, "image" BLOB, PRIMARY KEY("id")
-    ) WITHOUT ROWID
+    )
     )";
 
 static const auto CREATE_OBJECT_TYPE_TABLE =

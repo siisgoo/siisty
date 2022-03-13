@@ -37,6 +37,7 @@
     XX( 19, GET_ROLE_DETAILS,     exec_get_role_details,     true  ) \
     XX( 20, GET_WAPON_DETAILS,    exec_get_wapon_details,    true  ) \
     XX( 21, GET_DUTY_SCHEDULE,    exec_get_duty_schedule,    true  ) \
+    XX( 22, CREATE_TABLE,         exec_create_table,         false ) \
 
 namespace Database {
 
@@ -68,28 +69,34 @@ class CmdError {
 
 using command_exec_t = std::function<CmdError(QJsonObject&)>;
 
-CmdError exec_make_contract(QJsonObject& d);
-CmdError exec_make_duty_schedule(QJsonObject& d);
-CmdError exec_register_accident(QJsonObject& d);
-CmdError exec_register_employee(QJsonObject& d);
-CmdError exec_register_customer(QJsonObject& d);
-CmdError exec_register_object_type(QJsonObject& d);
-CmdError exec_register_wapon(QJsonObject& d);
-CmdError exec_assign_wapon(QJsonObject& d);
-CmdError exec_pay_ammo(QJsonObject& d);
-CmdError exec_pay_employee(QJsonObject& d);
-CmdError exec_pay_accident(QJsonObject& d);
-CmdError exec_add_object_type(QJsonObject& d);
-CmdError exec_edit_object_type(QJsonObject& d);
-CmdError exec_update_role(QJsonObject& d);
-CmdError exec_get_employee_entry(QJsonObject& d);
-CmdError exec_get_customer_entry(QJsonObject& d);
-CmdError exec_get_accident_details(QJsonObject& d);
-CmdError exec_get_accounting_entry(QJsonObject& d);
-CmdError exec_get_object_detalils(QJsonObject& d);
-CmdError exec_get_role_details(QJsonObject& d);
-CmdError exec_get_wapon_details(QJsonObject& d);
-CmdError exec_get_duty_schedule(QJsonObject& d);
+// AUTO only commands
+/* CmdError exec_add_role(QJsonObject& obj); */
+/* CmdError exec_send_moneys(QJsonObject& obj); */
+CmdError exec_create_table(QJsonObject& obj);
+
+// Role avalible commands
+CmdError exec_make_contract(QJsonObject& obj);
+CmdError exec_make_duty_schedule(QJsonObject& obj);
+CmdError exec_register_accident(QJsonObject& obj);
+CmdError exec_register_employee(QJsonObject& obj);
+CmdError exec_register_customer(QJsonObject& obj);
+CmdError exec_register_object_type(QJsonObject& obj);
+CmdError exec_register_wapon(QJsonObject& obj);
+CmdError exec_assign_wapon(QJsonObject& obj);
+CmdError exec_pay_ammo(QJsonObject& obj);
+CmdError exec_pay_employee(QJsonObject& obj);
+CmdError exec_pay_accident(QJsonObject& obj);
+CmdError exec_add_object_type(QJsonObject& obj);
+CmdError exec_edit_object_type(QJsonObject& obj);
+CmdError exec_update_role(QJsonObject& obj);
+CmdError exec_get_employee_entry(QJsonObject& obj);
+CmdError exec_get_customer_entry(QJsonObject& obj);
+CmdError exec_get_accident_details(QJsonObject& obj);
+CmdError exec_get_accounting_entry(QJsonObject& obj);
+CmdError exec_get_object_detalils(QJsonObject& obj);
+CmdError exec_get_role_details(QJsonObject& obj);
+CmdError exec_get_wapon_details(QJsonObject& obj);
+CmdError exec_get_duty_schedule(QJsonObject& obj);
     // mean validate and execute
     // on success return 0 or CommandErrno::OK
     // on faild return error number

@@ -12,6 +12,9 @@ GUI::GUI(Settings settings, QWidget *parent)
 {
     ui->setupUi(this);
 
+    ui->actionToggle_server->setEnabled(false);
+        // enabled after successfully inited db
+
     setupLogger();
     setupServer();
     setupDatabase();
@@ -22,16 +25,16 @@ GUI::~GUI()
 {
     _loggingThread.quit();
     _serverThread.quit();
+    _databaseThread.quit();
 
     _loggingThread.wait();
     _serverThread.wait();
+    _databaseThread.wait();
 
     delete _server;
     delete _log;
     delete _listenIndicator;
-    if (_database) {
-        delete _database;
-    }
+    delete _database;
     delete ui;
 }
 
@@ -94,7 +97,14 @@ GUI::adjustUi()
 
     _listenIndicator = new QLabel("Offline");
     ui->statusbar->addPermanentWidget(_listenIndicator);
-    ui->statusbar->showMessage("Initializing", 1000);
+
+    _progress = new QProgressBar(ui->statusbar);
+    _progress->setMaximumHeight(ui->statusbar->size().height() * 0.4);
+    _progress->setMaximumWidth(this->size().width() * 0.3);
+    _progress->setFormat("");
+    _progress->hide();
+
+    ui->statusbar->addWidget(_progress);
 
     ui->actionToggle_server->setText("Start");
 }
@@ -115,7 +125,15 @@ GUI::setupDatabase()
         _database = new Database::SQLite(_settings.databasePath, nullptr);
         connect(_database, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)));
         connect(_database, SIGNAL(failed(Database::CmdError)), this, SLOT(on_databaseError(Database::CmdError)));
+        connect(_database, SIGNAL(Inited()), this, SLOT(on_databaseInited()));
+
+        connect(_database, SIGNAL(setProgress(int, int)), this, SLOT(setProgress(int, int)));
+
+        _database->moveToThread(&_databaseThread);
+        connect(&_databaseThread, SIGNAL(started()), _database, SLOT(Initialize()));
+        _databaseThread.start();
     } catch (QSqlError e) {
+        delete _database;
         QString error = "Error in statment: " + e.databaseText() +
             "\nError type: " + QString::number(e.type()) +
             "\nReason: " + e.text() +
@@ -184,8 +202,33 @@ GUI::on_databaseError(Database::CmdError err)
 }
 
 void
+GUI::on_databaseInited()
+{
+    ui->actionToggle_server->setEnabled(true);
+    ui->statusbar->clearMessage();
+    Q_EMIT endProgress(); //may be connet directly?
+}
+
+void
 GUI::logMessage(QString str, int level)
 {
     ui->loggingOutput->append(str);
     Q_EMIT send_to_log(str, level);
+}
+
+void
+GUI::setProgress(int cur, int max)
+{
+    if (_progress->isHidden()) {
+        _progress->show();
+    }
+
+    _progress->setRange(0, max);
+    _progress->setValue(cur);
+}
+
+void
+GUI::endProgress()
+{
+    _progress->hide();
 }

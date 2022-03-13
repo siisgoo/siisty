@@ -41,8 +41,8 @@ target_link_libraries(
     ${PROJECT_NAME}
     PUBLIC
         Qt${QT_VERSION_MAJOR}::Core
-        Qt${QT_VERSION_MAJOR}::Network
         Qt${QT_VERSION_MAJOR}::Widgets
+        Qt${QT_VERSION_MAJOR}::Network
         Qt${QT_VERSION_MAJOR}::Sql
 )
 

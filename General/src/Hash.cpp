@@ -24,21 +24,20 @@ static quint32 strongRand(quint32 min,
     return QRandomGenerator::securelySeeded().generate() % (max+1 - min) + min;
 }
 
-static char randCharFrom(const QLatin1String& d, quint32 rand32) { return d[rand32 % (d.size()+1)].toLatin1(); }
+static char randCharFrom(const QLatin1String& d, quint32 rand32) { return d[rand32 % d.size()].toLatin1(); }
 
-static QMap<quint8, std::function<char(quint32)>> saltCharGen(
-        {
-            { Alpha,           [](quint32 rand32) { return alphabet[rand32 % (alphabet.size()+1)].toLatin1(); } },
-            { Digit,           [](quint32 rand32) { return digits[rand32 % (digits.size() +1)].toLatin1(); } },
-            { Special,         [](quint32 rand32) { return specials[rand32 % (specials.size() +1)].toLatin1(); } },
-            { Alpha & Digit,   [](quint32 rand32) { return (strongRand(0, 1) ? randCharFrom(alphabet, rand32) : randCharFrom(digits, rand32)); } },
-            { Alpha & Special, [](quint32 rand32) { return (strongRand(0, 1) ? randCharFrom(alphabet, rand32) : randCharFrom(specials, rand32)); } },
-            { Special & Digit, [](quint32 rand32) { return (strongRand(0, 1) ? randCharFrom(specials, rand32) : randCharFrom(digits, rand32)); } },
+static QMap<quint8, std::function<char(quint32)>> saltCharGen({
+            { Alpha,           [](quint32 rand32) { return randCharFrom(alphabet, rand32);                                                      }},
+            { Digit,           [](quint32 rand32) { return randCharFrom(digits, rand32);                                                        }},
+            { Special,         [](quint32 rand32) { return randCharFrom(specials, rand32);                                                      }},
+            { Alpha & Digit,   [](quint32 rand32) { return (strongRand(0, 1) ? randCharFrom(alphabet, rand32) : randCharFrom(digits, rand32));  }},
+            { Alpha & Special, [](quint32 rand32) { return (strongRand(0, 1) ? randCharFrom(alphabet, rand32) : randCharFrom(specials, rand32));}},
+            { Special & Digit, [](quint32 rand32) { return (strongRand(0, 1) ? randCharFrom(specials, rand32) : randCharFrom(digits, rand32));  }},
         });
 
 QByteArray saltGen(quint8 w)
 {
-    QByteArray salt;
+    QByteArray salt(salt_length, '\0');
     QVector<quint32> rand;
     rand.resize(salt_length);
     QRandomGenerator::securelySeeded().fillRange(rand.data(), rand.size());
@@ -51,23 +50,25 @@ QByteArray saltGen(quint8 w)
     return salt;
 }
 
-quint8 passWeaknesses(const QByteArray& data)
-{
-    int spec = 0;
-    int nums = 0;
-    int alph = 0;
-    for (auto ch : data) {
+static void countChars(int& spec, int& dig, int& alph, const char * str) {
+    spec = dig = alph = 0;
+    for (int i = 0; i < strlen(str); i++) {
+        char ch = str[i];
         if (isalpha(ch)) { alph++;
-        } else if (isdigit(ch)) { nums++;
+        } else if (isdigit(ch)) { dig++;
         } else if (isgraph(ch) || isspace(ch)) { spec++;
         }
     }
+}
 
+quint8 passWeaknesses(const QByteArray& data)
+{
     int len = data.length();
-    double spec_c = static_cast<double>(spec)/len;
-    double nums_c = static_cast<double>(nums)/len;
-    double alph_c = static_cast<double>(alph)/len;
-        // coef
+    int spec, nums, alph;
+    countChars(spec, nums, alph, data.data());
+    double spec_c = static_cast<double>(spec)/len,
+           nums_c = static_cast<double>(nums)/len,
+           alph_c = static_cast<double>(alph)/len;
 
     // weakness determinission algo:
     //  1. find max coef char type - mostch
@@ -95,6 +96,22 @@ quint8 passWeaknesses(const QByteArray& data)
     quint8 w3 = determWeakness(alph_c, spec_c, nums_c, Alpha, Special, Digit);
 
     return std::max(w1, std::max(w2, w3)); // only one gr then 0
+}
+
+PasswordQuality
+passwordQuality(const QByteArray& password)
+{
+    PasswordQuality quality = PasswordQuality::WEAK;
+    int spec, dig, alph;
+    countChars(spec, dig, alph, password.data());
+
+    // strong password standart:
+    // return length > 7
+    // specials > 2
+    // letters > 0
+    // digits > 0
+
+    return quality;
 }
 
 // There is no check bit or little endiang, may currupt on db export to another machine :) im not care :)
