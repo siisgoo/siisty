@@ -8,6 +8,28 @@
 #include <functional>
 #include <QDebug>
 
+// login pass query
+    /* q.prepare("SELECT role_id FROM EmployeesAndCustomers WHERE login=:login AND password=:password"); */
+    /* q.bindValue(":login", login); */
+    /* q.bindValue(":password", password); */
+
+    /* if (!q.exec()) { */
+    /*     Q_EMIT failed(CmdError(CmdError::SQLError, q.lastError().text())); */
+    /*     return; */
+    /* } */
+
+    /* if (!q.next()) { */
+    /*     Q_EMIT failed(CmdError(CmdError::AccessDenied, "Invalid loggin or password")); */
+    /*     return; */
+    /* } */
+
+    /* if (auto v = q.result()->handle(); v.isValid()) { */
+    /*     role = v.toInt(); */
+    /* } else { */
+    /*     Q_EMIT failed(CmdError(CmdError::AccessDenied, "Cannot find Role assigned to user")); */
+    /*     return; */
+    /* } */
+
 namespace Database {
 
 #define XX(num, name, query) { Tables:: name, QUOTE(name), query },
@@ -173,40 +195,13 @@ SQLite::insertDefaultsObjectTypes()
 }
 
 void
-SQLite::executeCommand(const QString& login, const QString& password,
-                       const QJsonObject& obj) {
-    int role;
+SQLite::executeCommand(RoleId role, const QJsonObject& obj) {
     int command_n;
     QSqlQuery q;
-    if (login == "admin" && password == "admin") { // TODO add autentificator & login for server manager ui
-        role = (int)RoleId::AUTO;
-    } else {
-        q.prepare("SELECT role_id FROM EmployeesAndCustomers WHERE login=:login AND password=:password");
-        q.bindValue(":login", login);
-        q.bindValue(":password", password);
 
-        if (!q.exec()) {
-            Q_EMIT failed(CmdError(CmdError::SQLError, q.lastError().text()));
-            return;
-        }
-
-        if (!q.next()) {
-            Q_EMIT failed(CmdError(CmdError::AccessDenied, "Invalid loggin or password"));
-            return;
-        }
-
-        if (auto v = q.result()->handle(); v.isValid()) {
-            role = v.toInt();
-        } else {
-            Q_EMIT failed(CmdError(CmdError::AccessDenied, "Cannot find Role assigned to user"));
-            return;
-        }
-    }
-
-    // if not server do auth
-    if (role != (int)RoleId::AUTO) {
-        if (role > (int)RoleId::ROLES_COUNT || role < 0) {
-            Q_EMIT failed(CmdError(CmdError::AccessDenied, "Invalid Role assigned to user"));
+    if (role != RoleId::AUTO) {
+        if (role > RoleId::ROLES_COUNT || role < (RoleId)0) {
+            Q_EMIT failed(CmdError(CmdError::AccessDenied, "Invalid Role ID passed"));
             return;
         }
     }
@@ -223,13 +218,12 @@ SQLite::executeCommand(const QString& login, const QString& password,
         return;
     }
 
-    // AUTO have not limitations
-    if (role != (int)RoleId::AUTO) {
+    if (role != RoleId::AUTO) {
         // check permission for execute command
-        auto it = std::find(Accessability[role].commands.begin(), Accessability[role].commands.end(),
+        auto it = std::find(Accessability[(int)role].commands.begin(), Accessability[(int)role].commands.end(),
                 static_cast<CommandId>(command_n));
 
-        if (it == Accessability[role].commands.end()) {
+        if (it == Accessability[(int)role].commands.end()) {
         Q_EMIT failed(CmdError(CmdError::AccessDenied, "You not have access to execute this command"));
             return;
         }
@@ -250,26 +244,25 @@ SQLite::executeCommand(const QString& login, const QString& password,
 }
 
 void
-SQLite::executeCommand(const QString& login, const QString& password,
-                       const QJsonDocument& doc)
+SQLite::executeCommand(RoleId role, const QJsonDocument& doc)
 {
     if (!doc.isObject()) {
         Q_EMIT failed(CmdError(CmdError::InvalidCommand, "Request is empty"));
         return;
     }
     QJsonObject obj = doc.object();
-    this->executeCommand(login, password, obj);
+    this->executeCommand(role, obj);
 }
 
 void
 SQLite::autoCommand(const QJsonDocument& doc)
 {
-    this->executeCommand("admin", "admin", doc);
+    this->executeCommand(RoleId::AUTO, doc);
 }
 
 void
 SQLite::autoCommand(const QJsonObject& obj) {
-    this->executeCommand("admin", "admin", obj);
+    this->executeCommand(RoleId::AUTO, obj);
 }
 
 } /* Database  */ 

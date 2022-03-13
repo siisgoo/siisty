@@ -2,6 +2,7 @@
 #include "Database/Utility.hpp"
 #include <QCryptographicHash>
 
+#include <QLatin1String>
 #include <QtSql>
 #include <ctype.h>
 
@@ -11,86 +12,6 @@
 #include <QJsonValue>
 
 namespace Database {
-
-static const QVector<QByteArray> slats({
-    R"(0@1.*$1j}7{9$=G&03U+)", // no spec no nums
-    R"(12jsdlJO198TG12pQ12v)", // no nums no alpha
-    R"(*l@?,05492*(#`27<>?%)", // no spec no alpha
-    R"(nqlkjASlIasjdipauLKu)", // no alpha
-    R"(32578301987-29855879)", // no nums
-    R"(#$!><?{%.*!@[^(*)}`~)", // no spec
-    R"(po)@(*Lkjlkjasg98J7#)", // normal dup of first
-});
-
-static void setBit(unsigned long& num, unsigned long bit) { num |= (1 << bit); }
-static int getBit(unsigned long num, unsigned long bit) { return (num & ( 1 << bit  )) >> bit; }
-
-static const int chooseSalt(const QByteArray& data) {
-    int spec = 0;
-    int nums = 0;
-    int alph = 0;
-    for (auto ch : data) {
-        if (isalpha(ch)) { alph++;
-        } else if (isdigit(ch)) { nums++;
-        } else if (isgraph(ch) || isspace(ch)) { spec++;
-        }
-    }
-
-    int len = data.length();
-    double spec_c = static_cast<double>(spec)/len;
-    double nums_c = static_cast<double>(nums)/len;
-    double alph_c = static_cast<double>(alph)/len;
-
-    if (spec_c > nums_c && spec_c > alph_c) {
-        if (spec_c > 0.5) {
-            return 1; //no num no alpha
-        } else {
-            if (std::max(nums_c, alph_c) - std::min(nums_c, alph_c) < 0.1) {
-                return (nums_c > alph_c ? 3 : 4);
-            } else {
-                return 1;
-            }
-        }
-    } else if (nums_c > spec_c && nums_c > alph_c) {
-        if (nums_c > 0.5) {
-            return 2; // no spec no alpha
-        } else {
-            if (std::max(spec_c, alph_c) - std::min(spec_c, alph_c) < 0.1) {
-                return (nums_c > alph_c ? 3 : 4);
-            } else {
-                return 1;
-            }
-        }
-    } else {
-        if (alph_c > 0.5) {
-            return 0; // no spec no nums
-        } else {
-            if (std::max(nums_c, alph_c) - std::min(nums_c, alph_c) < 0.1) {
-                return (nums_c > alph_c ? 3 : 4);
-            } else {
-                return 1;
-            }
-        }
-    }
-
-    return 0;
-}
-
-//Proposed Algorithm from IAENG International Journal of Computer Science, 43:1, IJCS_43_1_04
-static const QString encryptAuth(const QByteArray& data)
-{
-    using algo = QCryptographicHash::Algorithm;
-
-    QByteArray toCrypt;
-    QByteArray hash = QCryptographicHash::hash(data, algo::Sha512);
-
-    unsigned long saltPlacment;
-    for (int i = 0; i < data.length(); i++) {
-        int r = data[i] ^ hash[i];
-    }
-
-    return QCryptographicHash::hash(toCrypt, algo::Sha512);
-}
 
 #define XX(id, name, desc) { QUOTE(name), QUOTE(desc) },
     static struct CommandErrorDesc_t {
@@ -229,6 +150,8 @@ exec_register_accident(QJsonObject& obj)
 }
 
 /* TODO add check LOGIN and PASSWORD with pattern
+ * login and password passed as not encrypted
+ *
  * name: string,
  * entryDate: int, <- optional (default today)
  * role: int,
@@ -278,8 +201,8 @@ exec_register_employee(QJsonObject& obj)
         password = val.toString();
         if (password.length() < 8) { //TODO make it editable or write to config.hpp file
             return CmdError(CmdError::InvalidParam, "Too small password. Minimum 8 symbols");
-        } else if (password.length() > sizeof(unsigned long)*8) {
-            return CmdError(CmdError::InvalidParam, "Too long password. Maximum " + QString::number(sizeof(unsigned long)*8) + " symbols");
+        } else if (password.length() > 64) {
+            return CmdError(CmdError::InvalidParam, "Too long password. Maximum 64 symbols");
         }
     } else {
         return CmdError(CmdError::InvalidParam, "No \"password\" entry");
@@ -390,13 +313,13 @@ exec_add_object_type(QJsonObject& obj)
     if (auto val = obj["name"]; val.isString()) {
         name = val.toString();
     } else {
-        return (int)CommandErrno::InvalidParam;
+        return CmdError(CmdError::InvalidParam, "");
     }
 
     if (auto val = obj["price"]; val.isDouble()) {
         price = val.toDouble();
     } else {
-        return (int)CommandErrno::InvalidParam;
+        return CmdError(CmdError::InvalidParam, "");
     }
 
     QSqlQuery q;
@@ -405,7 +328,7 @@ exec_add_object_type(QJsonObject& obj)
     q.bindValue(":name", name);
     q.bindValue(":price", price);
     if (!q.exec()) {
-        return (int)CommandErrno::SQLError;
+        return CmdError(CmdError::SQLError, q.lastError().text());
     }
 
     return CmdError();

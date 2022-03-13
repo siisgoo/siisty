@@ -51,7 +51,7 @@ static const auto CREATE_EMPLOYEES_AND_CUSTOMERS_TABLE =
     R"(
     CREATE TABLE IF NOT EXISTS "EmployeesAndCustomers" ( "id" INTEGER NOT NULL UNIQUE, "name" TEXT NOT NULL,
     "entryDate" TEXT NOT NULL, "role_id" INTEGER NOT NULL, "wapon_id" INTEGER UNIQUE, "email"
-    TEXT UNIQUE, "login" TEXT NOT NULL UNIQUE, "password" TEXT NOT NULL UNIQUE, "image" BLOB,
+    TEXT UNIQUE, "login" TEXT NOT NULL UNIQUE, "password" TEXT NOT NULL UNIQUE, "salt" TEXT NOT NULL UNIQUE, "image" BLOB,
     FOREIGN KEY("wapon_id") REFERENCES "Wapons"("id") ON DELETE RESTRICT, FOREIGN
     KEY("role_id") REFERENCES "Roles"("id") ON DELETE RESTRICT, PRIMARY KEY("id") ) WITHOUT
     ROWID
