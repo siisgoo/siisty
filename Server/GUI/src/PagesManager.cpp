@@ -11,6 +11,12 @@ PagesManager::instance()
     return _pmInstance;
 }
 
+int
+PagesManager::pages() {
+    auto& pages = PagesManager::instance()._pages;
+    return pages.size();
+}
+
 void
 PagesManager::addPage(QWidget * wp)
 {

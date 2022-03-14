@@ -81,30 +81,65 @@ SQLite::SQLite(const QString& path, QObject * p)
 {
 }
 
+//TODO add check if inited
 void
 SQLite::Initialize()
 {
     Q_EMIT setProgress(0, 3);
     connect(this, SIGNAL(failed(Database::CmdError)), this, SLOT(cmdLogMessage(Database::CmdError)));
+    connect(this, SIGNAL(addCommand(Database::RoleId, QJsonObject&)), this, SLOT(executeCommand(Database::RoleId, QJsonObject&)));
     _db = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE"));
     _db->setDatabaseName(_path);
-    if (!_db->open())
-        throw _db->lastError();
+    try {
+        if (!_db->open())
+            throw _db->lastError();
 
-    checkTables();
-    Q_EMIT setProgress(1, 3);
-    insertDefaultsRoles();
-    Q_EMIT setProgress(2, 3);
-    insertDefaultsObjectTypes();
-    Q_EMIT setProgress(3, 3);
+        checkTables();
+        Q_EMIT setProgress(1, 3);
+        insertDefaultsRoles();
+        Q_EMIT setProgress(2, 3);
+        insertDefaultsObjectTypes();
+        Q_EMIT setProgress(3, 3);
 
-    Q_EMIT Inited();
+        Q_EMIT Inited();
+    } catch (QSqlError e) {
+        Q_EMIT InitizlizationFailed(e);
+    }
 }
 
 SQLite::~SQLite()
 {
-    if (_db->isOpen()) {
+    if (_db && _db->isOpen()) {
         _db->close();
+        delete _db;
+    }
+}
+
+void
+SQLite::Run()
+{
+    this->Initialize();
+
+    _running=true;
+    this->worker();
+}
+
+void
+SQLite::Stop()
+{
+    _running = false;
+}
+
+void
+SQLite::worker()
+{
+    if (_cmdQueue.length()) {
+        DatabaseCmd cmd = _cmdQueue.dequeue();
+        this->executeCommand((RoleId)cmd.first, cmd.second);
+    }
+
+    if (_running) {
+        QTimer::singleShot(100, this, SLOT(worker()));
     }
 }
 
@@ -115,12 +150,13 @@ SQLite::checkTables()
     QStringList tables = _db->tables();
     for (i = 0; i < (int)Tables::TablesCount ; i++) {
         if (!tables.contains(tablesDefenitions[i].name)) {
-            this->autoCommand(QJsonObject{
+            QJsonObject cmd{
                     {"command", (int)CommandId::CREATE_TABLE},
                     {"arg",
                         QJsonObject{ { "query", tablesDefenitions[i].createQuery } }
                     }
-            });
+            };
+            Q_EMIT addCommand(RoleId::AUTO, cmd);
         }
     }
 }
@@ -210,7 +246,7 @@ SQLite::insertDefaultsObjectTypes()
                     { "name", ObjectTypes[i].name },
                     { "price", ObjectTypes[i].price }
             });
-            this->autoCommand(obj);
+            Q_EMIT addCommand(RoleId::AUTO, obj);
         }
     }
 }
@@ -222,9 +258,11 @@ SQLite::cmdLogMessage(CmdError e)
 }
 
 void
-SQLite::executeCommand(RoleId role, const QJsonObject& obj) {
+SQLite::executeCommand(Database::RoleId role, QJsonObject& obj) {
     int command_n;
     QSqlQuery q;
+
+    qDebug() << QThread::currentThreadId();
 
     if (role != RoleId::AUTO) {
         if (role > RoleId::ROLES_COUNT || role < (RoleId)0) {
@@ -268,28 +306,6 @@ SQLite::executeCommand(RoleId role, const QJsonObject& obj) {
         Q_EMIT failed(CmdError(CmdError::InvalidParam, "No parameters passed"));
         return;
     }
-}
-
-void
-SQLite::executeCommand(RoleId role, const QJsonDocument& doc)
-{
-    if (!doc.isObject()) {
-        Q_EMIT failed(CmdError(CmdError::InvalidCommand, "Request is empty"));
-        return;
-    }
-    QJsonObject obj = doc.object();
-    this->executeCommand(role, obj);
-}
-
-void
-SQLite::autoCommand(const QJsonDocument& doc)
-{
-    this->executeCommand(RoleId::AUTO, doc);
-}
-
-void
-SQLite::autoCommand(const QJsonObject& obj) {
-    this->executeCommand(RoleId::AUTO, obj);
 }
 
 } /* Database  */ 

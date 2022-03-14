@@ -6,6 +6,7 @@
 #include <QtSql>
 #include <QString>
 #include <QJsonObject>
+#include <QQueue>
 
 #include "Database/Role.hpp"
 #include "Database/command.hpp"
@@ -20,8 +21,14 @@ class SQLite : public QObject {
         SQLite(const QString& path, QObject * p = nullptr);
         virtual ~SQLite();
 
+        using DatabaseCmd = QPair<RoleId, QJsonObject&>;
+
     Q_SIGNALS:
         void Inited();
+        void InitizlizationFailed(QSqlError);
+
+        void addCommand(Database::RoleId role, QJsonObject&);
+
         void failed(Database::CmdError);
         void success(QJsonObject&);
         void logMessage(QString, int = LoggingLevel::Trace);
@@ -29,27 +36,31 @@ class SQLite : public QObject {
         void setProgress(int, int);
 
     public Q_SLOTS:
-        void Initialize();
-
-        void executeCommand(RoleId role, const QJsonDocument& d);
-        void executeCommand(RoleId role, const QJsonObject& o);
-            // all permission controll system BASED on this small role variable
-
-        void autoCommand(const QJsonDocument& d); // for AUTO role(all permissions)
-        void autoCommand(const QJsonObject& o);
+        void Run();
+        void Stop();
 
     private Q_SLOTS:
+        void worker();
+            // worker ¯\_(ツ)_/¯
+
         void cmdLogMessage(Database::CmdError);
             // transform for simple logMessage
 
+        void executeCommand(Database::RoleId role, QJsonObject& o);
+            // all permission controll system BASED on this small role variable
+
     private:
-        void checkAdmin();
+        void Initialize();
         void checkTables();
         void insertDefaultsRoles();
         void insertDefaultsObjectTypes();
 
-        QSqlDatabase * _db;
+        QQueue<DatabaseCmd> _cmdQueue;
+
+        bool _running;
+
         QString _path;
+        QSqlDatabase * _db;
 };
 
 } /* Database */

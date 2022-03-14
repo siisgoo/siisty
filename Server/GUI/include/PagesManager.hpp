@@ -16,6 +16,7 @@ class PagesManager {
 
         static PagesManager&  instance();
 
+        static int pages();
         static void addPage(QWidget *);
         static QWidget * getPage(const QString& name);
         /* static QWidget * getPage(const int n); */

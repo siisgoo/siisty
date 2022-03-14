@@ -1,4 +1,4 @@
-#include "Pages/ServerInfoPage.hpp"
+#include "Pages/ControlPannel/ServerInfoPage.hpp"
 #include "ui_ServerInfoPage.h"
 
 #include <QTimer>
@@ -9,7 +9,7 @@ ServerInfoPage::ServerInfoPage(QWidget *parent) :
         ui(new Ui::ServerInfoPage),
         _timer(new QTimer(this))
 {
-    this->setObjectName("Server info");
+    this->setObjectName("Service");
 
     connect(_timer, SIGNAL(timeout()), this, SLOT(updateOnlineTime()));
 

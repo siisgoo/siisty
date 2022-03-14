@@ -1,6 +1,7 @@
 #ifndef SERVERMANAGER_H
 #define SERVERMANAGER_H
 
+#include <QGenericMatrix>
 #include <QThread>
 #include <QLabel>
 #include <QStatusBar>
@@ -9,18 +10,46 @@
 #include <QScopedPointer>
 #include <QMainWindow>
 
+#include <initializer_list>
+
 #include "Database/Database.hpp"
 
+#include "Database/Role.hpp"
 #include "PagesManager.hpp"
 #include "Pages/WelcomePage.hpp"
-#include "Pages/ServerInfoPage.hpp"
-#include "Pages/ConnectionsPage.hpp"
-#include "Pages/DataUsagePage.hpp"
-#include "Pages/SystemLoadPage.hpp"
-#include "Pages/DatabasePage.hpp"
+#include "Pages/ControlPannel/ServerInfoPage.hpp"
+#include "Pages/ControlPannel/ConnectionsPage.hpp"
 
+#include "General/Matrix.hpp"
 #include "General/logger.hpp"
 #include "SslServer/iiServer.hpp"
+
+class PagesPath {
+    public:
+        // { PageName, { Neightbor1, Neightbor2 }, ... }
+        PagesPath(int v) { }
+        ~PagesPath() { }
+
+        void addEdge(const QString& src, const QString& dst) {
+            _pagesNodes[src].push_back(dst);
+        }
+
+        QVector<QString> pathFor(const QString& page) {
+            QVector<QString> path;
+
+            for (auto it : _pagesNodes) {
+                auto i = std::find_if(it.begin(), it.end(), [](QString) { return true; });
+                if (i != it.end()) {
+                }
+            }
+
+            return path;
+        }
+
+    private:
+
+        QVector<QVector<QString>> _pagesNodes;
+};
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class GUI; }
@@ -41,7 +70,7 @@ struct Settings {
     int logginLeve = LoggingLevel::Trace;
     QString logFile = "./log";
 
-    QString defultPage = "Server Info";
+    QString defultPage = "Welcome";
 
     int maxThreads = QThread::idealThreadCount();
     int maxPendingConnections = 100;
@@ -54,16 +83,19 @@ class GUI : public QMainWindow
     public:
         GUI(Settings settings, QWidget *parent = nullptr);
 
-        void changeServeAddress(QHostAddress&, quint16);
-        void changeLoggingLeve(int level);
-
         virtual ~GUI();
 
     Q_SIGNALS:
         void send_to_log(QString, int);
 
+        void addCommand(Database::RoleId, QJsonObject&);
+
+    public Q_SLOTS:
+        void changeServeAddress(QHostAddress&, quint16);
+        void changeLoggingLeve(int level);
+
     private Q_SLOTS:
-        void onItemClicked(const QModelIndex&);
+        void onOpenPageBtnClicked();
             // change page
 
         void on_listeningStateChanged(QHostAddress, quint16, bool);
@@ -71,7 +103,9 @@ class GUI : public QMainWindow
         void on_actionToggle_server_triggered();
 
         void on_databaseError(Database::CmdError);
+            // command exec error
         void on_databaseInited();
+        void on_databaseInitializationFailed(QSqlError e);
 
         void changeIndicatorState(QHostAddress, quint16, bool);
         void logMessage(QString, int = LoggingLevel::Trace);
@@ -80,6 +114,12 @@ class GUI : public QMainWindow
         void setProgress(int, int);
 
         void on_clearLogClicked();
+
+    private:
+        enum NavPages {
+            Main = 0,
+            ControlPanel = 1,
+        };
 
     private:
         void adjustUi();
@@ -102,6 +142,10 @@ class GUI : public QMainWindow
 
         QWidget * _defaultPage = nullptr;
         QWidget * _cur_page = nullptr;
+            // page handler + form
+
+        PagesPath * _pagesPath;
+
         QLabel  * _listenIndicator;
         Ui::GUI * ui;
 };

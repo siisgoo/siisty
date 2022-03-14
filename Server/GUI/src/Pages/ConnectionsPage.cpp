@@ -1,4 +1,4 @@
-#include "Pages/ConnectionsPage.hpp"
+#include "Pages/ControlPannel/ConnectionsPage.hpp"
 #include "ui_ConnectionsPage.h"
 
 #include <QDebug>

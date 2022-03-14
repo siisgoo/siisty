@@ -57,7 +57,7 @@ exec_create_table(QJsonObject& obj)
     }
 
     if (!q.exec(query_s)) {
-        return CmdError(CmdError::SQLError, q.lastError().text());
+        return CmdError(CmdError::SQLError, q.lastQuery() + " " + q.lastError().text());
     }
 
     return CmdError();
@@ -224,7 +224,7 @@ exec_register_employee(QJsonObject& obj)
     q.bindValue(":image", (image.length() == 0 ? QVariant() : image));
 
     if (!q.exec()) {
-        return CmdError(CmdError::SQLError, q.lastError().text());
+        return CmdError(CmdError::SQLError, q.lastQuery() + " " + q.lastError().text());
     }
 
     return CmdError();
@@ -263,6 +263,45 @@ exec_register_object_type(QJsonObject& obj)
 CmdError
 exec_register_wapon(QJsonObject& obj)
 {
+    QString name;
+    int ammo;
+    double price;
+    double ammoPrice;
+    QByteArray image;
+
+    QJsonValue buf;
+
+    qDebug() << "Adding wapon";
+
+    name = obj.take("name").toString();
+    buf = obj.take("ammo");
+    ammo = (buf.isDouble() ? buf.toInteger() : -1);
+    buf = obj.take("ammoPrice");
+    ammoPrice = (buf.isDouble() ? buf.toInteger() : -1);
+    //IMAGE TODO
+
+    if (!name.length() ||
+            ammo < 0 ||
+            ammoPrice < 0)
+    {
+        return CmdError(CmdError::InvalidParam, "Empty or not exists parameter passed");
+    }
+
+    QSqlQuery q;
+    q.prepare("INSERT INTO Wapons (name, price, ammo, ammoPrice, image)"
+              "VALUES (:name, :price, :ammo, :ammoPrice, :image)");
+    q.bindValue(":name", name);
+    q.bindValue(":price", price);
+    q.bindValue(":ammo", ammo);
+    q.bindValue(":ammoPrice", ammoPrice);
+    q.bindValue(":image", (image.length() > 0 ? image.toBase64() : QVariant()));
+
+    if (!q.exec()) {
+        return CmdError(CmdError::SQLError, QString(q.lastQuery() + " " + q.lastError().text()));
+    }
+
+    qDebug() << "Adding wapon success";
+
     return CmdError();
 }
 
@@ -332,7 +371,7 @@ exec_add_object_type(QJsonObject& obj)
     q.bindValue(":name", name);
     q.bindValue(":price", price);
     if (!q.exec()) {
-        return CmdError(CmdError::SQLError, q.lastError().text());
+        return CmdError(CmdError::SQLError, q.lastQuery() + " " + q.lastError().text());
     }
 
     return CmdError();

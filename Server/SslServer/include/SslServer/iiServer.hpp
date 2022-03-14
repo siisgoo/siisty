@@ -6,6 +6,8 @@
 #include "SslServer/SslServer.hpp"
 #include "SslServer/iiClient.hpp"
 
+#include "General/logger.hpp"
+
 enum ServerState {
 
 };
@@ -28,7 +30,7 @@ class iiServer : public QObject {
         void setForseUseSsl(bool);
 
     Q_SIGNALS:
-        void logMessage(QString, int);
+        void logMessage(QString, int = LoggingLevel::Trace);
         void listeningStateChanged(QHostAddress, quint16, bool);
 
     protected Q_SLOTS:

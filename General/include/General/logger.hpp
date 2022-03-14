@@ -8,7 +8,7 @@
 #include <QPointer>
 #include <QTextStream>
 
-enum LoggingLevel {
+enum LoggingLevel : int {
     Trace = 0,
     Debug,
     Info,
