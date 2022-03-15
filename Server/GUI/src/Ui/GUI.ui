@@ -1062,7 +1062,7 @@ QStackedWidget &gt; QFrame {
       </property>
       <property name="font">
        <font>
-        <family>Source Code Pro</family>
+        <family>Iosevka</family>
        </font>
       </property>
       <property name="contextMenuPolicy">
@@ -1081,40 +1081,50 @@ QStackedWidget &gt; QFrame {
        <number>0</number>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <property name="spacing">
+        <number>0</number>
+       </property>
        <property name="sizeConstraint">
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
        <item>
-        <widget class="QLabel" name="label_3">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+        <layout class="QHBoxLayout" name="page_path_layout">
+         <property name="spacing">
+          <number>4</number>
          </property>
-         <property name="font">
-          <font>
-           <family>Iosevka</family>
-          </font>
+         <property name="sizeConstraint">
+          <enum>QLayout::SetDefaultConstraint</enum>
          </property>
-         <property name="frameShadow">
-          <enum>QFrame::Plain</enum>
+         <property name="leftMargin">
+          <number>2</number>
          </property>
-         <property name="text">
-          <string>-&gt;</string>
+         <property name="topMargin">
+          <number>1</number>
          </property>
-         <property name="textFormat">
-          <enum>Qt::AutoText</enum>
+         <property name="rightMargin">
+          <number>2</number>
          </property>
-         <property name="openExternalLinks">
-          <bool>false</bool>
+         <property name="bottomMargin">
+          <number>1</number>
          </property>
-        </widget>
+        </layout>
        </item>
       </layout>
      </widget>
     </item>
-    <item row="1" column="0">
+    <item row="1" column="0" alignment="Qt::AlignLeft|Qt::AlignTop">
      <widget class="QStackedWidget" name="NavPages">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
@@ -1122,8 +1132,14 @@ QStackedWidget &gt; QFrame {
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="minimumSize">
+       <size>
+        <width>130</width>
+        <height>156</height>
+       </size>
+      </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="page">
        <layout class="QGridLayout" name="gridLayout_4">
@@ -1142,13 +1158,25 @@ QStackedWidget &gt; QFrame {
         <property name="spacing">
          <number>0</number>
         </property>
-        <item row="0" column="0">
+        <item row="0" column="0" alignment="Qt::AlignTop">
          <widget class="QFrame" name="NavPagesFrame">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>156</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>118</width>
+            <height>156</height>
+           </size>
           </property>
           <property name="contextMenuPolicy">
            <enum>Qt::NoContextMenu</enum>
@@ -1188,17 +1216,11 @@ QStackedWidget &gt; QFrame {
             </widget>
            </item>
            <item>
-            <spacer name="horizontalSpacer">
+            <widget class="Line" name="line_2">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
+            </widget>
            </item>
            <item>
             <widget class="QPushButton" name="open_HelpBtn">
@@ -1214,10 +1236,22 @@ QStackedWidget &gt; QFrame {
       </widget>
       <widget class="QWidget" name="page_2">
        <layout class="QGridLayout" name="gridLayout_6">
-        <item row="0" column="0">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item row="0" column="0" alignment="Qt::AlignTop">
          <widget class="QFrame" name="NavPagesFrame_2">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -1234,9 +1268,24 @@ QStackedWidget &gt; QFrame {
           <property name="frameShadow">
            <enum>QFrame::Sunken</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0">
+          <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,0">
+           <property name="spacing">
+            <number>2</number>
+           </property>
            <property name="sizeConstraint">
             <enum>QLayout::SetDefaultConstraint</enum>
+           </property>
+           <property name="leftMargin">
+            <number>9</number>
+           </property>
+           <property name="topMargin">
+            <number>9</number>
+           </property>
+           <property name="rightMargin">
+            <number>9</number>
+           </property>
+           <property name="bottomMargin">
+            <number>9</number>
            </property>
            <item>
             <widget class="QPushButton" name="open_ServiceBtn">
@@ -1253,22 +1302,79 @@ QStackedWidget &gt; QFrame {
             </widget>
            </item>
            <item>
-            <spacer name="horizontalSpacer_2">
+            <widget class="QPushButton" name="open_Users">
+             <property name="text">
+              <string>Users</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line">
+             <property name="frameShadow">
+              <enum>QFrame::Sunken</enum>
+             </property>
+             <property name="lineWidth">
+              <number>1</number>
+             </property>
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
+            </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton_2">
+            <widget class="QPushButton" name="open_Main">
              <property name="text">
               <string>Back</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_3">
+       <layout class="QGridLayout" name="gridLayout_7">
+        <item row="0" column="0" alignment="Qt::AlignTop">
+         <widget class="QFrame" name="frame_2">
+          <property name="minimumSize">
+           <size>
+            <width>112</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_8">
+           <item row="4" column="1">
+            <widget class="QPushButton" name="open_ControlPannelBtn_2">
+             <property name="text">
+              <string>Back</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QPushButton" name="open_UsersListBtn">
+             <property name="text">
+              <string>Users list</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QPushButton" name="open_RegisterUserBtn">
+             <property name="text">
+              <string>Register user</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="Line" name="line_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
              </property>
             </widget>
            </item>
@@ -1355,14 +1461,16 @@ QStackedWidget &gt; QFrame {
     <bool>false</bool>
    </property>
    <property name="styleSheet">
-    <string notr="true">border-top: 2px solid #bbb;
-border-style: groove;</string>
+    <string notr="true">QStatusBar#statusbar {
+border-top: 2px solid #bbb;
+border-style: groove;
+}</string>
    </property>
    <property name="inputMethodHints">
     <set>Qt::ImhNone</set>
    </property>
    <property name="sizeGripEnabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QDockWidget" name="info_dock">
@@ -1497,7 +1605,7 @@ border-style: groove;</string>
   </widget>
   <widget class="QToolBar" name="toolBar">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -1506,12 +1614,13 @@ border-style: groove;</string>
     <string>toolBar_2</string>
    </property>
    <attribute name="toolBarArea">
-    <enum>RightToolBarArea</enum>
+    <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
    <addaction name="actionToggle_server"/>
+   <addaction name="separator"/>
   </widget>
   <action name="actionVisit_shelly_wiki">
    <property name="text">

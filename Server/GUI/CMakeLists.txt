@@ -3,7 +3,8 @@ project(GUI LANGUAGES CXX VERSION 0.0.1 DESCRIPTION "Shelly server")
 
 set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/src/Ui
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Ui/Pages
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Ui/ControlPannel)
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Ui/ControlPannel
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Ui/Users)
 
 #####################
 #  finding sources  #

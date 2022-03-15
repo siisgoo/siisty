@@ -17,38 +17,92 @@
 #include "Database/Role.hpp"
 #include "PagesManager.hpp"
 #include "Pages/WelcomePage.hpp"
+#include "Pages/ControlPannel.hpp"
 #include "Pages/ControlPannel/ServerInfoPage.hpp"
 #include "Pages/ControlPannel/ConnectionsPage.hpp"
+#include "Pages/Users.hpp"
+#include "Pages/Users/RegisterUser.hpp"
+#include "Pages/Users/UsersList.hpp"
 
 #include "General/Matrix.hpp"
 #include "General/logger.hpp"
 #include "SslServer/iiServer.hpp"
 
+class ClickableLabel : public QLabel {
+    Q_OBJECT
+
+   public:
+        explicit ClickableLabel(QString txt,
+                Qt::WindowFlags f = Qt::WindowFlags())
+        : QLabel(txt) { }
+        virtual ~ClickableLabel() { }
+
+   signals:
+        void clicked();
+
+   protected:
+        virtual void mousePressEvent(QMouseEvent* event) {
+            Q_EMIT clicked();
+        }
+};
+
 class PagesPath {
     public:
-        // { PageName, { Neightbor1, Neightbor2 }, ... }
-        PagesPath(int v) { }
+        PagesPath() { }
         ~PagesPath() { }
+
+        void setRoot(const QString& root) {
+            _root = root;
+        }
 
         void addEdge(const QString& src, const QString& dst) {
             _pagesNodes[src].push_back(dst);
         }
 
-        QVector<QString> pathFor(const QString& page) {
-            QVector<QString> path;
+        void addEdge(const QString& src, const QVector<QString>& dst) {
+            _pagesNodes[src] = dst;
+        }
 
-            for (auto it : _pagesNodes) {
-                auto i = std::find_if(it.begin(), it.end(), [](QString) { return true; });
-                if (i != it.end()) {
+        // add checks
+        // redo with recuse?
+        //
+        // may be pre-create all avalible pathes?
+        //
+        // problem: unique names not supported!
+        QVector<QString> pathFor(const QString& page) const {
+            QVector<QString> path { page };
+            QString search = page;
+            bool done = false, inn_done = false;
+
+            while (!done) {
+                QMap<QString, QVector<QString>>::const_iterator i = _pagesNodes.constBegin();
+                inn_done = false;
+                while (i != _pagesNodes.constEnd() && !done && !inn_done) {
+                    if (search == _root) { //found
+                        done=true;
+                    }
+                    for (auto node : i.value()) {
+                        if (node == search) {
+                            search = i.key();
+                            path.push_front(search);
+                            inn_done = true;
+                            break;
+                        }
+                    }
+                    i++;
                 }
             }
 
             return path;
         }
 
-    private:
+        void print() {
+            qDebug() << _pagesNodes;
+        }
 
-        QVector<QVector<QString>> _pagesNodes;
+    private:
+        QString _root;
+        QMap<QString, QVector<QString>> _pagesNodes;
 };
 
 QT_BEGIN_NAMESPACE
@@ -89,15 +143,13 @@ class GUI : public QMainWindow
         void send_to_log(QString, int);
 
         void addCommand(Database::RoleId, QJsonObject&);
+        void pageChanged(QString);
 
     public Q_SLOTS:
         void changeServeAddress(QHostAddress&, quint16);
         void changeLoggingLeve(int level);
 
     private Q_SLOTS:
-        void onOpenPageBtnClicked();
-            // change page
-
         void on_listeningStateChanged(QHostAddress, quint16, bool);
         void on_actionQuit_triggered();
         void on_actionToggle_server_triggered();
@@ -106,6 +158,10 @@ class GUI : public QMainWindow
             // command exec error
         void on_databaseInited();
         void on_databaseInitializationFailed(QSqlError e);
+
+        void on_pathNodeClicked();
+        void on_pageChanged(QString);
+            // draw path
 
         void changeIndicatorState(QHostAddress, quint16, bool);
         void logMessage(QString, int = LoggingLevel::Trace);
@@ -116,9 +172,11 @@ class GUI : public QMainWindow
         void on_clearLogClicked();
 
     private:
-        enum NavPages {
+        enum class NavPages {
             Main = 0,
-            ControlPanel = 1,
+            ControlPannel,
+            Users,
+            COUNT,
         };
 
     private:
@@ -140,13 +198,11 @@ class GUI : public QMainWindow
 
         QProgressBar * _progress;
 
-        QWidget * _defaultPage = nullptr;
-        QWidget * _cur_page = nullptr;
-            // page handler + form
+        QString _defaultPage;
 
-        PagesPath * _pagesPath;
+        PagesPath _pagesPath;
 
-        QLabel  * _listenIndicator;
+        QWidget * _listenIndicator;
         Ui::GUI * ui;
 };
 #endif // SERVERMANAGER_H

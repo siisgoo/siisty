@@ -18,25 +18,39 @@ PagesManager::pages() {
 }
 
 void
-PagesManager::addPage(QWidget * wp)
+PagesManager::addPage(const QString& name, QWidget * wp, int nav)
 {
     auto& pages = PagesManager::instance()._pages;
+    wp->setObjectName(name);
     //add check for existance
-    pages.append(wp);
+    pages.append({wp, nav});
 }
 
 QWidget *
 PagesManager::getPage(const QString& name)
 {
     auto& pages = PagesManager::instance()._pages;
-    auto it = std::find_if(pages.begin(), pages.end(),
-        [name] (QWidget* w) {
-            return w->objectName() == name;
-    });
-
-    if (it != pages.end()) {
-        return *it;
+    for (auto it : pages) {
+        if (it.first->objectName() == name) {
+            return it.first;
+        }
     }
 
     return nullptr;
+}
+
+//merge funcs
+//TODO
+
+int
+PagesManager::getPageNav(const QString& name)
+{
+    auto& pages = PagesManager::instance()._pages;
+    for (auto it : pages) {
+        if (it.first->objectName() == name) {
+            return it.second;
+        }
+    }
+
+    return -1;
 }

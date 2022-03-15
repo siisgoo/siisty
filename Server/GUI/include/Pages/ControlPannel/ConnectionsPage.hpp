@@ -20,7 +20,7 @@ class ConnectionsPage : public QWidget {
     };
 
     public:
-        ConnectionsPage(QWidget *parent = nullptr);
+        explicit ConnectionsPage(QWidget *parent = nullptr);
         ~ConnectionsPage();
 
     private slots:

@@ -7,16 +7,15 @@ namespace Ui {
 class WelcomePage;
 }
 
-class WelcomePage : public QWidget
-{
+class WelcomePage : public QWidget {
     Q_OBJECT
 
-public:
-    explicit WelcomePage(QWidget *parent = nullptr);
-    ~WelcomePage();
+    public:
+        explicit WelcomePage(QWidget *parent = nullptr);
+        ~WelcomePage();
 
-private:
-    Ui::WelcomePage *ui;
+    private:
+        Ui::WelcomePage *ui;
 };
 
 #endif // WelcomePage_H

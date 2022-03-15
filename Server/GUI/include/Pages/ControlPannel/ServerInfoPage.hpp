@@ -12,7 +12,7 @@ class ServerInfoPage : public QWidget {
     Q_OBJECT
 
     public:
-        ServerInfoPage(QWidget *parent = nullptr);
+        explicit ServerInfoPage(QWidget *parent = nullptr);
         ~ServerInfoPage();
 
     private slots:

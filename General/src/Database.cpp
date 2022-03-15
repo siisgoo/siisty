@@ -33,7 +33,7 @@
 namespace Database {
 
 #define XX(num, name, query) { Tables:: name, QUOTE(name), query },
-    static struct tables_def {
+    struct tables_def {
         Tables id; // equal to index
         const char * name;
         const char * createQuery;
@@ -261,8 +261,6 @@ void
 SQLite::executeCommand(Database::RoleId role, QJsonObject& obj) {
     int command_n;
     QSqlQuery q;
-
-    qDebug() << QThread::currentThreadId();
 
     if (role != RoleId::AUTO) {
         if (role > RoleId::ROLES_COUNT || role < (RoleId)0) {
