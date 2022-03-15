@@ -102,7 +102,14 @@
           </widget>
          </item>
          <item row="6" column="1">
-          <widget class="QLineEdit" name="email_edit"/>
+          <widget class="QLineEdit" name="email_edit">
+           <property name="inputMask">
+            <string/>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
          </item>
          <item row="5" column="1">
           <widget class="QComboBox" name="role_cb"/>

@@ -142,7 +142,7 @@ class GUI : public QMainWindow
     Q_SIGNALS:
         void send_to_log(QString, int);
 
-        void addCommand(Database::RoleId, QJsonObject&);
+        void addCommand(Database::RoleId, QJsonObject);
         void pageChanged(QString);
 
     public Q_SLOTS:

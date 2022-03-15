@@ -8,77 +8,43 @@
 #include <functional>
 #include <QDebug>
 
-// login pass query
-    /* q.prepare("SELECT role_id FROM EmployeesAndCustomers WHERE login=:login AND password=:password"); */
-    /* q.bindValue(":login", login); */
-    /* q.bindValue(":password", password); */
-
-    /* if (!q.exec()) { */
-    /*     Q_EMIT failed(CmdError(CmdError::SQLError, q.lastError().text())); */
-    /*     return; */
-    /* } */
-
-    /* if (!q.next()) { */
-    /*     Q_EMIT failed(CmdError(CmdError::AccessDenied, "Invalid loggin or password")); */
-    /*     return; */
-    /* } */
-
-    /* if (auto v = q.result()->handle(); v.isValid()) { */
-    /*     role = v.toInt(); */
-    /* } else { */
-    /*     Q_EMIT failed(CmdError(CmdError::AccessDenied, "Cannot find Role assigned to user")); */
-    /*     return; */
-    /* } */
-
 namespace Database {
 
-#define XX(num, name, query) { Tables:: name, QUOTE(name), query },
-    struct tables_def {
-        Tables id; // equal to index
-        const char * name;
-        const char * createQuery;
-    } const tablesDefenitions[] = {
-        TABLES_MAP(XX)
-    };
-#undef XX
-
-#define XX(id, val, comm, mult, period) { RoleId:: val, QUOTE(val), comm, mult, period },
-    static struct role_set {
-        RoleId id; // equal to index
-        const char * name;
-        QVector<CommandId> commands;
-        double payMult;
-        int payPeriod;
-    } Accessability[] {
-        ROLE_MAP(XX)
-    };
-#undef XX
-
-#define XX(id, n, exe, sandback) { CommandId:: n, QUOTE(n), exe, sandback },
-    static struct command_set {
-        CommandId id; // equal to index
-        const char * name;
-        command_exec_t executor;
-        bool sendback;
-    } const Commands[] {
-        COMMANDS_MAP(XX)
-    };
-#undef XX
-
-#define XX(id, name, price) { ObjectType:: name, QUOTE(name), price },
-    static struct objectType_set {
-        ObjectType id;
-        const char * name;
-        double price;
-    } const ObjectTypes[] {
-        OBJECT_TYPE_MAP(XX)
-    };
-#undef XX
+SQLiteWaiter::SQLiteWaiter(QObject * p)
+    : QObject(p)
+{ }
+SQLiteWaiter::~SQLiteWaiter() { }
+void SQLiteWaiter::Success(QJsonObject o) { Q_EMIT success(o); }
+void SQLiteWaiter::Failed(CmdError err) { Q_EMIT failed(err); }
 
 SQLite::SQLite(const QString& path, QObject * p)
     : QObject(p),
         _path(path)
 {
+    #define XX(num, name, query) { Tables:: name, QUOTE(name), query },
+    _tables = {
+        TABLES_MAP(XX)
+    };
+    #undef XX
+
+    #define XX(id, val, comm, mult, period) { RoleId:: val, QUOTE(val), comm, mult, period },
+    _roles = {
+        ROLE_MAP(XX)
+    };
+    #undef XX
+
+    #define XX(id, n, exe) { CommandId:: n, QUOTE(n), exe },
+    _commands = {
+        COMMANDS_MAP(XX)
+    };
+    #undef XX
+
+    #define XX(id, name, price) { ObjectType:: name, QUOTE(name), price },
+    _objectTypes = {
+        OBJECT_TYPE_MAP(XX)
+    };
+    #undef XX
+
 }
 
 //TODO add check if inited
@@ -87,7 +53,8 @@ SQLite::Initialize()
 {
     Q_EMIT setProgress(0, 3);
     connect(this, SIGNAL(failed(Database::CmdError)), this, SLOT(cmdLogMessage(Database::CmdError)));
-    connect(this, SIGNAL(addCommand(Database::RoleId, QJsonObject&)), this, SLOT(executeCommand(Database::RoleId, QJsonObject&)));
+    connect(this, SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::SQLiteWaiter*)), this, SLOT(on_addCommand(Database::RoleId, QJsonObject, Database::SQLiteWaiter*)));
+    connect(this, SIGNAL(addCommand(Database::SQLite::DatabaseCmd)), this, SLOT(on_addCommand(Database::SQLite::DatabaseCmd)));
     _db = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE"));
     _db->setDatabaseName(_path);
     try {
@@ -135,7 +102,7 @@ SQLite::worker()
 {
     if (_cmdQueue.length()) {
         DatabaseCmd cmd = _cmdQueue.dequeue();
-        this->executeCommand((RoleId)cmd.first, cmd.second);
+        this->executeCommand((RoleId)cmd.executorRole, cmd.data, cmd.waiter);
     }
 
     if (_running) {
@@ -149,14 +116,16 @@ SQLite::checkTables()
     int i;
     QStringList tables = _db->tables();
     for (i = 0; i < (int)Tables::TablesCount ; i++) {
-        if (!tables.contains(tablesDefenitions[i].name)) {
+        if (!tables.contains(_tables[i].name)) {
             QJsonObject cmd{
                     {"command", (int)CommandId::CREATE_TABLE},
                     {"arg",
-                        QJsonObject{ { "query", tablesDefenitions[i].createQuery } }
+                        QJsonObject{ { "query", _tables[i].createQuery } }
                     }
             };
-            Q_EMIT addCommand(RoleId::AUTO, cmd);
+            if (!autoExecCommand(cmd)) {
+                throw "Cannot create table";
+            }
         }
     }
 }
@@ -168,7 +137,7 @@ SQLite::insertDefaultsRoles()
     QSqlQuery q;
     bool deleted = false;
     for (int i = 0; i < (int)RoleId::ROLES_COUNT; i++) {
-        auto role = Accessability[i];
+        auto role = _roles[i];
         q.clear();
         q.prepare("SELECT * FROM Roles WHERE id = :id and name = :name");
         q.bindValue(":id", (int)role.id);
@@ -243,28 +212,33 @@ SQLite::insertDefaultsObjectTypes()
         obj["command"] = (int)CommandId::ADD_OBJECT_TYPE;
         for (int i = 0; i < (int)ObjectType::COUNT; i++) {
             obj["arg"] = QJsonObject({
-                    { "name", ObjectTypes[i].name },
-                    { "price", ObjectTypes[i].price }
+                    { "name", _objectTypes[i].name },
+                    { "price", _objectTypes[i].price }
             });
-            Q_EMIT addCommand(RoleId::AUTO, obj);
+            if (!autoExecCommand(obj)) {
+                throw "Cannot insert default object types";
+            }
         }
     }
 }
 
-void
-SQLite::cmdLogMessage(CmdError e)
-{
-    Q_EMIT logMessage(e.String(), LoggingLevel::Error);
-}
+QVector<SQLite::role_set> SQLite::avalibleRoles() const { return _roles; }
+
+void SQLite::on_addCommand(Database::RoleId r, QJsonObject o, Database::SQLiteWaiter* w) { _cmdQueue.append({(int)r, o, w}); }
+void SQLite::on_addCommand(Database::SQLite::DatabaseCmd cmd) { _cmdQueue.append(cmd); }
 
 void
-SQLite::executeCommand(Database::RoleId role, QJsonObject& obj) {
+SQLite::executeCommand(Database::RoleId role, QJsonObject obj, SQLiteWaiter* waiter) {
     int command_n;
     QSqlQuery q;
 
+    if (!waiter) {
+        throw "Null waiter passed!";
+    }
+
     if (role != RoleId::AUTO) {
         if (role > RoleId::ROLES_COUNT || role < (RoleId)0) {
-            Q_EMIT failed(CmdError(CmdError::AccessDenied, "Invalid Role ID passed"));
+            waiter->Failed(CmdError(CmdError::AccessDenied, "Invalid Role ID passed"));
             return;
         }
     }
@@ -272,37 +246,51 @@ SQLite::executeCommand(Database::RoleId role, QJsonObject& obj) {
     if (auto val = obj["command"]; val.isDouble()) {
         command_n = val.toInt();
     } else {
-        Q_EMIT failed(CmdError(CmdError::InvalidCommand, "No command passed"));
+        waiter->Failed(CmdError(CmdError::InvalidCommand, "No command passed"));
         return;
     }
 
     if (command_n > (int)CommandId::COMMANDS_COUNT || command_n < 0) {
-        Q_EMIT failed(CmdError(CmdError::InvalidCommand, "Command not exists"));
+        waiter->Failed(CmdError(CmdError::InvalidCommand, "Command not exists"));
         return;
     }
 
     if (role != RoleId::AUTO) {
         // check permission for execute command
-        auto it = std::find(Accessability[(int)role].commands.begin(), Accessability[(int)role].commands.end(),
+        auto it = std::find(_roles[(int)role].commands.begin(), _roles[(int)role].commands.end(),
                 static_cast<CommandId>(command_n));
 
-        if (it == Accessability[(int)role].commands.end()) {
-        Q_EMIT failed(CmdError(CmdError::AccessDenied, "You not have access to execute this command"));
+        if (it == _roles[(int)role].commands.end()) {
+        waiter->Failed(CmdError(CmdError::AccessDenied, "You not have access to execute this command"));
             return;
         }
     }
 
     if (auto val = obj["arg"]; val.isObject()) {
         QJsonObject target = val.toObject();
-        CmdError rc = Commands[command_n].executor(target);
+        CmdError rc = _commands[command_n].executor(target);
         if (rc.Ok()) {
-            Q_EMIT success(target);
+            waiter->Success(target);
         } else {
-            Q_EMIT failed(rc);
+            waiter->Failed(rc);
         }
     } else {
-        Q_EMIT failed(CmdError(CmdError::InvalidParam, "No parameters passed"));
+        waiter->Failed(CmdError(CmdError::InvalidParam, "No parameters passed"));
         return;
+    }
+}
+
+bool
+SQLite::autoExecCommand(QJsonObject cmd)
+{
+    int command_n = cmd["command"].toInt();
+
+    QJsonObject target = cmd["arg"].toObject();
+    CmdError rc = _commands[command_n].executor(target);
+    if (rc.Ok()) {
+        return true;
+    } else {
+        return false;
     }
 }
 

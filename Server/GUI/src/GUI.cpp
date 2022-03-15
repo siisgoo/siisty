@@ -84,6 +84,9 @@ GUI::adjustUi()
             * registerUser  = new RegisterUser(ui->page_view),
             * usersList     = new UsersList(ui->page_view);
 
+    static_cast<RegisterUser*>(registerUser)->setRoles(_database->avalibleRoles());
+    /* static_cast<RegisterUser*>(PagesManager::getPage("Register User"))->setWapons(); */
+
     // can i automize creation? may be
     _pagesPath.setRoot("Main");
     _pagesPath.addEdge("Main", {"Control Pannel", "Load", "Settings", "Help"});
@@ -124,15 +127,16 @@ GUI::adjustUi()
 
     Q_EMIT pageChanged(_defaultPage.length() ? _defaultPage : "Main");
 
-    connect(_server,
-            SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
-            PagesManager::getPage("Service"),
-            SLOT(onServerListningStateChanged(QHostAddress, quint16, bool)));
+    connect(_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
+            service, SLOT(onServerListningStateChanged(QHostAddress, quint16, bool)));
 
     connect(_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
             this, SLOT(changeIndicatorState(QHostAddress, quint16, bool)));
     connect(_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
             this, SLOT(on_listeningStateChanged(QHostAddress, quint16, bool)));
+
+    connect(registerUser, SIGNAL(registrateUser(Database::RoleId, QJsonObject, Database::SQLiteWaiter*)),
+            _database,    SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::SQLiteWaiter*)), Qt::DirectConnection);
 
     _listenIndicator = new QLabel("Offline");
     ui->statusbar->addPermanentWidget(_listenIndicator);
@@ -168,14 +172,13 @@ GUI::setupDatabase()
 {
     _database = new Database::SQLite(_settings.databasePath, nullptr);
     connect(_database, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)), Qt::DirectConnection);
-    connect(_database, SIGNAL(failed(Database::CmdError)), this, SLOT(on_databaseError(Database::CmdError)), Qt::DirectConnection);
 
     connect(_database, SIGNAL(Inited()), this, SLOT(on_databaseInited()), Qt::DirectConnection);
     connect(_database, SIGNAL(InitizlizationFailed(QSqlError)), this, SLOT(on_databaseInitializationFailed(QSqlError)), Qt::DirectConnection);
 
     connect(_database, SIGNAL(setProgress(int, int)), this, SLOT(setProgress(int, int)), Qt::DirectConnection);
 
-    connect(this, SIGNAL(addCommand(Database::RoleId, QJsonObject&)), _database, SIGNAL(addCommand(Database::RoleId, QJsonObject&)), Qt::DirectConnection);
+    // connect(this, SIGNAL(addCommand(Database::RoleId, QJsonObject)), _database, SIGNAL(addCommand(Database::RoleId, QJsonObject)), Qt::DirectConnection);
 
     connect(&_databaseThread, SIGNAL(started()), _database, SLOT(Run()), Qt::DirectConnection);
     _database->moveToThread(&_databaseThread);

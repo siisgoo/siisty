@@ -47,7 +47,7 @@ QString CmdError::Details() { return _details; }
  * query: string
  */
 CmdError
-exec_create_table(QJsonObject& obj)
+exec_create_table(QJsonObject obj)
 {
     QSqlQuery q;
     QString query_s = obj.take("query").toString();
@@ -64,6 +64,47 @@ exec_create_table(QJsonObject& obj)
 }
 
 /*
+ * login: string
+ * password: string
+ */
+CmdError
+exec_identify(QJsonObject obj)
+{
+    QSqlQuery q;
+    QString login;
+    QString password;
+
+    login = obj.take("login").toString();
+    password = obj.take("password").toString();
+
+    if (!login.length() || !password.length()) {
+        obj = QJsonObject{ {"identified", false} };
+        return CmdError(CmdError::InvalidParam, "Passed empty parameters");
+    }
+
+    q.prepare("SELECT password, salt FROM EmployeesAndCustomers"
+              "WHERE login = :login");
+    q.bindValue(":login", login);
+
+    if (!q.exec()) {
+        return CmdError(CmdError::SQLError, q.lastQuery() + " " + q.lastError().text());
+    }
+    if (q.record().count() == 0) {
+        return CmdError(CmdError::AccessDenied, "No user registreted with login: " + login);
+    }
+
+    QByteArray salt = q.record().value("salt").toByteArray();
+    QByteArray real_passwordHash = q.record().value("password").toByteArray();
+    QByteArray passed_passwordHash = encryptPassword(password.toLocal8Bit(), salt);
+
+    if (real_passwordHash != passed_passwordHash) {
+        return CmdError(CmdError::AccessDenied, "Invalid password");
+    }
+
+    return CmdError();
+}
+
+/*
  * employees: Array<int>,
  * customer: int,
  * objectType: int,
@@ -74,7 +115,7 @@ exec_create_table(QJsonObject& obj)
  * weekends: Array<int>,
  */
 CmdError
-exec_make_contract(QJsonObject& obj)
+exec_make_contract(QJsonObject obj)
 {
     QVector<int> employees;
     int customer;
@@ -129,7 +170,7 @@ exec_make_contract(QJsonObject& obj)
  * contract: int,
  */
 CmdError
-exec_make_duty_schedule(QJsonObject& obj)
+exec_make_duty_schedule(QJsonObject obj)
 {
     return CmdError();
 }
@@ -145,7 +186,7 @@ exec_make_duty_schedule(QJsonObject& obj)
  *                        }
  */
 CmdError
-exec_register_accident(QJsonObject& obj)
+exec_register_accident(QJsonObject obj)
 {
     return CmdError();
 }
@@ -163,7 +204,7 @@ exec_register_accident(QJsonObject& obj)
  * image: string, <- optional
  */
 CmdError
-exec_register_employee(QJsonObject& obj)
+exec_register_employee(QJsonObject obj)
 {
     QString name;
     qint64 entryDate;
@@ -238,7 +279,7 @@ exec_register_employee(QJsonObject& obj)
  * image: string, < optional
  */
 CmdError
-exec_register_customer(QJsonObject& obj)
+exec_register_customer(QJsonObject obj)
 {
     return exec_register_employee(obj); //TODO add some checks maybe
 }
@@ -248,7 +289,7 @@ exec_register_customer(QJsonObject& obj)
  * price: double,
  */
 CmdError
-exec_register_object_type(QJsonObject& obj)
+exec_register_object_type(QJsonObject obj)
 {
     return CmdError();
 }
@@ -261,7 +302,7 @@ exec_register_object_type(QJsonObject& obj)
  * image: string,
  */
 CmdError
-exec_register_wapon(QJsonObject& obj)
+exec_register_wapon(QJsonObject obj)
 {
     QString name;
     int ammo;
@@ -310,7 +351,7 @@ exec_register_wapon(QJsonObject& obj)
  * employee: int,
  */
 CmdError
-exec_assign_wapon(QJsonObject& obj)
+exec_assign_wapon(QJsonObject obj)
 {
     return CmdError();
 }
@@ -320,7 +361,7 @@ exec_assign_wapon(QJsonObject& obj)
  * count: int,
  */
 CmdError
-exec_pay_ammo(QJsonObject& obj)
+exec_pay_ammo(QJsonObject obj)
 {
     return CmdError();
 }
@@ -329,7 +370,7 @@ exec_pay_ammo(QJsonObject& obj)
  * employee: int
  */
 CmdError
-exec_pay_employee(QJsonObject& obj)
+exec_pay_employee(QJsonObject obj)
 {
     return CmdError();
 }
@@ -338,7 +379,7 @@ exec_pay_employee(QJsonObject& obj)
  * accident: int
  */
 CmdError
-exec_pay_accident(QJsonObject& obj)
+exec_pay_accident(QJsonObject obj)
 {
     return CmdError();
 }
@@ -348,7 +389,7 @@ exec_pay_accident(QJsonObject& obj)
  * price: double,
  */
 CmdError
-exec_add_object_type(QJsonObject& obj)
+exec_add_object_type(QJsonObject obj)
 {
     QString name;
     double price;
@@ -383,7 +424,7 @@ exec_add_object_type(QJsonObject& obj)
  * price: double, <- optional
  */
 CmdError
-exec_edit_object_type(QJsonObject& obj)
+exec_edit_object_type(QJsonObject obj)
 {
     return CmdError();
 }
@@ -396,7 +437,7 @@ exec_edit_object_type(QJsonObject& obj)
  * commands: Array<int> <- optional
  */
 CmdError
-exec_update_role(QJsonObject& obj)
+exec_update_role(QJsonObject obj)
 {
     return CmdError();
 }
@@ -405,7 +446,7 @@ exec_update_role(QJsonObject& obj)
  * employee: int
  */
 CmdError
-exec_get_employee_entry(QJsonObject& obj)
+exec_get_employee_entry(QJsonObject obj)
 {
     return CmdError();
 }
@@ -414,7 +455,7 @@ exec_get_employee_entry(QJsonObject& obj)
  * customer: int OR customer: string,
  */
 CmdError
-exec_get_customer_entry(QJsonObject& obj)
+exec_get_customer_entry(QJsonObject obj)
 {
     return CmdError();
 }
@@ -423,7 +464,7 @@ exec_get_customer_entry(QJsonObject& obj)
  * accident: int OR accident: string
  */
 CmdError
-exec_get_accident_details(QJsonObject& obj)
+exec_get_accident_details(QJsonObject obj)
 {
     return CmdError();
 }
@@ -432,7 +473,7 @@ exec_get_accident_details(QJsonObject& obj)
  * accounting: int OR date: int
  */
 CmdError
-exec_get_accounting_entry(QJsonObject& obj)
+exec_get_accounting_entry(QJsonObject obj)
 {
     return CmdError();
 }
@@ -441,7 +482,7 @@ exec_get_accounting_entry(QJsonObject& obj)
  * object: int OR object: string
  */
 CmdError
-exec_get_object_detalils(QJsonObject& obj)
+exec_get_object_detalils(QJsonObject obj)
 {
     return CmdError();
 }
@@ -450,7 +491,7 @@ exec_get_object_detalils(QJsonObject& obj)
  * role: int OR role: name
  */
 CmdError
-exec_get_role_details(QJsonObject& obj)
+exec_get_role_details(QJsonObject obj)
 {
     return CmdError();
 }
@@ -459,7 +500,7 @@ exec_get_role_details(QJsonObject& obj)
  * wapon: int OR wapon: string
  */
 CmdError
-exec_get_wapon_details(QJsonObject& obj)
+exec_get_wapon_details(QJsonObject obj)
 {
     return CmdError();
 }
@@ -470,7 +511,7 @@ exec_get_wapon_details(QJsonObject& obj)
  * dateEnd: int <- optional
  */
 CmdError
-exec_get_duty_schedule(QJsonObject& obj)
+exec_get_duty_schedule(QJsonObject obj)
 {
     return CmdError();
 }
