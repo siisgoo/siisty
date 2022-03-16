@@ -106,7 +106,7 @@ class PagesPath {
 };
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class GUI; }
+namespace Ui { class Controller; }
 QT_END_NAMESPACE
 
 struct Settings {
@@ -130,14 +130,14 @@ struct Settings {
     int maxPendingConnections = 100;
 };
 
-class GUI : public QMainWindow
+class Controller : public QMainWindow
 {
     Q_OBJECT
 
     public:
-        GUI(Settings settings, QWidget *parent = nullptr);
+        Controller(Settings settings, QWidget *parent = nullptr);
 
-        virtual ~GUI();
+        virtual ~Controller();
 
     Q_SIGNALS:
         void send_to_log(QString, int);
@@ -200,6 +200,6 @@ class GUI : public QMainWindow
         PagesPath _pagesPath;
 
         QWidget * _listenIndicator;
-        Ui::GUI * ui;
+        Ui::Controller * ui;
 };
 #endif // SERVERMANAGER_H

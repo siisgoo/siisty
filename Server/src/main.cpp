@@ -1,6 +1,6 @@
 #include <QApplication>
 
-#include "GUI.hpp"
+#include "Controller.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 
     Settings settings;
 
-    GUI w(settings);
+    Controller w(settings);
 
     w.show();
     return a.exec();

@@ -12,7 +12,7 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/Database")
 #################
 
 add_subdirectory(SslServer)
-add_subdirectory(GUI)
+add_subdirectory(Controller)
 
 #####################
 #  finding sources  #
@@ -56,7 +56,7 @@ target_link_libraries(
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Network
         General
-        GUI
+        Controller
         SslServer
 )
 

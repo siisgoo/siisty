@@ -1,16 +1,16 @@
-#include "GUI.hpp"
+#include "Controller.hpp"
 
 #include <QException>
 
-#include "./ui_GUI.h"
+#include "./ui_Controller.h"
 #include <qnamespace.h>
 #include <QErrorMessage>
 
 #include "Database/Database.hpp"
 
-GUI::GUI(Settings settings, QWidget *parent)
+Controller::Controller(Settings settings, QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::GUI),
+    , ui(new Ui::Controller),
         _settings(settings)
 {
     ui->setupUi(this);
@@ -45,7 +45,7 @@ GUI::GUI(Settings settings, QWidget *parent)
 
 }
 
-GUI::~GUI()
+Controller::~Controller()
 {
     _database->Stop();
 
@@ -65,7 +65,7 @@ GUI::~GUI()
 }
 
 void
-GUI::setupPages()
+Controller::setupPages()
 {
     QWidget * main          = new WelcomePage(ui->page_view),
             * controlPannel = new ControlPannel(ui->page_view),
@@ -133,7 +133,7 @@ GUI::setupPages()
 }
 
 void
-GUI::setupLogger()
+Controller::setupLogger()
 {
     _log = new logger(Trace, "sIIsTy-Server", nullptr);
     connect(this, SIGNAL(send_to_log(QString, int)), _log, SLOT(logMessage(QString, int)), Qt::DirectConnection);
@@ -141,7 +141,7 @@ GUI::setupLogger()
 }
 
 void
-GUI::setupDatabase()
+Controller::setupDatabase()
 {
     _database = new Database::SQLite(_settings.databasePath, nullptr);
     connect(_database, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)), Qt::DirectConnection);
@@ -160,7 +160,7 @@ GUI::setupDatabase()
 }
 
 void
-GUI::setupServer()
+Controller::setupServer()
 {
     _server = new iiServer(nullptr);
     _server->setForseUseSsl(_settings.useSsl);
@@ -172,7 +172,7 @@ GUI::setupServer()
 }
 
 void
-GUI::changeServeAddress(QHostAddress& add, quint16 port)
+Controller::changeServeAddress(QHostAddress& add, quint16 port)
 {
     if (_settings.serveAddress != add || _settings.servePort != port ) {
         _settings.serveAddress = add;
@@ -188,7 +188,7 @@ GUI::changeServeAddress(QHostAddress& add, quint16 port)
 }
 
 void
-GUI::changeLoggingLeve(int level)
+Controller::changeLoggingLeve(int level)
 {
     if (_log->loggingLevel() != level) {
         Q_EMIT logMessage("Logging level changed to: " + QString::number(level), Fatal);
@@ -197,7 +197,7 @@ GUI::changeLoggingLeve(int level)
 }
 
 void
-GUI::changePage(QString page)
+Controller::changePage(QString page)
 {
     QVector<QString> path = _pagesPath.pathFor(page);
 
@@ -229,7 +229,7 @@ GUI::changePage(QString page)
 }
 
 void
-GUI::on_pathNodeClicked()
+Controller::on_pathNodeClicked()
 {
     ClickableLabel * lbl = dynamic_cast<ClickableLabel*>(sender());
     QString txt = lbl->text();
@@ -237,7 +237,7 @@ GUI::on_pathNodeClicked()
 }
 
 void
-GUI::changeIndicatorState(QHostAddress address, quint16 port, bool listening)
+Controller::changeIndicatorState(QHostAddress address, quint16 port, bool listening)
 {
     if (listening) {
         static_cast<QLabel*>(_listenIndicator)->setText(tr("Listening"));
@@ -247,7 +247,7 @@ GUI::changeIndicatorState(QHostAddress address, quint16 port, bool listening)
 }
 
 void
-GUI::on_listeningStateChanged(QHostAddress dummy, quint16 dummy1, bool listening)
+Controller::on_listeningStateChanged(QHostAddress dummy, quint16 dummy1, bool listening)
 {
     if (listening) {
         ui->actionToggle_server->setText("Stop");
@@ -257,24 +257,24 @@ GUI::on_listeningStateChanged(QHostAddress dummy, quint16 dummy1, bool listening
 }
 
 void
-GUI::on_actionQuit_triggered()
+Controller::on_actionQuit_triggered()
 {
     QApplication::quit();
 }
 
-void GUI::on_actionToggle_server_triggered()
+void Controller::on_actionToggle_server_triggered()
 {
     _server->ToggleStartStopListening(_settings.serveAddress, _settings.servePort);
 }
 
 void
-GUI::on_databaseError(Database::CmdError err)
+Controller::on_databaseError(Database::CmdError err)
 {
     Q_EMIT logMessage(err.String(), LoggingLevel::Error);
 }
 
 void
-GUI::on_databaseInited()
+Controller::on_databaseInited()
 {
     ui->actionToggle_server->setEnabled(true);
     ui->statusbar->clearMessage();
@@ -282,7 +282,7 @@ GUI::on_databaseInited()
 }
 
 void
-GUI::on_databaseInitializationFailed(QSqlError e)
+Controller::on_databaseInitializationFailed(QSqlError e)
 {
     ui->statusbar->showMessage("Database initialization error", 5*1000);
     Q_EMIT endProgress(); //may be connet directly?
@@ -295,7 +295,7 @@ GUI::on_databaseInitializationFailed(QSqlError e)
 }
 
 void
-GUI::logMessage(QString str, int level)
+Controller::logMessage(QString str, int level)
 {
     if (level >= _settings.logginLeve) {
         ui->loggingOutput->append(str);
@@ -305,7 +305,7 @@ GUI::logMessage(QString str, int level)
 }
 
 void
-GUI::setProgress(int cur, int max)
+Controller::setProgress(int cur, int max)
 {
     if (_progress->isHidden()) {
         _progress->show();
@@ -316,13 +316,13 @@ GUI::setProgress(int cur, int max)
 }
 
 void
-GUI::endProgress()
+Controller::endProgress()
 {
     _progress->hide();
 }
 
 void
-GUI::on_clearLogClicked()
+Controller::on_clearLogClicked()
 {
     ui->loggingOutput->clear();
 }

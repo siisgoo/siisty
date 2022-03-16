@@ -3,6 +3,7 @@
 
 #include <QList>
 #include <QSslSocket>
+#include "Database/Database.hpp"
 #include "SslServer/SslServer.hpp"
 #include "SslServer/iiClient.hpp"
 
@@ -32,6 +33,8 @@ class iiServer : public QObject {
     Q_SIGNALS:
         void logMessage(QString, int = LoggingLevel::Trace);
         void listeningStateChanged(QHostAddress, quint16, bool);
+
+        void addCommand(Database::RoleId role, QJsonObject, Database::SQLiteWaiter*);
 
     protected Q_SLOTS:
 

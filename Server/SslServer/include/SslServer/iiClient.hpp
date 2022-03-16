@@ -1,7 +1,7 @@
 #ifndef IICLIENT_HPP_JINRZSDB
 #define IICLIENT_HPP_JINRZSDB
 
-#include <QSharedPointer>
+#include "Database/Database.hpp"
 #include "General/SslClientBase.hpp"
 
 class iiClient : public SslClientBase {
@@ -18,7 +18,11 @@ class iiClient : public SslClientBase {
         void identified(int emploeeID);
         void identificationFailed(QString& errorMsg);
 
+        void addCommand(Database::RoleId role, QJsonObject, Database::SQLiteWaiter*);
+
     private:
+        Database::SQLiteWaiter * _dbAssistant;
+
         bool    _identified = false;
         QString _login;
         QString _password;

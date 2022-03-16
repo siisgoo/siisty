@@ -1,9 +1,9 @@
-#include "GUI.hpp"
-#include "./ui_GUI.h"
+#include "Controller.hpp"
+#include "./ui_Controller.h"
 
 userInterface::userInterface(QWidget* _parent)
     : QMainWindow(_parent),
-    ui(new Ui::GUI),
+    ui(new Ui::Controller),
         _serverAddress(QHostAddress("127.0.0.1")),
         _serverPort(9000)
 {

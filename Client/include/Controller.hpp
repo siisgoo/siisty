@@ -1,5 +1,5 @@
-#ifndef QT_SSL_EXAMPLE_CLIENT_GUI_H__
-#define QT_SSL_EXAMPLE_CLIENT_GUI_H__
+#ifndef QT_SSL_EXAMPLE_CLIENT_Controller_H__
+#define QT_SSL_EXAMPLE_CLIENT_Controller_H__
 
 #include <QMainWindow>
 #include <QWidget>
@@ -13,7 +13,7 @@
 #include "Service.hpp"
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class GUI; }
+namespace Ui { class Controller; }
 QT_END_NAMESPACE
 
 class userInterface : public QMainWindow
@@ -65,7 +65,7 @@ class userInterface : public QMainWindow
 
         bool _forseUseSsl = false;
 
-        Ui::GUI * ui;
+        Ui::Controller * ui;
 };
 
-#endif // QT_SSL_EXAMPLE_CLIENT_GUI_H__
+#endif // QT_SSL_EXAMPLE_CLIENT_Controller_H__
