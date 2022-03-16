@@ -32,9 +32,9 @@ class ClickableLabel : public QLabel {
     Q_OBJECT
 
    public:
-        explicit ClickableLabel(QString txt,
+        explicit ClickableLabel(QString txt, QWidget *p = nullptr,
                 Qt::WindowFlags f = Qt::WindowFlags())
-        : QLabel(txt) { }
+        : QLabel(txt) { this->setParent(p); }
         virtual ~ClickableLabel() { }
 
    signals:
@@ -142,14 +142,16 @@ class GUI : public QMainWindow
     Q_SIGNALS:
         void send_to_log(QString, int);
 
-        void addCommand(Database::RoleId, QJsonObject);
-        void pageChanged(QString);
-
     public Q_SLOTS:
         void changeServeAddress(QHostAddress&, quint16);
         void changeLoggingLeve(int level);
 
     private Q_SLOTS:
+        void setupPages();
+        void setupLogger();
+        void setupDatabase();
+        void setupServer();
+
         void on_listeningStateChanged(QHostAddress, quint16, bool);
         void on_actionQuit_triggered();
         void on_actionToggle_server_triggered();
@@ -160,8 +162,8 @@ class GUI : public QMainWindow
         void on_databaseInitializationFailed(QSqlError e);
 
         void on_pathNodeClicked();
-        void on_pageChanged(QString);
             // draw path
+        void changePage(QString);
 
         void changeIndicatorState(QHostAddress, quint16, bool);
         void logMessage(QString, int = LoggingLevel::Trace);
@@ -180,11 +182,6 @@ class GUI : public QMainWindow
         };
 
     private:
-        void adjustUi();
-        void setupLogger();
-        void setupDatabase();
-        void setupServer();
-
         Settings _settings;
 
         QThread    _serverThread;

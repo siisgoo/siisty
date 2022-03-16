@@ -77,7 +77,7 @@ class SQLite : public QObject {
         SQLite(const QString& path, QObject * p = nullptr);
         virtual ~SQLite();
 
-        QVector<role_set> avalibleRoles() const;
+        const QVector<role_set>& avalibleRoles() const;
 
     Q_SIGNALS:
         void Inited();

@@ -9,19 +9,21 @@ class iiClient : public SslClientBase {
         iiClient(QSslSocket * socket, QObject* parent = nullptr);
         virtual ~iiClient();
 
-        bool isAuth() const;
+        bool identified() const;
 
     public Q_SLOTS:
-        void performAuthentification();
+        void identify();
 
     Q_SIGNALS:
-        void authentificated(int emploeeID);
-        void authentificationFailed(QString& errorMsg);
+        void identified(int emploeeID);
+        void identificationFailed(QString& errorMsg);
 
     private:
-        bool    _autorized;
+        bool    _identified = false;
         QString _login;
         QString _password;
+            // in advance to security managment
+            // this value drops after succeccfuly identification
 };
 
 #endif /* end of include guard: IICLIENT_HPP_JINRZSDB */

@@ -2,7 +2,7 @@
 
 iiClient::iiClient(QSslSocket * socket, QObject * parent)
     : SslClientBase(socket, parent),
-        _autorized(false)
+        _identified(false)
 {
 }
 
