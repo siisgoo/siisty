@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.21)
 project(Client LANGUAGES CXX VERSION 0.0.1 DESCRIPTION "siisty Client")
 
-set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/src/Ui)
+set(CMAKE_AUTOUIC_SEARCH_PATHS
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Ui/Pages)
 
 #####################
 #  finding sources  #
@@ -10,12 +12,14 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/src/Ui)
 set(SRCS "")
 
 # Sources
-file(GLOB SRCS_G "src/*.cpp")
+file(GLOB_RECURSE SRCS_G "src/*.cpp")
 POCO_SOURCES_AUTO(SRCS ${SRCS_G})
 
 # Headers
 file(GLOB_RECURSE HDRS_G "include/*.hpp")
 POCO_HEADERS_AUTO(SRCS ${HDRS_G})
+
+qt6_add_resources(SRCS ${GLOBAL_RESOURCES})
 
 #########################
 #  building executable  #

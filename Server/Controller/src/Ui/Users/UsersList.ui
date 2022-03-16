@@ -82,6 +82,9 @@
         <property name="gridStyle">
          <enum>Qt::DashDotLine</enum>
         </property>
+        <property name="sortingEnabled">
+         <bool>true</bool>
+        </property>
         <attribute name="horizontalHeaderCascadingSectionResizes">
          <bool>true</bool>
         </attribute>

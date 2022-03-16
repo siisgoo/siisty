@@ -123,7 +123,7 @@ exec_identify(QJsonObject& obj)
         return CmdError(InvalidParam, "Passed empty parameters");
     }
 
-    q.prepare("SELECT role, password, salt FROM EmployeesAndCustomers"
+    q.prepare("SELECT id, name, role, password, salt FROM EmployeesAndCustomers"
               "WHERE login = :login");
     q.bindValue(":login", login);
 
@@ -136,13 +136,15 @@ exec_identify(QJsonObject& obj)
 
     QByteArray salt = q.record().value("salt").toByteArray();
     QByteArray real_passwordHash = q.record().value("password").toByteArray();
-    QByteArray passed_passwordHash = encryptPassword(password.toLocal8Bit(), salt);
+    QByteArray passed_passwordHash = encryptPassword(password.toLatin1(), salt);
 
     if (real_passwordHash != passed_passwordHash) {
         return CmdError(AccessDenied, "Invalid password");
     }
 
     obj["role"] = q.record().value("role").toInt();
+    obj["name"] = q.record().value("name").toString();
+    obj["id"] = q.record().value("id").toString();
 
     return CmdError();
 }

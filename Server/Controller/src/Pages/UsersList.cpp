@@ -2,6 +2,7 @@
 #include "ui_UsersList.h"
 
 #include <QAction>
+#include <qnamespace.h>
 
 UsersList::UsersList(const QVector<Database::Driver::role_set>& roles, QWidget *parent)
     : QWidget(parent),
@@ -17,8 +18,9 @@ UsersList::UsersList(const QVector<Database::Driver::role_set>& roles, QWidget *
     connect(ui->update_users_Btn, SIGNAL(clicked()), this, SLOT(requestUsers()));
     connect(ui->users_table, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(on_userClicked(QTableWidgetItem*)));
 
-    requestUsers();
+    QTimer::singleShot(1000, [this]() {requestUsers();});
 
+    // TODO add sorting actions and enabling disabling columns
     /* ui->users_table->addActions({ */
     /*     new QAction("bla"), */
     /* }); */
@@ -60,6 +62,7 @@ UsersList::clearTable()
 void
 UsersList::on_usersLoaded(QJsonObject obj)
 {
+    clearTable();
     QJsonArray users = obj.take("employees").toArray();
 
     int row = 0;
@@ -67,9 +70,12 @@ UsersList::on_usersLoaded(QJsonObject obj)
         QJsonObject cur = user.toObject();
         ui->users_table->insertRow(row);
 
-        ui->users_table->setItem(row, ID,   new QTableWidgetItem(QString::number(cur["id"].toInteger())));
+        ui->users_table->setItem(row, ID,   new QTableWidgetItem(QString::number(cur["id"].toInt())));
         ui->users_table->setItem(row, NAME, new QTableWidgetItem(cur["name"].toString()));
         ui->users_table->setItem(row, ROLE, new QTableWidgetItem(_roles[cur["role"].toInteger()].name));
+
+        ui->users_table->itemAt(row, ROLE)->setData(Qt::DisplayRole, (int)_roles[cur["role"].toInteger()].id);
+        row++;
     }
 }
 

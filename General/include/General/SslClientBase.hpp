@@ -9,6 +9,7 @@
 #include <QIODevice>
 #include <QAbstractSocket>
 
+// Big QSslSocket wrapper
 class SslClientBase : public QObject {
     Q_OBJECT
 

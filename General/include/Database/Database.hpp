@@ -121,6 +121,8 @@ class Driver : public QObject {
         QVector<command_set>    _commands;
         QVector<objectType_set> _objectTypes;
 
+        QMutex _queueMtx;
+        QWaitCondition _condition;
         QQueue<DatabaseCmd> _cmdQueue;
 
         bool _running;

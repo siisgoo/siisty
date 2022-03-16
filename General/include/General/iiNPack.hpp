@@ -21,26 +21,26 @@
  * siisty Network Packet
  */
 struct iiNPack {
-    enum class PacketType : quint8
+    enum PacketType : quint8
     {
         AUTORIZATION_REQUEST,
-        GET_REQUEST,
-        PUT_REQUEST,
+        REQUEST,
         RESPONSE,
         ERROR_MESSAGE, //first byte contain ResponseError, other - errstr
     };
 
-    enum class PacketLoadType : quint8
+    enum PacketLoadType : quint8
     {
         JSON = 0,
         XML,
         RAW,
     };
 
-    enum class ResponseError : quint8
+    enum ResponseError : quint8
     {
         ACCESS_DENIED = 0,
         REQUEST_ERROR,
+        UNSUPPORTED_MSG_FORMAT,
     };
 
     struct Header

@@ -4,15 +4,20 @@
 userInterface::userInterface(QWidget* _parent)
     : QMainWindow(_parent),
     ui(new Ui::Controller),
+        _log(Trace, "siisty-Client", nullptr),
         _serverAddress(QHostAddress("127.0.0.1")),
         _serverPort(9000)
 {
     ui->setupUi(this);
 
-    applyConfig();
+    {
+        connect(ui->actionLogin,  SIGNAL(triggered()), this, SLOT(on_actionLoginTriggered()));
+        connect(ui->actionLogout, SIGNAL(triggered()), this, SLOT(on_actionLogoutTriggered()));
+    }
+
     setupLogger();
     setupService();
-    adjustUi();
+    setupPages();
 }
 
 userInterface::~userInterface()
@@ -22,86 +27,92 @@ userInterface::~userInterface()
 
     _serviceThread.wait();
     _loggingThread.wait();
-
-    delete _service;
-    delete _log;
-}
-
-void
-userInterface::applyConfig()
-{
-
-}
-
-void
-userInterface::adjustUi()
-{
-    connect(ui->sendBtn, SIGNAL(clicked()), this, SLOT(onSendMessageClicked()));
-
-    connect(ui->actionLogin,  SIGNAL(triggered()), this, SLOT(on_actionLoginTriggered()));
-    connect(ui->actionLogout, SIGNAL(triggered()), this, SLOT(on_actionLogoutTriggered()));
 }
 
 void
 userInterface::setupLogger()
 {
-    _log = new logger(Trace, "siisty-Client", nullptr);
+    connect(this, SIGNAL(send_to_log(QString, int)), &_log, SLOT(logMessage(QString, int)));
 
-    connect(this, SIGNAL(send_to_log(QString, int)), _log, SLOT(logMessage(QString, int)));
-
-    _log->moveToThread(&_loggingThread);
+    _log.moveToThread(&_loggingThread);
     _loggingThread.start();
 }
 
 void
 userInterface::setupService()
 {
-    _service = new Service();
-
-    connect(_service, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)));
-
-    connect(_service, SIGNAL(recivedMessage(iiNPack::Header, QByteArray)), this, SLOT(recivedMessage(iiNPack::Header, QByteArray)));
+    connect(&_service, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)));
+    connect(&_service, SIGNAL(recivedMessage(iiNPack::Header, QByteArray)), this, SLOT(recivedMessage(iiNPack::Header, QByteArray)));
 
     if (_forseUseSsl) {
-        connect(_service, SIGNAL(encrypted()), this, SLOT(on_connetedToServer()));
+        connect(&_service, SIGNAL(encrypted()), this, SLOT(on_connetedToServer()));
     } else {
-        connect(_service, SIGNAL(connected()), this, SLOT(on_connetedToServer()));
+        connect(&_service, SIGNAL(connected()), this, SLOT(on_connetedToServer()));
     }
 
-    connect(_service, SIGNAL(disconnected()), this, SLOT(on_disconnetedFromServer()));
-
-    /* _manager.moveToThread(&_serviceThread); */
-    /* _serviceThread.start(); */
+    connect(&_service, SIGNAL(disconnected()), this, SLOT(on_disconnetedFromServer()));
 }
 
 void
-userInterface::recivedMessage(iiNPack::Header header, QByteArray data)
+userInterface::setupPages()
 {
-    Q_EMIT logMessage("Paint recived message", Trace);
-    ui->recived_message->insertPlainText(data);
+    QWidget * login = new Login(ui->page_view);
+
+    PagesManager::addRoot("Main", nullptr, LoginNav);
+    PagesManager::addPage("Login", login, LoginNav);
+
+    changePage("Login");
 }
 
 void
-userInterface::onSendMessageClicked()
+userInterface::changePage(QString page)
 {
-    QByteArray load = ui->sending_message->toPlainText().toUtf8();
-    Q_EMIT logMessage("Sending message" + load, Trace);
-    QByteArray packet = iiNPack::pack(load, iiNPack::PacketType::GET_REQUEST);
-    _service->sendMessage(packet);
+    // todo
+    // clear current path
+    QLayoutItem * itm;
+    while ((itm = ui->page_path_layout->takeAt(0)) != nullptr) {
+        delete itm->widget();
+        delete itm;
+    }
+
+    QVector<QString> path = PagesManager::getPagePath(page);
+    for (auto node : path) {
+        QWidget * lbl = new QLabel("->", ui->page_path_frame);
+        lbl->setFont(QFont("Iosevka", 9));
+        lbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+        ui->page_path_layout->addWidget(lbl);
+        ClickableLabel * clbl = new ClickableLabel(node, ui->page_path_frame);
+        clbl->setFont(QFont("Sans", 9));
+        clbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+        clbl->setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
+        clbl->setStyleSheet("color: #b78620");
+        connect(clbl, SIGNAL(clicked()), this, SLOT(on_pathNodeClicked()));
+        ui->page_path_layout->addWidget(clbl);
+    }
+
+    ui->page_view->setCurrentWidget(PagesManager::getPage(page));
+    ui->NavPages->setCurrentIndex(PagesManager::getPageNav(page));
+}
+
+void
+userInterface::on_pathNodeClicked()
+{
+    ClickableLabel * lbl = dynamic_cast<ClickableLabel*>(sender());
+    QString txt = lbl->text();
+    changePage(txt);
+}
+
+
+void
+userInterface::recivedMessage(iiNPack::Header, QByteArray)
+{
+
 }
 
 void
 userInterface::on_connetedToServer()
 {
     Q_EMIT logMessage("Connected to server", Debug);
-
-    QByteArray packet = iiNPack::pack("Hello", iiNPack::PacketType::AUTORIZATION_REQUEST);
-    _service->sendMessage(packet);
-        // do login
-
-    //....
-
-    Q_EMIT on_logined();
 }
 
 void
@@ -135,16 +146,16 @@ void
 userInterface::on_actionLoginTriggered()
 {
     if (QSslSocket::supportsSsl() && _forseUseSsl) {
-        _service->connectToHostEncrypted(_serverAddress.toString(), _serverPort);
+        _service.connectToHostEncrypted(_serverAddress.toString(), _serverPort);
     } else {
-        _service->connectToHost(_serverAddress, _serverPort);
+        _service.connectToHost(_serverAddress, _serverPort);
     }
 }
 
 void
 userInterface::on_actionLogoutTriggered()
 {
-    _service->disconnectFromHost();
+    _service.disconnectFromHost();
     // update ui
 }
 

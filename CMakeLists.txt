@@ -33,6 +33,8 @@ find_package(QT
 find_package(Qt${QT_VERSION_MAJOR}
     COMPONENTS Core Widgets Network Sql REQUIRED)
 
+set(GLOBAL_RESOURCES ${CMAKE_SOURCE_DIR}/resources.qrc)
+
 add_subdirectory(General)
 add_subdirectory(Client)
 add_subdirectory(Server)

@@ -14,9 +14,9 @@ class RegisterUser : public QWidget {
     Q_OBJECT
 
     public:
-     explicit RegisterUser(const QVector<Database::Driver::role_set> &,
+        explicit RegisterUser(const QVector<Database::Driver::role_set> &,
                            QWidget *parent = nullptr);
-     virtual ~RegisterUser();
+        virtual ~RegisterUser();
 
     Q_SIGNALS:
         void registrateUser(Database::RoleId, QJsonObject, Database::DriverAssistant*);

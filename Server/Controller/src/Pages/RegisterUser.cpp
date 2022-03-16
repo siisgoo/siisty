@@ -62,7 +62,18 @@ RegisterUser::RegisterUser(const QVector<Database::Driver::role_set>& roles, QWi
 
     connect(ui->update_wapons, SIGNAL(clicked()), this, SLOT(requestWaponDetails()));
 
-    requestWaponDetails();
+    this->setTabOrder(ui->register_buttons, ui->login_edit);
+    this->setTabOrder(ui->name_edit, ui->password_edit);
+    this->setTabOrder(ui->login_edit, ui->entryDate_edit);
+    this->setTabOrder(ui->password_edit, ui->wapon_cb);
+    this->setTabOrder(ui->entryDate_edit, ui->role_cb);
+    this->setTabOrder(ui->wapon_cb, ui->email_edit);
+    this->setTabOrder(ui->update_wapons, ui->image_path_edit);
+    this->setTabOrder(ui->email_edit, ui->openImageFile_btn);
+    this->setTabOrder(ui->image_path_edit, ui->register_buttons);
+
+    /* requestWaponDetails(); */
+    QTimer::singleShot(1000, [this](){ requestWaponDetails(); });
 }
 
 RegisterUser::~RegisterUser()
@@ -127,9 +138,9 @@ RegisterUser::on_register_buttons_accepted()
             QJsonObject{
                 { "login", ui->login_edit->text() },
                 { "password", ui->password_edit->text() },
-                { "name", ui->password_edit->text() },
-                { "entryDate", ui->entryDate_edit->timeSpec() },
-                { "wapon", ui->wapon_cb->currentText().toInt() },
+                { "name", ui->name_edit->text() },
+                { "entryDate", ui->entryDate_edit->dateTime().toSecsSinceEpoch() },
+                { "wapon", ui->wapon_cb->currentData().toInt() },
                 { "role", ui->role_cb->currentData().toInt() },
                 { "email", ui->email_edit->text() },
                 { "image", QStringFromQImage(QImage(ui->image_path_edit->text())) } // TODO
@@ -144,11 +155,11 @@ RegisterUser::on_register_buttons_accepted()
 void
 RegisterUser::on_register_buttons_rejected()
 {
-    ui->email_edit->clear();
-    ui->login_edit->clear();
-    ui->entryDate_edit->clear();
-    ui->password_edit->clear();
-    ui->image_path_edit->clear();
+    ui->email_edit->setText("");
+    ui->login_edit->setText("");
+    ui->entryDate_edit->setDate(QDate::currentDate());
+    ui->password_edit->setText("");
+    ui->image_path_edit->setText("");
 }
 
 void

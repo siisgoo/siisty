@@ -19,6 +19,8 @@ POCO_HEADERS_AUTO(SRCS ${HDRS_G})
 #  building executable  #
 #########################
 
+qt6_add_resources(SRCS ${GLOBAL_RESOURCES})
+
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_library(${PROJECT_NAME}
         SHARED

@@ -5,6 +5,7 @@
 #include "Database/Role.hpp"
 #include "Database/Utility.hpp"
 
+#include <QMutexLocker>
 #include <functional>
 #include <QDebug>
 
@@ -74,38 +75,6 @@ Driver::~Driver()
     if (_db && _db->isOpen()) {
         _db->close();
         delete _db;
-    }
-}
-
-void
-Driver::Run()
-{
-    try {
-        this->Initialize();
-    } catch (QSqlError e) {
-        Q_EMIT InitizlizationFailed(e);
-    }
-
-    _running=true;
-    this->worker();
-}
-
-void
-Driver::Stop()
-{
-    _running = false;
-}
-
-void
-Driver::worker()
-{
-    if (_cmdQueue.length()) {
-        DatabaseCmd cmd = _cmdQueue.dequeue();
-        this->executeCommand((RoleId)cmd.executorRole, cmd.data, cmd.waiter);
-    }
-
-    if (_running) {
-        QTimer::singleShot(100, this, SLOT(worker()));
     }
 }
 
@@ -221,10 +190,47 @@ Driver::insertDefaultsObjectTypes()
     }
 }
 
+void
+Driver::Run()
+{
+    try {
+        this->Initialize();
+    } catch (QSqlError e) {
+        Q_EMIT InitizlizationFailed(e);
+    }
+
+    _running=true;
+    this->worker();
+}
+
+void
+Driver::Stop()
+{
+    QMutexLocker lock(&_queueMtx);
+    _running = false;
+}
+
+void
+Driver::worker()
+{
+    if (_cmdQueue.length()) {
+        QMutexLocker lock(&_queueMtx);
+        DatabaseCmd cmd = _cmdQueue.dequeue();
+        this->executeCommand((RoleId)cmd.executorRole, cmd.data, cmd.waiter);
+    }
+
+    if (_running) {
+        QTimer::singleShot(100, this, SLOT(worker()));
+    }
+}
+
 const QVector<Driver::role_set>& Driver::avalibleRoles() const { return _roles; }
 
-void Driver::on_addCommand(Database::RoleId r, QJsonObject o, Database::DriverAssistant* w) { _cmdQueue.append({(int)r, o, w}); }
-void Driver::on_addCommand(Database::Driver::DatabaseCmd cmd) { _cmdQueue.append(cmd); }
+void Driver::on_addCommand(Database::RoleId r, QJsonObject o, Database::DriverAssistant* w) { on_addCommand({(int)r, o, w}); }
+void Driver::on_addCommand(Database::Driver::DatabaseCmd cmd) {
+    QMutexLocker lock(&_queueMtx);
+    _cmdQueue.append(cmd);
+}
 
 void
 Driver::executeCommand(Database::RoleId role, QJsonObject obj, DriverAssistant* waiter) {
@@ -262,7 +268,7 @@ Driver::executeCommand(Database::RoleId role, QJsonObject obj, DriverAssistant* 
                 static_cast<CommandId>(command_n));
 
         if (it == _roles[(int)role].commands.end()) {
-        waiter->Failed(CmdError(AccessDenied, "You not have access to execute this command"));
+            waiter->Failed(CmdError(AccessDenied, "You not have access to execute this command"));
             return;
         }
     }
@@ -274,7 +280,8 @@ Driver::executeCommand(Database::RoleId role, QJsonObject obj, DriverAssistant* 
         } else {
             target["acceptJoin"] = true;
         }
-        CmdError rc = _commands[command_n].executor(target);
+        auto cmd = _commands[command_n];
+        CmdError rc = cmd.executor(target);
         if (rc.Ok()) {
             waiter->Success(target);
         } else {

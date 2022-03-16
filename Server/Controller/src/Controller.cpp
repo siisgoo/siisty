@@ -11,43 +11,53 @@
 Controller::Controller(Settings settings, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Controller),
-        _settings(settings)
+        _settings(settings),
+        _log(_settings.logginLeve, "siisty-server", nullptr),
+        _server(nullptr),
+        _database(_settings.databasePath)
 {
     ui->setupUi(this);
 
-    ui->actionToggle_server->setEnabled(false);
-        // enabled after successfully inited db
+    { // debug only
+        _loggingThread.setObjectName("Logging thread");
+        _serverThread.setObjectName("Service thread");
+        _databaseThread.setObjectName("Database driver thread");
+    }
 
-    _listenIndicator = new QLabel("Offline");
-    ui->statusbar->addPermanentWidget(_listenIndicator);
+    { // adjust Ui
+        ui->actionToggle_server->setEnabled(false);
 
-    _progress = new QProgressBar(ui->statusbar);
-    _progress->setMaximumHeight(ui->statusbar->size().height() * 0.4);
-    _progress->setMaximumWidth(this->size().width() * 0.25); // TODO add on_windowsSizeChanged handler
-    _progress->setFormat("");
-    _progress->hide();
+        _listenIndicator = new QLabel("Offline");
+        ui->statusbar->addPermanentWidget(_listenIndicator);
+        ui->page_path_layout->setAlignment(Qt::AlignLeft);
 
-    ui->statusbar->addWidget(_progress);
+        _progress = new QProgressBar(ui->statusbar);
+        _progress->setMaximumHeight(ui->statusbar->size().height() * 0.4);
+        _progress->setMaximumWidth(this->size().width() * 0.25); // TODO add on_windowsSizeChanged handler
+        _progress->setFormat("");
+        _progress->hide();
 
-    ui->actionToggle_server->setText("Start");
+        ui->statusbar->addWidget(_progress);
 
-    connect(ui->clearLogButton, SIGNAL(clicked()), this, SLOT(on_clearLogClicked()));
-    ui->logLevel_cb->setCurrentIndex(_settings.logginLeve);
-    connect(ui->logLevel_cb, SIGNAL(currentIndexChanged(int)), this, SLOT(changeLoggingLeve(int)));
+        ui->actionToggle_server->setText("Start");
+
+        connect(ui->clearLogButton, SIGNAL(clicked()), this, SLOT(on_clearLogClicked()));
+        ui->logLevel_cb->setCurrentIndex(_settings.logginLeve);
+        connect(ui->logLevel_cb, SIGNAL(currentIndexChanged(int)), this, SLOT(changeLoggingLeve(int)));
+    }
 
     setupLogger();
-    setupServer();
     setupDatabase();
 
-    _databaseThread.start();
     _loggingThread.start();
     _serverThread.start();
+    _databaseThread.start();
 
 }
 
 Controller::~Controller()
 {
-    _database->Stop();
+    _database.Stop();
 
     _loggingThread.quit();
     _serverThread.quit();
@@ -57,9 +67,6 @@ Controller::~Controller()
     _serverThread.wait();
     _databaseThread.wait();
 
-    delete _database;
-    delete _server;
-    delete _log;
     delete _listenIndicator;
     delete ui;
 }
@@ -72,20 +79,16 @@ Controller::setupPages()
             * service       = new ServerInfoPage(ui->page_view),
             * connections   = new ConnectionsPage(ui->page_view),
             * users         = new Users(ui->page_view),
-            * registerUser  = new RegisterUser(_database->avalibleRoles(), ui->page_view),
-            * usersList     = new UsersList(_database->avalibleRoles(), ui->page_view);
+            * registerUser  = new RegisterUser(_database.avalibleRoles(), ui->page_view),
+            * usersList     = new UsersList(_database.avalibleRoles(), ui->page_view);
 
     // can i automize creation? may be
-    _pagesPath.setRoot("Main");
-    _pagesPath.addEdge("Main", {"Control Pannel", "Load", "Settings", "Help"});
-    _pagesPath.addEdge("Control Pannel", {"Service", "Connections", "Users"});
-    _pagesPath.addEdge("Users", {"Register user", "Users list"});
 
-    PagesManager::addPage("Main",           main,          (int)NavPages::Main);
-    PagesManager::addPage("Control Pannel", controlPannel, (int)NavPages::ControlPannel);
+    PagesManager::addRoot("Main",           main,          (int)NavPages::Main,          {"Control Pannel", "Load", "Settings", "Help"});
+    PagesManager::addPage("Control Pannel", controlPannel, (int)NavPages::ControlPannel, {"Service", "Connections", "Users"});
     PagesManager::addPage("Service",        service,       (int)NavPages::ControlPannel);
     PagesManager::addPage("Connections",    connections,   (int)NavPages::ControlPannel);
-    PagesManager::addPage("Users",          users,         (int)NavPages::Users);
+    PagesManager::addPage("Users",          users,         (int)NavPages::Users,         {"Register user", "Users list"});
     PagesManager::addPage("Users list",     usersList,     (int)NavPages::Users);
     PagesManager::addPage("Register user",  registerUser,  (int)NavPages::Users);
     ui->page_view->addWidget(main);
@@ -113,62 +116,62 @@ Controller::setupPages()
 
     changePage(_defaultPage.length() ? _defaultPage : "Main");
 
-    connect(_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
+    connect(&_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
             service, SLOT(onServerListningStateChanged(QHostAddress, quint16, bool)));
 
-    connect(_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
+    connect(&_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
             this, SLOT(changeIndicatorState(QHostAddress, quint16, bool)));
-    connect(_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
+    connect(&_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
             this, SLOT(on_listeningStateChanged(QHostAddress, quint16, bool)));
 
     connect(registerUser, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)));
     connect(registerUser, SIGNAL(registrateUser(Database::RoleId, QJsonObject, Database::DriverAssistant*)),
-            _database,    SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), Qt::DirectConnection);
+            &_database,    SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), Qt::DirectConnection);
     connect(registerUser, SIGNAL(requestedWaponDetails(Database::RoleId, QJsonObject, Database::DriverAssistant*)),
-            _database,    SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), Qt::DirectConnection);
+            &_database,    SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), Qt::DirectConnection);
 
     connect(usersList, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)));
     connect(usersList, SIGNAL(requestedUsers(Database::RoleId, QJsonObject, Database::DriverAssistant*)),
-            _database, SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), Qt::DirectConnection);
+            &_database, SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), Qt::DirectConnection);
 }
 
 void
 Controller::setupLogger()
 {
-    _log = new logger(Trace, "sIIsTy-Server", nullptr);
-    connect(this, SIGNAL(send_to_log(QString, int)), _log, SLOT(logMessage(QString, int)), Qt::DirectConnection);
-    _log->moveToThread(&_loggingThread);
+    connect(this, SIGNAL(send_to_log(QString, int)), &_log, SLOT(logMessage(QString, int)), Qt::DirectConnection);
+    _log.moveToThread(&_loggingThread);
 }
 
 void
 Controller::setupDatabase()
 {
-    _database = new Database::Driver(_settings.databasePath, nullptr);
-    connect(_database, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)), Qt::DirectConnection);
+    connect(&_database, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)), Qt::DirectConnection);
 
-    connect(_database, SIGNAL(Inited()),
+    // inited -> setup service -> setup pages
+    connect(&_database, SIGNAL(Inited()),
             this, SLOT(on_databaseInited()), Qt::DirectConnection);
-    connect(_database, SIGNAL(Inited()),
+    connect(&_database, SIGNAL(Inited()),
+            this, SLOT(setupServer()));
+    connect(&_database, SIGNAL(Inited()),
             this, SLOT(setupPages()));
-    connect(_database, SIGNAL(InitizlizationFailed(QSqlError)),
+    connect(&_database, SIGNAL(InitizlizationFailed(QSqlError)),
             this, SLOT(on_databaseInitializationFailed(QSqlError)), Qt::DirectConnection);
 
-    connect(_database, SIGNAL(setProgress(int, int)), this, SLOT(setProgress(int, int)), Qt::DirectConnection);
+    connect(&_database, SIGNAL(setProgress(int, int)), this, SLOT(setProgress(int, int)), Qt::DirectConnection);
 
-    connect(&_databaseThread, SIGNAL(started()), _database, SLOT(Run()), Qt::DirectConnection);
-    _database->moveToThread(&_databaseThread);
+    connect(&_databaseThread, SIGNAL(started()), &_database, SLOT(Run()), Qt::DirectConnection);
+    _database.moveToThread(&_databaseThread);
 }
 
 void
 Controller::setupServer()
 {
-    _server = new iiServer(nullptr);
-    _server->setForseUseSsl(_settings.useSsl);
-    _server->LoadCertificates(_settings.certPath, _settings.keyPath);
+    _server.setForseUseSsl(_settings.useSsl);
+    _server.LoadCertificates(_settings.certPath, _settings.keyPath);
 
-    connect(_server, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)), Qt::DirectConnection);
+    connect(&_server, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)), Qt::DirectConnection);
 
-    _server->moveToThread(&_serverThread);
+    _server.moveToThread(&_serverThread);
 }
 
 void
@@ -178,11 +181,11 @@ Controller::changeServeAddress(QHostAddress& add, quint16 port)
         _settings.serveAddress = add;
         _settings.servePort = port;
 
-        if (_server->isListening()) {
+        if (_server.isListening()) {
 
             Q_EMIT logMessage("Rebooting server after change Serve address and port", Debug);
-            _server->ToggleStartStopListening(add, port);
-            _server->ToggleStartStopListening(add, port);
+            _server.ToggleStartStopListening(add, port);
+            _server.ToggleStartStopListening(add, port);
         }
     }
 }
@@ -190,17 +193,15 @@ Controller::changeServeAddress(QHostAddress& add, quint16 port)
 void
 Controller::changeLoggingLeve(int level)
 {
-    if (_log->loggingLevel() != level) {
+    if (_log.loggingLevel() != level) {
         Q_EMIT logMessage("Logging level changed to: " + QString::number(level), Fatal);
-        _log->setLoggingLevel(level);
+        _log.setLoggingLevel(level);
     }
 }
 
 void
 Controller::changePage(QString page)
 {
-    QVector<QString> path = _pagesPath.pathFor(page);
-
     // todo
     // clear current path
     QLayoutItem * itm;
@@ -209,7 +210,7 @@ Controller::changePage(QString page)
         delete itm;
     }
 
-    ui->page_path_layout->setAlignment(Qt::AlignLeft);
+    QVector<QString> path = PagesManager::getPagePath(page);
     for (auto node : path) {
         QWidget * lbl = new QLabel("->", ui->page_path_frame);
         lbl->setFont(QFont("Iosevka", 9));
@@ -264,7 +265,7 @@ Controller::on_actionQuit_triggered()
 
 void Controller::on_actionToggle_server_triggered()
 {
-    _server->ToggleStartStopListening(_settings.serveAddress, _settings.servePort);
+    _server.ToggleStartStopListening(_settings.serveAddress, _settings.servePort);
 }
 
 void

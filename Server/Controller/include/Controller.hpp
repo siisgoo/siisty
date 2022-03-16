@@ -15,7 +15,8 @@
 #include "Database/Database.hpp"
 
 #include "Database/Role.hpp"
-#include "PagesManager.hpp"
+#include "General/PagesManager.hpp"
+#include "General/ClickableLabel.hpp"
 #include "Pages/WelcomePage.hpp"
 #include "Pages/ControlPannel.hpp"
 #include "Pages/ControlPannel/ServerInfoPage.hpp"
@@ -27,83 +28,6 @@
 #include "General/Matrix.hpp"
 #include "General/logger.hpp"
 #include "SslServer/iiServer.hpp"
-
-class ClickableLabel : public QLabel {
-    Q_OBJECT
-
-   public:
-        explicit ClickableLabel(QString txt, QWidget *p = nullptr,
-                Qt::WindowFlags f = Qt::WindowFlags())
-        : QLabel(txt) { this->setParent(p); }
-        virtual ~ClickableLabel() { }
-
-   signals:
-        void clicked();
-
-   protected:
-        virtual void mousePressEvent(QMouseEvent* event) {
-            Q_EMIT clicked();
-        }
-};
-
-class PagesPath {
-    public:
-        PagesPath() { }
-        ~PagesPath() { }
-
-        void setRoot(const QString& root) {
-            _root = root;
-        }
-
-        void addEdge(const QString& src, const QString& dst) {
-            _pagesNodes[src].push_back(dst);
-        }
-
-        void addEdge(const QString& src, const QVector<QString>& dst) {
-            _pagesNodes[src] = dst;
-        }
-
-        // add checks
-        // redo with recuse?
-        //
-        // may be pre-create all avalible pathes?
-        //
-        // problem: unique names not supported!
-        QVector<QString> pathFor(const QString& page) const {
-            QVector<QString> path { page };
-            QString search = page;
-            bool done = false, inn_done = false;
-
-            while (!done) {
-                QMap<QString, QVector<QString>>::const_iterator i = _pagesNodes.constBegin();
-                inn_done = false;
-                while (i != _pagesNodes.constEnd() && !done && !inn_done) {
-                    if (search == _root) { //found
-                        done=true;
-                    }
-                    for (auto node : i.value()) {
-                        if (node == search) {
-                            search = i.key();
-                            path.push_front(search);
-                            inn_done = true;
-                            break;
-                        }
-                    }
-                    i++;
-                }
-            }
-
-            return path;
-        }
-
-        void print() {
-            qDebug() << _pagesNodes;
-        }
-
-    private:
-        QString _root;
-        QMap<QString, QVector<QString>> _pagesNodes;
-};
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Controller; }
@@ -184,20 +108,18 @@ class Controller : public QMainWindow
     private:
         Settings _settings;
 
-        QThread    _serverThread;
-        iiServer * _server;
+        QThread  _serverThread;
+        iiServer _server;
 
-        QThread            _databaseThread;
-        Database::Driver * _database;
+        QThread          _databaseThread;
+        Database::Driver _database;
 
-        QThread   _loggingThread;
-        logger  * _log;
+        QThread _loggingThread;
+        logger  _log;
 
         QProgressBar * _progress;
 
         QString _defaultPage;
-
-        PagesPath _pagesPath;
 
         QWidget * _listenIndicator;
         Ui::Controller * ui;
