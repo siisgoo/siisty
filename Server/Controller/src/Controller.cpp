@@ -122,14 +122,14 @@ Controller::setupPages()
             this, SLOT(on_listeningStateChanged(QHostAddress, quint16, bool)));
 
     connect(registerUser, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)));
-    connect(registerUser, SIGNAL(registrateUser(Database::RoleId, QJsonObject, Database::SQLiteWaiter*)),
-            _database,    SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::SQLiteWaiter*)), Qt::DirectConnection);
-    connect(registerUser, SIGNAL(requestedWaponDetails(Database::RoleId, QJsonObject, Database::SQLiteWaiter*)),
-            _database,    SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::SQLiteWaiter*)), Qt::DirectConnection);
+    connect(registerUser, SIGNAL(registrateUser(Database::RoleId, QJsonObject, Database::DriverAssistant*)),
+            _database,    SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), Qt::DirectConnection);
+    connect(registerUser, SIGNAL(requestedWaponDetails(Database::RoleId, QJsonObject, Database::DriverAssistant*)),
+            _database,    SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), Qt::DirectConnection);
 
     connect(usersList, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)));
-    connect(usersList, SIGNAL(requestedUsers(Database::RoleId, QJsonObject, Database::SQLiteWaiter*)),
-            _database, SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::SQLiteWaiter*)), Qt::DirectConnection);
+    connect(usersList, SIGNAL(requestedUsers(Database::RoleId, QJsonObject, Database::DriverAssistant*)),
+            _database, SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), Qt::DirectConnection);
 }
 
 void
@@ -143,7 +143,7 @@ Controller::setupLogger()
 void
 Controller::setupDatabase()
 {
-    _database = new Database::SQLite(_settings.databasePath, nullptr);
+    _database = new Database::Driver(_settings.databasePath, nullptr);
     connect(_database, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)), Qt::DirectConnection);
 
     connect(_database, SIGNAL(Inited()),

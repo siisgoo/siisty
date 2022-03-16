@@ -14,14 +14,14 @@ class RegisterUser : public QWidget {
     Q_OBJECT
 
     public:
-     explicit RegisterUser(const QVector<Database::SQLite::role_set> &,
+     explicit RegisterUser(const QVector<Database::Driver::role_set> &,
                            QWidget *parent = nullptr);
      virtual ~RegisterUser();
 
     Q_SIGNALS:
-        void registrateUser(Database::RoleId, QJsonObject, Database::SQLiteWaiter*);
-        void requestedWaponDetails(Database::RoleId, QJsonObject, Database::SQLiteWaiter*);
-        void requestedUserDetails(Database::RoleId, QJsonObject, Database::SQLiteWaiter*);
+        void registrateUser(Database::RoleId, QJsonObject, Database::DriverAssistant*);
+        void requestedWaponDetails(Database::RoleId, QJsonObject, Database::DriverAssistant*);
+        void requestedUserDetails(Database::RoleId, QJsonObject, Database::DriverAssistant*);
 
         void imgFileNotValid();
         void imgFileValid();
@@ -52,9 +52,9 @@ class RegisterUser : public QWidget {
         void validateImgFilePath(QString file);
 
     private:
-        Database::SQLiteWaiter * _dbRWaiter;
+        Database::DriverAssistant * _dbRWaiter;
             // register waiter
-        Database::SQLiteWaiter * _dbWWaiter;
+        Database::DriverAssistant * _dbWWaiter;
             // wapons details waiter
 
         QCompleter * _filePathCompleter;

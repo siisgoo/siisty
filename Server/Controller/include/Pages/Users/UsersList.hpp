@@ -22,12 +22,12 @@ class UsersList : public QWidget {
         };
 
     public:
-     explicit UsersList(const QVector<Database::SQLite::role_set>& roles,
+     explicit UsersList(const QVector<Database::Driver::role_set>& roles,
                         QWidget *parent = nullptr);
      ~UsersList();
 
     Q_SIGNALS:
-        void requestedUsers(Database::RoleId, QJsonObject, Database::SQLiteWaiter*);
+        void requestedUsers(Database::RoleId, QJsonObject, Database::DriverAssistant*);
 
         void logMessage(QString, int = LoggingLevel::Trace);
 
@@ -44,9 +44,9 @@ class UsersList : public QWidget {
         void on_userClicked(QTableWidgetItem*);
 
     private:
-        Database::SQLiteWaiter * _usersWaiter;
+        Database::DriverAssistant * _usersWaiter;
 
-        const QVector<Database::SQLite::role_set>& _roles;
+        const QVector<Database::Driver::role_set>& _roles;
 
         Ui::UsersList *ui;
 };

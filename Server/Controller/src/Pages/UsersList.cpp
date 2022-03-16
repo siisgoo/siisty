@@ -3,10 +3,10 @@
 
 #include <QAction>
 
-UsersList::UsersList(const QVector<Database::SQLite::role_set>& roles, QWidget *parent)
+UsersList::UsersList(const QVector<Database::Driver::role_set>& roles, QWidget *parent)
     : QWidget(parent),
     ui(new Ui::UsersList),
-        _usersWaiter(new Database::SQLiteWaiter),
+        _usersWaiter(new Database::DriverAssistant),
         _roles(roles)
 {
     ui->setupUi(this);

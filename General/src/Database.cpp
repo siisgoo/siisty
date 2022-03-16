@@ -10,14 +10,14 @@
 
 namespace Database {
 
-SQLiteWaiter::SQLiteWaiter(QObject * p)
+DriverAssistant::DriverAssistant(QObject * p)
     : QObject(p)
 { }
-SQLiteWaiter::~SQLiteWaiter() { }
-void SQLiteWaiter::Success(QJsonObject o) { Q_EMIT success(o); }
-void SQLiteWaiter::Failed(CmdError err) { Q_EMIT failed(err); }
+DriverAssistant::~DriverAssistant() { }
+void DriverAssistant::Success(QJsonObject o) { Q_EMIT success(o); }
+void DriverAssistant::Failed(CmdError err) { Q_EMIT failed(err); }
 
-SQLite::SQLite(const QString& path, QObject * p)
+Driver::Driver(const QString& path, QObject * p)
     : QObject(p),
         _path(path)
 {
@@ -49,11 +49,11 @@ SQLite::SQLite(const QString& path, QObject * p)
 
 //TODO add check if inited
 void
-SQLite::Initialize()
+Driver::Initialize()
 {
     Q_EMIT setProgress(0, 3);
-    connect(this, SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::SQLiteWaiter*)), this, SLOT(on_addCommand(Database::RoleId, QJsonObject, Database::SQLiteWaiter*)));
-    connect(this, SIGNAL(addCommand(Database::SQLite::DatabaseCmd)), this, SLOT(on_addCommand(Database::SQLite::DatabaseCmd)));
+    connect(this, SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), this, SLOT(on_addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)));
+    connect(this, SIGNAL(addCommand(Database::Driver::DatabaseCmd)), this, SLOT(on_addCommand(Database::Driver::DatabaseCmd)));
     _db = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE"));
     _db->setDatabaseName(_path);
     if (!_db->open())
@@ -69,7 +69,7 @@ SQLite::Initialize()
     Q_EMIT Inited();
 }
 
-SQLite::~SQLite()
+Driver::~Driver()
 {
     if (_db && _db->isOpen()) {
         _db->close();
@@ -78,7 +78,7 @@ SQLite::~SQLite()
 }
 
 void
-SQLite::Run()
+Driver::Run()
 {
     try {
         this->Initialize();
@@ -91,13 +91,13 @@ SQLite::Run()
 }
 
 void
-SQLite::Stop()
+Driver::Stop()
 {
     _running = false;
 }
 
 void
-SQLite::worker()
+Driver::worker()
 {
     if (_cmdQueue.length()) {
         DatabaseCmd cmd = _cmdQueue.dequeue();
@@ -110,7 +110,7 @@ SQLite::worker()
 }
 
 void
-SQLite::checkTables()
+Driver::checkTables()
 {
     int i;
     QStringList tables = _db->tables();
@@ -131,7 +131,7 @@ SQLite::checkTables()
 
 // TODO add AUTO command
 void
-SQLite::insertDefaultsRoles()
+Driver::insertDefaultsRoles()
 {
     QSqlQuery q;
     bool deleted = false;
@@ -193,7 +193,7 @@ SQLite::insertDefaultsRoles()
 }
 
 void
-SQLite::insertDefaultsObjectTypes()
+Driver::insertDefaultsObjectTypes()
 {
     QSqlQuery q;
     QJsonObject obj;
@@ -221,13 +221,13 @@ SQLite::insertDefaultsObjectTypes()
     }
 }
 
-const QVector<SQLite::role_set>& SQLite::avalibleRoles() const { return _roles; }
+const QVector<Driver::role_set>& Driver::avalibleRoles() const { return _roles; }
 
-void SQLite::on_addCommand(Database::RoleId r, QJsonObject o, Database::SQLiteWaiter* w) { _cmdQueue.append({(int)r, o, w}); }
-void SQLite::on_addCommand(Database::SQLite::DatabaseCmd cmd) { _cmdQueue.append(cmd); }
+void Driver::on_addCommand(Database::RoleId r, QJsonObject o, Database::DriverAssistant* w) { _cmdQueue.append({(int)r, o, w}); }
+void Driver::on_addCommand(Database::Driver::DatabaseCmd cmd) { _cmdQueue.append(cmd); }
 
 void
-SQLite::executeCommand(Database::RoleId role, QJsonObject obj, SQLiteWaiter* waiter) {
+Driver::executeCommand(Database::RoleId role, QJsonObject obj, DriverAssistant* waiter) {
     QElapsedTimer timer;
     timer.start();
     int command_n;
@@ -288,7 +288,7 @@ SQLite::executeCommand(Database::RoleId role, QJsonObject obj, SQLiteWaiter* wai
 }
 
 bool
-SQLite::autoExecCommand(QJsonObject cmd)
+Driver::autoExecCommand(QJsonObject cmd)
 {
     int command_n = cmd["command"].toInt();
 

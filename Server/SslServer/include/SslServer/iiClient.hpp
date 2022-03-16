@@ -18,10 +18,10 @@ class iiClient : public SslClientBase {
         void identified(int emploeeID);
         void identificationFailed(QString& errorMsg);
 
-        void addCommand(Database::RoleId role, QJsonObject, Database::SQLiteWaiter*);
+        void addCommand(Database::RoleId role, QJsonObject, Database::DriverAssistant*);
 
     private:
-        Database::SQLiteWaiter * _dbAssistant;
+        Database::DriverAssistant * _dbAssistant;
 
         bool    _identified = false;
         QString _login;

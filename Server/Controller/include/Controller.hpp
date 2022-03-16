@@ -188,7 +188,7 @@ class Controller : public QMainWindow
         iiServer * _server;
 
         QThread            _databaseThread;
-        Database::SQLite * _database;
+        Database::Driver * _database;
 
         QThread   _loggingThread;
         logger  * _log;

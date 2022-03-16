@@ -15,15 +15,16 @@
 
 namespace Database {
 
-class SQLiteWaiter : public QObject {
+class DriverAssistant : public QObject {
     Q_OBJECT
 
     public:
-        SQLiteWaiter(QObject *p = nullptr);
-        /* SQLiteWaiter(bool deleteOnSuccess = false, QObject *p = nullptr); */
-        virtual ~SQLiteWaiter();
+        DriverAssistant(QObject *p = nullptr);
+        /* DriverAssistant(bool deleteOnSuccess = false, QObject *p = nullptr); */
+        virtual ~DriverAssistant();
 
-        // SQLite use it interface to emit this->success()/failed() chain
+    public Q_SLOTS:
+        // Driver use it interface to emit this->success()/failed() chain
         void Success(QJsonObject obj);
         void Failed(Database::CmdError);
 
@@ -32,11 +33,11 @@ class SQLiteWaiter : public QObject {
         void failed(Database::CmdError);
 
     private:
-        bool _delete_on_success;
+        /* bool _delete_on_success; */
 };
 
 // own thread-oriented sqlite driver
-class SQLite : public QObject {
+class Driver : public QObject {
     Q_OBJECT
 
     public:
@@ -70,12 +71,12 @@ class SQLite : public QObject {
         struct DatabaseCmd {
             int executorRole;
             QJsonObject data;
-            SQLiteWaiter * waiter;
+            DriverAssistant * waiter;
         };
 
     public:
-        SQLite(const QString& path, QObject * p = nullptr);
-        virtual ~SQLite();
+        Driver(const QString& path, QObject * p = nullptr);
+        virtual ~Driver();
 
         const QVector<role_set>& avalibleRoles() const;
 
@@ -83,8 +84,8 @@ class SQLite : public QObject {
         void Inited();
         void InitizlizationFailed(QSqlError);
 
-        void addCommand(Database::RoleId role, QJsonObject, Database::SQLiteWaiter*);
-        void addCommand(Database::SQLite::DatabaseCmd);
+        void addCommand(Database::RoleId role, QJsonObject, Database::DriverAssistant*);
+        void addCommand(Database::Driver::DatabaseCmd);
             // add command to execution queue
 
         void logMessage(QString, int = LoggingLevel::Trace);
@@ -99,10 +100,10 @@ class SQLite : public QObject {
         void worker();
             // worker ¯\_(ツ)_/¯
 
-        void on_addCommand(Database::SQLite::DatabaseCmd);
-        void on_addCommand(Database::RoleId, QJsonObject, Database::SQLiteWaiter*);
+        void on_addCommand(Database::Driver::DatabaseCmd);
+        void on_addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*);
 
-        void executeCommand(Database::RoleId role, QJsonObject o, SQLiteWaiter*);
+        void executeCommand(Database::RoleId role, QJsonObject o, DriverAssistant*);
             // all permission controll system BASED on this small role variable
         bool autoExecCommand(QJsonObject o);
             // no callable outside, only for serve

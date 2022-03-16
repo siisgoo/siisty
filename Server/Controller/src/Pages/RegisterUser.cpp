@@ -25,11 +25,11 @@ class FileSystemModel : public QFileSystemModel {
         }
 };
 
-RegisterUser::RegisterUser(const QVector<Database::SQLite::role_set>& roles, QWidget *parent)
+RegisterUser::RegisterUser(const QVector<Database::Driver::role_set>& roles, QWidget *parent)
     : QWidget(parent),
     ui(new Ui::RegisterUser),
-        _dbRWaiter(new Database::SQLiteWaiter()),
-        _dbWWaiter(new Database::SQLiteWaiter()),
+        _dbRWaiter(new Database::DriverAssistant()),
+        _dbWWaiter(new Database::DriverAssistant()),
         _filePathCompleter(new QCompleter(this))
 {
     ui->setupUi(this);
