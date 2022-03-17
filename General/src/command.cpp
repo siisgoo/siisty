@@ -1,4 +1,5 @@
 #include "Database/command.hpp"
+#include "Database/CmdError.hpp"
 #include "Database/Utility.hpp"
 #include "Crypto/Hash.hpp"
 
@@ -47,15 +48,6 @@ QStringFromQImage(const QImage& img)
 
 namespace Database {
 
-#define XX(id, name, desc) { QUOTE(name), QUOTE(desc) },
-    static struct CommandErrorDesc_t {
-        const char * name;
-        const char * desc;
-    } const CommandErrorDesc[] {
-        COMMANDS_ERRNO_MAP(XX)
-    };
-#undef XX
-
 static bool conntainJoinRequest(const QString& whereReq)
 {
     if (whereReq.contains(" JOIN ", Qt::CaseSensitivity::CaseInsensitive)) {
@@ -63,22 +55,6 @@ static bool conntainJoinRequest(const QString& whereReq)
     }
     return false;
 }
-
-CmdError::CmdError()
-    : CmdError(OK)
-{
-}
-
-CmdError::CmdError(int error_n, QString details)
-    : _errno(error_n), _details(details)
-{
-}
-
-bool    CmdError::Ok()      { return _errno == OK; }
-int     CmdError::Type()    { return _errno; }
-QString CmdError::String()  { return QString(CommandErrorDesc[_errno].desc) +  ": " + _details; }
-QString CmdError::Name()    { return CommandErrorDesc[_errno].name; }
-QString CmdError::Details() { return _details; }
 
 static QString extractImg(QVariant const& v) {
     return QString::fromLatin1(v.toByteArray().toBase64());

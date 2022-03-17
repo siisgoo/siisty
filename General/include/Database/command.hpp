@@ -1,19 +1,13 @@
 #ifndef COMMAND_HPP_KQHNGFS8
 #define COMMAND_HPP_KQHNGFS8
 
+#include "Database/CmdError.hpp"
+
 #include <QObject>
 #include <QJsonDocument>
 #include <QRunnable>
 
-#define COMMANDS_ERRNO_MAP(XX) \
-    XX( 0, OK,             "Success" )                   \
-    XX( 1, InvalidParam,   "Invalid command parameter" ) \
-    XX( 2, AccessDenied,   "Access denied" )             \
-    XX( 3, InvalidCommand, "Invalid command passed" )    \
-    XX( 4, MiscError,      "Misc error" )                \
-    XX( 5, SQLError,       "SQL Query Error" )           \
-
-// id, name, executor, sendback
+// id, name, executor
 #define COMMANDS_MAP(XX) \
     XX( 0,  MAKE_CONTRACT,        exec_make_contract      ) \
     XX( 1,  MAKE_DUTY_SCHEDULE,   exec_make_duty_schedule ) \
@@ -46,29 +40,6 @@ QImage QImageFromQString(const QString& str);
 QString QStringFromQImage(const QImage& img);
 
 namespace Database {
-
-#define XX(id, name, str) name = id,
-    enum CommandErrorNo {
-        COMMANDS_ERRNO_MAP(XX)
-    };
-#undef XX
-
-class CmdError {
-    public:
-        CmdError(); //mean no error
-        CmdError(int, QString = "");
-
-        bool Ok();
-
-        int Type();
-        QString String();
-        QString Name();
-        QString Details();
-
-    private:
-        int _errno;
-        QString _details;
-};
 
 using command_exec_t = std::function<CmdError(QJsonObject&)>;
 

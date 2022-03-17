@@ -25,7 +25,7 @@ class userInterface : public QMainWindow {
 
     private:
         enum NavPags {
-            LoginNav = -1,
+            Empty, // hide nav
         };
 
     public:
@@ -39,6 +39,7 @@ class userInterface : public QMainWindow {
     private Q_SLOTS:
         void changePage(QString);
         void on_pathNodeClicked();
+        void showLogin();
 
     public Q_SLOTS:
         void recivedMessage(iiNPack::Header, QByteArray);

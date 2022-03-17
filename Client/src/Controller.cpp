@@ -1,6 +1,8 @@
 #include "Controller.hpp"
 #include "./ui_Controller.h"
 
+#include <QTimer>
+
 userInterface::userInterface(QWidget* _parent)
     : QMainWindow(_parent),
     ui(new Ui::Controller),
@@ -18,6 +20,9 @@ userInterface::userInterface(QWidget* _parent)
     setupLogger();
     setupService();
     setupPages();
+
+    // add check if saved auth data
+    QTimer::singleShot(100, [this](){ showLogin(); });
 }
 
 userInterface::~userInterface()
@@ -56,12 +61,9 @@ userInterface::setupService()
 void
 userInterface::setupPages()
 {
-    QWidget * login = new Login(ui->page_view);
+    PagesManager::addRoot("Empty", new QWidget(), 0);
 
-    PagesManager::addRoot("Main", nullptr, LoginNav);
-    PagesManager::addPage("Login", login, LoginNav);
-
-    changePage("Login");
+    /* changePage("Main"); */
 }
 
 void
@@ -91,7 +93,13 @@ userInterface::changePage(QString page)
     }
 
     ui->page_view->setCurrentWidget(PagesManager::getPage(page));
-    ui->NavPages->setCurrentIndex(PagesManager::getPageNav(page));
+    int nav = PagesManager::getPageNav(page);
+    if (nav) {
+        ui->NavPages->show();
+        ui->NavPages->setCurrentIndex(PagesManager::getPageNav(page));
+    } else {
+        ui->NavPages->hide();
+    }
 }
 
 void
@@ -102,6 +110,16 @@ userInterface::on_pathNodeClicked()
     changePage(txt);
 }
 
+void
+userInterface::showLogin()
+{
+    changePage("Empty");
+    Login * login = new Login(this);
+    login->show();
+    if (login->exec()) {
+
+    }
+}
 
 void
 userInterface::recivedMessage(iiNPack::Header, QByteArray)

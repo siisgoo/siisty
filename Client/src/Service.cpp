@@ -8,3 +8,15 @@ Service::Service(QObject *p)
 Service::~Service()
 {
 }
+
+void
+Service::login()
+{
+
+}
+
+void
+Service::sendCommand(QJsonObject&)
+{
+
+}

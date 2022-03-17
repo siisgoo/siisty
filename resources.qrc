@@ -2,4 +2,11 @@
     <qresource prefix="/qss">
         <file alias="global">styles.qss</file>
     </qresource>
+    <qresource prefix="/login">
+        <file alias="password">assets/lock.png</file>
+        <file alias="user">assets/user.png</file>
+    </qresource>
+    <qresource prefix="/logo">
+        <file alias="big-logo">assets/logo-512.png</file>
+    </qresource>
 </RCC>

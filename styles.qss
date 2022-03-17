@@ -1000,3 +1000,13 @@ QStackedWidget > QFrame {
 		border-right: 1px solid #eee;
 		border-radius: 5%;
 }
+
+QLineEdit#login {
+    border: 0px;
+    background-color: #3a3a3a;
+}
+
+QLineEdit#password {
+    border: 0px;
+    background-color: #3a3a3a;
+}

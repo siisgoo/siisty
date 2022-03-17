@@ -11,6 +11,7 @@
 #include "Database/ObjectType.hpp"
 #include "Database/Role.hpp"
 #include "Database/command.hpp"
+#include "Database/CmdError.hpp"
 #include "General/logger.hpp"
 
 namespace Database {
@@ -122,7 +123,6 @@ class Driver : public QObject {
         QVector<objectType_set> _objectTypes;
 
         QMutex _queueMtx;
-        QWaitCondition _condition;
         QQueue<DatabaseCmd> _cmdQueue;
 
         bool _running;
