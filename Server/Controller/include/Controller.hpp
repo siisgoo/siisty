@@ -1,7 +1,7 @@
 #ifndef SERVERMANAGER_H
 #define SERVERMANAGER_H
 
-#include <QGenericMatrix>
+#include <QComboBox>
 #include <QThread>
 #include <QLabel>
 #include <QStatusBar>
@@ -9,11 +9,12 @@
 #include <QFileInfo>
 #include <QScopedPointer>
 #include <QMainWindow>
+#include <QDockWidget>
+#include <QVBoxLayout>
 
 #include <initializer_list>
 
 #include "Database/Database.hpp"
-
 #include "Database/Role.hpp"
 #include "General/PagesManager.hpp"
 #include "General/ClickableLabel.hpp"
@@ -24,6 +25,7 @@
 #include "Pages/Users.hpp"
 #include "Pages/Users/RegisterUser.hpp"
 #include "Pages/Users/UsersList.hpp"
+#include "Widgets/Progresses.hpp"
 
 #include "General/Matrix.hpp"
 #include "General/logger.hpp"
@@ -48,7 +50,7 @@ struct Settings {
     int logginLeve = LoggingLevel::Trace;
     QString logFile = "./log";
 
-    QString defultPage = "Welcome";
+    QString defultPage = "Main";
 
     int maxThreads = QThread::idealThreadCount();
     int maxPendingConnections = 100;
@@ -63,7 +65,11 @@ class Controller : public QMainWindow
 
         virtual ~Controller();
 
+        /* static int newProgressUid(); */
+
     Q_SIGNALS:
+        void resized(QResizeEvent*);
+        void setProgress(int, int, int);
         void send_to_log(QString, int);
 
     public Q_SLOTS:
@@ -92,10 +98,9 @@ class Controller : public QMainWindow
         void changeIndicatorState(QHostAddress, quint16, bool);
         void logMessage(QString, int = LoggingLevel::Trace);
 
-        void endProgress();
-        void setProgress(int, int);
-
         void on_clearLogClicked();
+
+        virtual void resizeEvent(QResizeEvent*);
 
     private:
         enum class NavPages {
@@ -108,18 +113,29 @@ class Controller : public QMainWindow
     private:
         Settings _settings;
 
-        QThread  _serverThread;
+        QThread _databaseThread;
+        QThread _loggingThread;
+        QThread _serverThread;
         iiServer _server;
-
-        QThread          _databaseThread;
+        logger   _log;
         Database::Driver _database;
 
-        QThread _loggingThread;
-        logger  _log;
+        pSetProgress * _pBars;
+        
+        int im1 = 5000;
+        int im2 = 400;
+        int im3 = 2000;
+        int im4 = 200;
 
-        QProgressBar * _progress;
+        int i1 = -1;
+        int i2 = -1;
+        int i3 = -1;
+        int i4 = -1;
 
-        QString _defaultPage;
+        QTimer _timer1;
+        QTimer _timer2;
+        QTimer _timer3;
+        QTimer _timer4;
 
         QWidget * _listenIndicator;
         Ui::Controller * ui;

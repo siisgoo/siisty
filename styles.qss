@@ -985,6 +985,11 @@ QProgressBar::chunk
     margin: 0.5px;
 
 }
+
+ProgressItem {
+    border: 1px solid #eee;
+}
+
 /*-----QStatusBar-----*/
 QStatusBar
 {

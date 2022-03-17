@@ -46,13 +46,17 @@ Driver::Driver(const QString& path, QObject * p)
     };
     #undef XX
 
+    // TODO make some more safty
+    srand(time(0));
+    uid_init = rand();
+    srand(time(0));
+    uid_sub_init = rand();
 }
 
 //TODO add check if inited
 void
 Driver::Initialize()
 {
-    Q_EMIT setProgress(0, 3);
     connect(this, SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), this, SLOT(on_addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)));
     connect(this, SIGNAL(addCommand(Database::Driver::DatabaseCmd)), this, SLOT(on_addCommand(Database::Driver::DatabaseCmd)));
     _db = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE"));
@@ -61,11 +65,8 @@ Driver::Initialize()
         throw _db->lastError();
 
     checkTables();
-    Q_EMIT setProgress(1, 3);
     insertDefaultsRoles();
-    Q_EMIT setProgress(2, 3);
     insertDefaultsObjectTypes();
-    Q_EMIT setProgress(3, 3);
 
     Q_EMIT Inited();
 }
@@ -95,6 +96,7 @@ Driver::checkTables()
                 throw _db->lastError();
             }
         }
+        Q_EMIT setProgress(i, (int)Tables::TablesCount, uid_init);
     }
 }
 
@@ -106,7 +108,6 @@ Driver::insertDefaultsRoles()
     bool deleted = false;
     for (int i = 0; i < (int)RoleId::ROLES_COUNT; i++) {
         auto role = _roles[i];
-        q.clear();
         q.prepare("SELECT * FROM Roles WHERE id = :id and name = :name");
         q.bindValue(":id", (int)role.id);
         q.bindValue(":name", role.name);
@@ -137,7 +138,6 @@ Driver::insertDefaultsRoles()
             }
         }
 
-        q.clear();
         q.prepare("SELECT * FROM RoleCommands WHERE role_id = :role_commands_id");
         q.bindValue(":role_commands_id", (int)role.id);
         if (!q.exec()) {
@@ -148,7 +148,6 @@ Driver::insertDefaultsRoles()
         if (!q.next()) {
             for (int j = 0; j < role.commands.size(); j++) {
                 auto command = role.commands[j];
-                q.clear();
                 q.prepare("INSERT INTO RoleCommands (role_id, command_id) "
                           "VALUES (:role_id, :command_id)");
                 q.bindValue(":role_id", (int)role.id);
@@ -156,8 +155,10 @@ Driver::insertDefaultsRoles()
                 if (!q.exec()) {
                     throw q.lastError();
                 }
+            Q_EMIT setProgress(i+1, (int)CommandId::COMMANDS_COUNT, uid_sub_init);
             }
         }
+        Q_EMIT setProgress(i+1, (int)RoleId::ROLES_COUNT, uid_init);
     }
 }
 
@@ -186,6 +187,7 @@ Driver::insertDefaultsObjectTypes()
             if (!autoExecCommand(obj)) {
                 throw _db->lastError();
             }
+            Q_EMIT setProgress(i+1, (int)ObjectType::COUNT, uid_init);
         }
     }
 }

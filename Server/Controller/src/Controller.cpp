@@ -24,27 +24,36 @@ Controller::Controller(Settings settings, QWidget *parent)
         _databaseThread.setObjectName("Database driver thread");
     }
 
-    { // adjust Ui
-        ui->actionToggle_server->setEnabled(false);
+    ui->actionToggle_server->setEnabled(false);
 
-        _listenIndicator = new QLabel("Offline");
-        ui->statusbar->addPermanentWidget(_listenIndicator);
-        ui->page_path_layout->setAlignment(Qt::AlignLeft);
+    _listenIndicator = new QLabel("Offline");
+    ui->statusbar->addPermanentWidget(_listenIndicator);
 
-        _progress = new QProgressBar(ui->statusbar);
-        _progress->setMaximumHeight(ui->statusbar->size().height() * 0.4);
-        _progress->setMaximumWidth(this->size().width() * 0.25); // TODO add on_windowsSizeChanged handler
-        _progress->setFormat("");
-        _progress->hide();
+    ui->page_path_layout->setAlignment(Qt::AlignLeft);
 
-        ui->statusbar->addWidget(_progress);
+    ui->actionToggle_server->setText("Start");
 
-        ui->actionToggle_server->setText("Start");
+    connect(ui->clearLogButton, SIGNAL(clicked()), this, SLOT(on_clearLogClicked()));
+    ui->logLevel_cb->setCurrentIndex(_settings.logginLeve);
+    connect(ui->logLevel_cb, SIGNAL(currentIndexChanged(int)), this, SLOT(changeLoggingLeve(int)));
 
-        connect(ui->clearLogButton, SIGNAL(clicked()), this, SLOT(on_clearLogClicked()));
-        ui->logLevel_cb->setCurrentIndex(_settings.logginLeve);
-        connect(ui->logLevel_cb, SIGNAL(currentIndexChanged(int)), this, SLOT(changeLoggingLeve(int)));
-    }
+    _pBars = new pSetProgress(this, QMargins(0, 0, 2, ui->statusbar->size().height() + 2));
+    connect(this, SIGNAL(setProgress(int, int, int)), _pBars, SIGNAL(setProgress(int, int, int)));
+    connect(this, SIGNAL(resized(QResizeEvent*)), _pBars, SIGNAL(windowResized(QResizeEvent*)));
+
+    QTimer::singleShot(1000, [this]() {
+
+    connect(&_timer1, &QTimer::timeout, [this]() { if (i1 < im1) Q_EMIT setProgress(++i1, im1, 4);});
+    connect(&_timer2, &QTimer::timeout, [this]() { if (i2 < im2) Q_EMIT setProgress(++i2, im2, 9);});
+    connect(&_timer3, &QTimer::timeout, [this]() { if (i3 < im3) Q_EMIT setProgress(++i3, im3, 3);});
+    connect(&_timer4, &QTimer::timeout, [this]() { if (i4 < im4) Q_EMIT setProgress(++i4, im4, 5);});
+
+    _timer1.start(100);
+    _timer2.start(1000);
+    _timer3.start(200);
+    _timer4.start(2000);
+
+            });
 
     setupLogger();
     setupDatabase();
@@ -114,7 +123,7 @@ Controller::setupPages()
     connect(ui->open_UsersListBtn,       &QPushButton::clicked, [this]() { changePage("Users list"); });
     connect(ui->open_ControlPannelBtn_2, &QPushButton::clicked, [this]() { changePage("Control Pannel"); });
 
-    changePage(_defaultPage.length() ? _defaultPage : "Main");
+    changePage(_settings.defultPage.length() ? _settings.defultPage : "Main");
 
     connect(&_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
             service, SLOT(onServerListningStateChanged(QHostAddress, quint16, bool)));
@@ -157,7 +166,7 @@ Controller::setupDatabase()
     connect(&_database, SIGNAL(InitizlizationFailed(QSqlError)),
             this, SLOT(on_databaseInitializationFailed(QSqlError)), Qt::DirectConnection);
 
-    connect(&_database, SIGNAL(setProgress(int, int)), this, SLOT(setProgress(int, int)), Qt::DirectConnection);
+    connect(&_database, SIGNAL(setProgress(int, int, int)), this, SIGNAL(setProgress(int, int, int)), Qt::DirectConnection);
 
     connect(&_databaseThread, SIGNAL(started()), &_database, SLOT(Run()), Qt::DirectConnection);
     _database.moveToThread(&_databaseThread);
@@ -248,6 +257,13 @@ Controller::changeIndicatorState(QHostAddress address, quint16 port, bool listen
 }
 
 void
+Controller::resizeEvent(QResizeEvent * e)
+{
+    e->accept();
+    Q_EMIT resized(e);
+}
+
+void
 Controller::on_listeningStateChanged(QHostAddress dummy, quint16 dummy1, bool listening)
 {
     if (listening) {
@@ -279,14 +295,12 @@ Controller::on_databaseInited()
 {
     ui->actionToggle_server->setEnabled(true);
     ui->statusbar->clearMessage();
-    Q_EMIT endProgress(); //may be connet directly?
 }
 
 void
 Controller::on_databaseInitializationFailed(QSqlError e)
 {
     ui->statusbar->showMessage("Database initialization error", 5*1000);
-    Q_EMIT endProgress(); //may be connet directly?
     QString error = "Database initialization error: " + e.text() +
                     "\nDriver reason: " + e.driverText();
     logMessage(error, LoggingLevel::Fatal);
@@ -303,23 +317,6 @@ Controller::logMessage(QString str, int level)
     }
         /* // ignore setted logging level, its need? */
     Q_EMIT send_to_log(str, level);
-}
-
-void
-Controller::setProgress(int cur, int max)
-{
-    if (_progress->isHidden()) {
-        _progress->show();
-    }
-
-    _progress->setRange(0, max);
-    _progress->setValue(cur);
-}
-
-void
-Controller::endProgress()
-{
-    _progress->hide();
 }
 
 void

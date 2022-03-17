@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.5)
 
 project(siisty VERSION 0.1 LANGUAGES CXX)
 
-set(CMAKE_BUILD_TYPE Debug)
+# set(default_build_type "Release")
+# if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
+set(DEFAULT_BUILD_TYPE "Debug")
+set(CMAKE_BUILD_TYPE "Debug")
+# endif()
 
 #########################
 #  YCM export commands  #

@@ -62,16 +62,6 @@ RegisterUser::RegisterUser(const QVector<Database::Driver::role_set>& roles, QWi
 
     connect(ui->update_wapons, SIGNAL(clicked()), this, SLOT(requestWaponDetails()));
 
-    this->setTabOrder(ui->register_buttons, ui->login_edit);
-    this->setTabOrder(ui->name_edit, ui->password_edit);
-    this->setTabOrder(ui->login_edit, ui->entryDate_edit);
-    this->setTabOrder(ui->password_edit, ui->wapon_cb);
-    this->setTabOrder(ui->entryDate_edit, ui->role_cb);
-    this->setTabOrder(ui->wapon_cb, ui->email_edit);
-    this->setTabOrder(ui->update_wapons, ui->image_path_edit);
-    this->setTabOrder(ui->email_edit, ui->openImageFile_btn);
-    this->setTabOrder(ui->image_path_edit, ui->register_buttons);
-
     /* requestWaponDetails(); */
     QTimer::singleShot(1000, [this](){ requestWaponDetails(); });
 }

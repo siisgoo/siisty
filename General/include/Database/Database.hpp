@@ -91,7 +91,7 @@ class Driver : public QObject {
 
         void logMessage(QString, int = LoggingLevel::Trace);
 
-        void setProgress(int, int);
+        void setProgress(int, int, int);
 
     public Q_SLOTS:
         void Run();
@@ -124,6 +124,9 @@ class Driver : public QObject {
 
         QMutex _queueMtx;
         QQueue<DatabaseCmd> _cmdQueue;
+
+        int uid_init;
+        int uid_sub_init;
 
         bool _running;
         QString _path;
