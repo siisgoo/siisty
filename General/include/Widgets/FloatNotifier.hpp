@@ -15,63 +15,8 @@
 #include <QPropertyAnimation>
 #include <QEasingCurve>
 
-class NotifyItem : public QFrame {
-    Q_OBJECT
-
-    public:
-        NotifyItem(const QString& title = "Notify", QWidget * p = nullptr);
-        virtual ~NotifyItem();
-
-        bool isOnDiactivation();
-
-    Q_SIGNALS:
-        void clicked();
-        void onDiactivation(); // disapear animation started
-        void diactivated(); // disapear animation completed
-        void completed(); // progress 100%
-
-    protected:
-        QLabel       * _title;
-        QPushButton  * _closeBtn;
-        QProgressBar * _progress;
-        QVBoxLayout  * _layout;
-        bool _diactivating;
-};
-
-class ProgressItem : public QFrame {
-    Q_OBJECT
-
-    public:
-        ProgressItem(int max, QString title = "Worker", QWidget * p = nullptr);
-        ~ProgressItem();
-
-        bool isOnDiactivation();
-
-    Q_SIGNALS:
-        void clicked();
-        void onDiactivation(); // disapear animation started
-        void diactivated(); // disapear animation completed
-        void completed(); // progress 100%
-        void progressChanged(int);
-
-    public Q_SLOTS:
-        void setTitle(const QString&);
-        void activate(const QPoint& pos);
-        void setProgress(int);
-        void forseComplete();
-        void diactivate();
-
-    private Q_SLOTS:
-        virtual void mousePressEvent(QMouseEvent*) override;
-
-    private:
-        QLabel       * _title;
-        QPushButton  * _closeBtn;
-        QProgressBar * _progress;
-        QVBoxLayout  * _layout;
-        bool _diactivating;
-
-};
+#include "Widgets/NotifyItem.hpp"
+#include "Widgets/NotifyItemFactory.hpp"
 
 // worst name in uniwerse
 class FloatNotifier : public QObject {
@@ -83,27 +28,46 @@ class FloatNotifier : public QObject {
 
         static int freeUID();
 
+        void setDiactivationDur(int ms);
+        void setActivationDur(int ms);
+
+        int diactivationDur() const;
+        int activationDur() const;
+
+        void setDiactivationAnimation(QPropertyAnimation* a);
+        void setActivationAnimation(QPropertyAnimation* a);
+
+        const QPropertyAnimation * diactivationAnimation() const;
+        const QPropertyAnimation * activationAnimation() const;
+
     Q_SIGNALS:
         void windowResized(QResizeEvent*);
-        void setProgress(int, int, int, QString);
+        void notifyItemCreated(NotifyItem *);
+
+    public Q_SLOTS:
+        void createNotifyItem(NotifyItemFactory *);
 
     private Q_SLOTS:
-        int activeBars();
+        int activeItemsCount();
         QPoint NextPosition(int n);
         void reorganize();
-        void hideBar();
-        void on_barCompleted();
-        void on_barDiactivation();
-
-        void on_setProgress(int uid, int v, int max, QString title);
+        void hideItem();
+        void on_itemCompleted(); // timeout completed and end animation finished
+        void on_itemDiactivation(); // on end animation started
 
     private:
-        /*const*/ QWidget * _win;
-        QMap<int, ProgressItem*> _bars;
+        /*const*/ QWidget * _win; // link
+        QMap<int, NotifyItem *> _items;
         QMutex _mtx;
         QWaitCondition _created;
         QMargins _margins;
         int _spacing;
+
+        int _diactivationTimeout; // TODO
+        int _activationDur;
+        int _diactivationDur;
+        QPropertyAnimation * _activationAnimation;
+        QPropertyAnimation * _diactivationAnimation;
 };
 
 
