@@ -51,7 +51,7 @@ Driver::Driver(const QString& path, QObject * p)
 void
 Driver::Initialize()
 {
-    int bar_uid = pSetProgress::freeUID();
+    int bar_uid = FloatNotifier::freeUID();
     Q_EMIT setProgress(bar_uid, 0, 4, "Database initialization");
 
     connect(this, SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), this, SLOT(on_addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)));
@@ -83,9 +83,8 @@ Driver::~Driver()
 void
 Driver::checkTables()
 {
-    int bar_uid = pSetProgress::freeUID();
+    int bar_uid = FloatNotifier::freeUID();
     Q_EMIT setProgress(bar_uid, 0, (int)Tables::TablesCount, "Looking for tables");
-    qDebug() << bar_uid;
     int i;
     QStringList tables = _db->tables();
     for (i = 0; i < (int)Tables::TablesCount ; i++) {
@@ -108,9 +107,8 @@ Driver::checkTables()
 void
 Driver::insertDefaultsRoles()
 {
-    int bar_uid = pSetProgress::freeUID();
+    int bar_uid = FloatNotifier::freeUID();
     Q_EMIT setProgress(bar_uid, 0, (int)RoleId::ROLES_COUNT, "Looking for roles");
-    qDebug() << bar_uid;
 
     QSqlQuery q;
     bool deleted = false;
@@ -154,9 +152,8 @@ Driver::insertDefaultsRoles()
 
         // may be deeper check? :) no
         if (!q.next()) {
-            int inner_bar_uid = pSetProgress::freeUID();
+            int inner_bar_uid = FloatNotifier::freeUID();
             Q_EMIT setProgress(inner_bar_uid, 0, role.commands.size(), "Looking for " + QString(role.name) + " commands");
-            qDebug() << inner_bar_uid;
             for (int j = 0; j < role.commands.size(); j++) {
                 auto command = role.commands[j];
                 q.prepare("INSERT INTO RoleCommands (role_id, command_id) "
@@ -189,9 +186,8 @@ Driver::insertDefaultsObjectTypes()
             throw q.lastError();
         }
 
-        int bar_uid = pSetProgress::freeUID();
+        int bar_uid = FloatNotifier::freeUID();
         Q_EMIT setProgress(bar_uid, 0, (int)ObjectType::COUNT, "Inserting default object types");
-        qDebug() << bar_uid;
         obj["command"] = (int)CommandId::ADD_OBJECT_TYPE;
         for (int i = 0; i < (int)ObjectType::COUNT; i++) {
             obj["arg"] = QJsonObject({
@@ -307,7 +303,7 @@ Driver::executeCommand(Database::RoleId role, QJsonObject obj, DriverAssistant* 
         waiter->Failed(CmdError(InvalidParam, "No parameters passed"));
         return;
     }
-    qDebug() << timer.elapsed() << "\t" << timer.nsecsElapsed();
+    qDebug() << "Cmd exec time: " << timer.elapsed() << "\t" << timer.nsecsElapsed();
 }
 
 bool

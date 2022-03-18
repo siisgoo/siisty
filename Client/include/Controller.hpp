@@ -8,7 +8,7 @@
 #include <QTextEdit>
 #include <QThread>
 
-#include "Widgets/Progresses.hpp"
+#include "Widgets/FloatNotifier.hpp"
 #include "General/ClickableLabel.hpp"
 #include "General/PagesManager.hpp"
 #include "General/logger.hpp"
@@ -21,6 +21,28 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class Controller; }
 QT_END_NAMESPACE
 
+struct Settings {
+    bool useSsl = false;
+
+    QHostAddress _serverAddress = QHostAddress::LocalHost;
+    quint16      _serverPort = 2142;
+
+    QHostAddress serveAddress = QHostAddress::AnyIPv4;
+    quint16 servePort = 2142;
+
+    QString _login;
+    QString _password;
+
+    QString certPath = "./cert.pem";
+    QString caPath = "./ca.pem";
+    QString keyPath = "./key.pem";
+
+    int logginLeve = LoggingLevel::Trace;
+    QString logDir = "./";
+
+    int maxThreads = QThread::idealThreadCount();
+};
+
 class userInterface : public QMainWindow {
     Q_OBJECT
 
@@ -30,7 +52,7 @@ class userInterface : public QMainWindow {
         };
 
     public:
-        userInterface(QWidget *parent = NULL);
+        userInterface(const Settings&, QWidget *parent = NULL);
 
         virtual ~userInterface();
 
@@ -66,20 +88,13 @@ class userInterface : public QMainWindow {
 
     protected:
         QThread _loggingThread;
-        logger  _log;
-
         QThread _serviceThread;
+        logger  _log;
         Service _service;
 
-        QHostAddress _serverAddress;
-        quint16      _serverPort;
+        Settings _settings;
 
-        QString _login;
-        QString _password;
-
-        pSetProgress * _pBars;
-
-        bool _forseUseSsl = false;
+        FloatNotifier * _notifier;
 
         Ui::Controller * ui;
 };

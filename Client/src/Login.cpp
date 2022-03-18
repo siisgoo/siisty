@@ -10,13 +10,10 @@ Login::Login(QWidget *parent) :
     ui->setupUi(this);
 
     { // icon stup
-        QIcon * usr = new QIcon(":login/user");
-        QIcon * psw = new QIcon(":login/password");
-        ui->icon_user->setPixmap(usr->pixmap(QSize(20, 20)));
-        ui->icon_password->setPixmap(psw->pixmap(QSize(20, 20)));
+        ui->icon_user->setPixmap(QIcon(":login/user").pixmap(QSize(20, 20)));
+        ui->icon_password->setPixmap(QIcon(":login/password").pixmap(QSize(20, 20)));
 
-        QIcon * logo = new QIcon(":logo/big-logo");
-        ui->logo->setPixmap(logo->pixmap(QSize(128, 128)));
+        ui->logo->setPixmap(QIcon(":logo/big-logo").pixmap(QSize(128, 128)));
     }
 
     connect(ui->submit, SIGNAL(clicked()), this, SLOT(on_submit_clicked()));

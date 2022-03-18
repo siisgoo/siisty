@@ -10,6 +10,11 @@
     <height>565</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <family>Anonymous Pro</family>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>

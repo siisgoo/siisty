@@ -15,6 +15,29 @@
 #include <QPropertyAnimation>
 #include <QEasingCurve>
 
+class NotifyItem : public QFrame {
+    Q_OBJECT
+
+    public:
+        NotifyItem(const QString& title = "Notify", QWidget * p = nullptr);
+        virtual ~NotifyItem();
+
+        bool isOnDiactivation();
+
+    Q_SIGNALS:
+        void clicked();
+        void onDiactivation(); // disapear animation started
+        void diactivated(); // disapear animation completed
+        void completed(); // progress 100%
+
+    protected:
+        QLabel       * _title;
+        QPushButton  * _closeBtn;
+        QProgressBar * _progress;
+        QVBoxLayout  * _layout;
+        bool _diactivating;
+};
+
 class ProgressItem : public QFrame {
     Q_OBJECT
 
@@ -22,15 +45,18 @@ class ProgressItem : public QFrame {
         ProgressItem(int max, QString title = "Worker", QWidget * p = nullptr);
         ~ProgressItem();
 
+        bool isOnDiactivation();
+
     Q_SIGNALS:
         void clicked();
-        void diactivated();
-        void completed();
+        void onDiactivation(); // disapear animation started
+        void diactivated(); // disapear animation completed
+        void completed(); // progress 100%
         void progressChanged(int);
 
     public Q_SLOTS:
         void setTitle(const QString&);
-        void activate();
+        void activate(const QPoint& pos);
         void setProgress(int);
         void forseComplete();
         void diactivate();
@@ -39,21 +65,21 @@ class ProgressItem : public QFrame {
         virtual void mousePressEvent(QMouseEvent*) override;
 
     private:
-        QPropertyAnimation * _animation;
         QLabel       * _title;
         QPushButton  * _closeBtn;
         QProgressBar * _progress;
         QVBoxLayout  * _layout;
+        bool _diactivating;
 
 };
 
 // worst name in uniwerse
-class pSetProgress : public QObject {
+class FloatNotifier : public QObject {
     Q_OBJECT
 
     public:
-        explicit pSetProgress(QWidget * mw, QMargins margins, QWidget * p = nullptr);
-        virtual ~pSetProgress();
+        explicit FloatNotifier(QWidget * mw, QMargins margins, QWidget * p = nullptr);
+        virtual ~FloatNotifier();
 
         static int freeUID();
 
@@ -67,6 +93,7 @@ class pSetProgress : public QObject {
         void reorganize();
         void hideBar();
         void on_barCompleted();
+        void on_barDiactivation();
 
         void on_setProgress(int uid, int v, int max, QString title);
 

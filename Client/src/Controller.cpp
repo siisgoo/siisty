@@ -3,23 +3,20 @@
 
 #include <QTimer>
 
-userInterface::userInterface(QWidget* _parent)
+userInterface::userInterface(const Settings& settings, QWidget* _parent)
     : QMainWindow(_parent),
     ui(new Ui::Controller),
-        _log(Trace, "siisty-Client", nullptr),
-        _serverAddress(QHostAddress("127.0.0.1")),
-        _serverPort(9000)
+        _settings(settings),
+        _log(Trace, "siisty-Client", settings.logDir, nullptr)
 {
     ui->setupUi(this);
 
-    {
-        connect(ui->actionLogin,  SIGNAL(triggered()), this, SLOT(showLogin()));
-        connect(ui->actionLogout, SIGNAL(triggered()), this, SLOT(on_actionLogoutTriggered()));
-    }
+    connect(ui->actionLogin,  SIGNAL(triggered()), this, SLOT(showLogin()));
+    connect(ui->actionLogout, SIGNAL(triggered()), this, SLOT(on_actionLogoutTriggered()));
 
-    _pBars = new pSetProgress(this, QMargins(0, 0, 2, ui->statusbar->size().height() + 2));
-    connect(this, SIGNAL(resized(QResizeEvent*)), _pBars, SIGNAL(windowResized(QResizeEvent*)));
-    connect(this, SIGNAL(setProgress(int,int,QString,int)), _pBars, SIGNAL(setProgress(int, int, QString, int)));
+    _notifier = new FloatNotifier(this, QMargins(0, 0, 2, ui->statusbar->size().height() + 2));
+    connect(this, SIGNAL(resized(QResizeEvent*)), _notifier, SIGNAL(windowResized(QResizeEvent*)));
+    connect(this, SIGNAL(setProgress(int,int,QString,int)), _notifier, SIGNAL(setProgress(int, int, QString, int)));
 
     setupLogger();
     setupService();
@@ -53,7 +50,7 @@ userInterface::setupService()
     connect(&_service, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)));
     connect(&_service, SIGNAL(recivedMessage(iiNPack::Header, QByteArray)), this, SLOT(recivedMessage(iiNPack::Header, QByteArray)));
 
-    if (_forseUseSsl) {
+    if (_settings.useSsl) {
         connect(&_service, SIGNAL(encrypted()), this, SLOT(on_connetedToServer()));
     } else {
         connect(&_service, SIGNAL(connected()), this, SLOT(on_connetedToServer()));

@@ -977,17 +977,19 @@ QProgressBar
 
 }
 
-
 QProgressBar::chunk
 {
     background-color: #b78620;
-    width: 30px;
-    margin: 0.5px;
-
+    width: 0.5px;
+    margin: 0px;
 }
 
 ProgressItem {
-    border: 1px solid #eee;
+    border: 1px solid #666666;
+}
+
+ProgressItem > QProgressBar {
+    border-radius: 0;
 }
 
 /*-----QStatusBar-----*/

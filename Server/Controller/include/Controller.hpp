@@ -25,7 +25,8 @@
 #include "Pages/Users.hpp"
 #include "Pages/Users/RegisterUser.hpp"
 #include "Pages/Users/UsersList.hpp"
-#include "Widgets/Progresses.hpp"
+#include "Widgets/FloatNotifier.hpp"
+#include "Widgets/QLedIndicator.hpp"
 
 #include "General/Matrix.hpp"
 #include "General/logger.hpp"
@@ -50,7 +51,7 @@ struct Settings {
     int logginLeve = LoggingLevel::Trace;
     QString logFile = "./log";
 
-    QString defultPage = "Main";
+    QString defultPage = "Welcome";
 
     int maxThreads = QThread::idealThreadCount();
     int maxPendingConnections = 100;
@@ -78,6 +79,7 @@ class Controller : public QMainWindow
 
     private Q_SLOTS:
         void setupPages();
+        void connectPages();
         void setupLogger();
         void setupDatabase();
         void setupServer();
@@ -120,7 +122,7 @@ class Controller : public QMainWindow
         logger   _log;
         Database::Driver _database;
 
-        pSetProgress * _pBars;
+        FloatNotifier * _notifire;
 
         int i1 = -1;
         int i2 = -1;
@@ -132,7 +134,7 @@ class Controller : public QMainWindow
         QTimer _timer3;
         QTimer _timer4;
 
-        QWidget * _listenIndicator;
+        QLedIndicator * _listenIndicator;
         Ui::Controller * ui;
 };
 #endif // SERVERMANAGER_H

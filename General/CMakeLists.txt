@@ -15,6 +15,12 @@ POCO_SOURCES_AUTO(SRCS ${SRCS_G})
 file(GLOB_RECURSE HDRS_G "include/*.hpp")
 POCO_HEADERS_AUTO(SRCS ${HDRS_G})
 
+# Resources
+file(GLOB QRCS_G "src/*.qrc")
+POCO_SOURCES_AUTO(QRCS ${QRCS_G})
+
+qt6_add_resources(SRCS ${QRCS})
+
 #########################
 #  building executable  #
 #########################

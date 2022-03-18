@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>970</width>
-    <height>594</height>
+    <width>1173</width>
+    <height>692</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,6 +18,11 @@
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
+  </property>
+  <property name="font">
+   <font>
+    <family>Anonymous Pro</family>
+   </font>
   </property>
   <property name="windowTitle">
    <string>Controller</string>
@@ -58,11 +63,6 @@
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
-      </property>
-      <property name="font">
-       <font>
-        <family>Iosevka</family>
-       </font>
       </property>
       <property name="contextMenuPolicy">
        <enum>Qt::NoContextMenu</enum>
@@ -137,8 +137,14 @@
         <height>156</height>
        </size>
       </property>
+      <property name="font">
+       <font>
+        <family>Anonymous Pro</family>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page">
        <property name="sizePolicy">
@@ -173,8 +179,8 @@
           </property>
           <property name="minimumSize">
            <size>
-            <width>118</width>
-            <height>156</height>
+            <width>0</width>
+            <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
@@ -381,6 +387,14 @@
             <height>0</height>
            </size>
           </property>
+          <property name="font">
+           <font>
+            <family>Iosevka</family>
+            <pointsize>10</pointsize>
+            <italic>true</italic>
+            <bold>false</bold>
+           </font>
+          </property>
           <property name="frameShape">
            <enum>QFrame::Box</enum>
           </property>
@@ -393,6 +407,14 @@
            </property>
            <item>
             <widget class="QPushButton" name="open_RegisterUserBtn">
+             <property name="font">
+              <font>
+               <family>Monaco</family>
+               <pointsize>10</pointsize>
+               <italic>false</italic>
+               <bold>false</bold>
+              </font>
+             </property>
              <property name="text">
               <string>Register user</string>
              </property>
@@ -400,6 +422,14 @@
            </item>
            <item>
             <widget class="QPushButton" name="open_UsersListBtn">
+             <property name="font">
+              <font>
+               <family>Monaco</family>
+               <pointsize>10</pointsize>
+               <italic>false</italic>
+               <bold>false</bold>
+              </font>
+             </property>
              <property name="text">
               <string>Users list</string>
              </property>
@@ -407,6 +437,14 @@
            </item>
            <item>
             <widget class="Line" name="line_3">
+             <property name="font">
+              <font>
+               <family>Iosevka</family>
+               <pointsize>10</pointsize>
+               <italic>true</italic>
+               <bold>false</bold>
+              </font>
+             </property>
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
@@ -414,6 +452,14 @@
            </item>
            <item>
             <widget class="QPushButton" name="open_ControlPannelBtn_2">
+             <property name="font">
+              <font>
+               <family>Monaco</family>
+               <pointsize>10</pointsize>
+               <italic>false</italic>
+               <bold>false</bold>
+              </font>
+             </property>
              <property name="text">
               <string>Back</string>
              </property>
@@ -443,9 +489,14 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>970</width>
-     <height>22</height>
+     <width>1173</width>
+     <height>20</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Monaco</family>
+    </font>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -456,7 +507,7 @@
    </widget>
    <widget class="QMenu" name="menuServices">
     <property name="title">
-     <string>Services</string>
+     <string>Tools</string>
     </property>
     <addaction name="actionProperties"/>
    </widget>
@@ -466,8 +517,24 @@
     </property>
     <addaction name="actionVisit_shelly_wiki"/>
    </widget>
+   <widget class="QMenu" name="menuTheme">
+    <property name="title">
+     <string>Theme</string>
+    </property>
+    <addaction name="actionDark"/>
+    <addaction name="actionLight"/>
+   </widget>
+   <widget class="QMenu" name="menuLanguage">
+    <property name="title">
+     <string>Language</string>
+    </property>
+    <addaction name="actionEnglish"/>
+    <addaction name="actionRussian"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuServices"/>
+   <addaction name="menuTheme"/>
+   <addaction name="menuLanguage"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar">
@@ -475,10 +542,28 @@
     <bool>true</bool>
    </property>
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>22</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>22</height>
+    </size>
+   </property>
+   <property name="font">
+    <font>
+     <family>Source Code Pro</family>
+     <pointsize>7</pointsize>
+    </font>
    </property>
    <property name="mouseTracking">
     <bool>false</bool>
@@ -493,13 +578,13 @@
     <enum>Qt::NoContextMenu</enum>
    </property>
    <property name="acceptDrops">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="layoutDirection">
     <enum>Qt::LeftToRight</enum>
    </property>
    <property name="autoFillBackground">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="styleSheet">
     <string notr="true">QStatusBar#statusbar {
@@ -515,11 +600,26 @@ border-style: groove;
    </property>
   </widget>
   <widget class="QDockWidget" name="info_dock">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="sizePolicy">
     <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
+   </property>
+   <property name="floating">
+    <bool>true</bool>
+   </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::AllDockWidgetAreas</set>
+   </property>
+   <property name="windowTitle">
+    <string>Log messages</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>8</number>
@@ -651,6 +751,11 @@ border-style: groove;
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
+   <property name="font">
+    <font>
+     <family>Monaco</family>
+    </font>
+   </property>
    <property name="windowTitle">
     <string>toolBar_2</string>
    </property>
@@ -680,7 +785,7 @@ border-style: groove;
   </action>
   <action name="actionProperties">
    <property name="text">
-    <string>Properties</string>
+    <string>Settings</string>
    </property>
   </action>
   <action name="actionToggle_server">
@@ -689,6 +794,26 @@ border-style: groove;
    </property>
    <property name="toolTip">
     <string>Toggle server state</string>
+   </property>
+  </action>
+  <action name="actionDark">
+   <property name="text">
+    <string>Dark</string>
+   </property>
+  </action>
+  <action name="actionLight">
+   <property name="text">
+    <string>Light</string>
+   </property>
+  </action>
+  <action name="actionEnglish">
+   <property name="text">
+    <string>English</string>
+   </property>
+  </action>
+  <action name="actionRussian">
+   <property name="text">
+    <string>Russian</string>
    </property>
   </action>
  </widget>

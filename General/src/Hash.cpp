@@ -78,12 +78,12 @@ quint8 passWeaknesses(const QByteArray& data)
     auto determWeakness = [](double f, double s, double t, quint8 wf, quint8 ws, quint8 wt) -> quint8 {
         if (f > s && f > t) {
             if (f > 0.5) {
-                return ws & wt;
+                return ws | wt;
             } else {
                 if (std::abs(s - t) > 0.1) {
                     return (s > t ? wt : ws);
                 } else {
-                    return ws & wt;
+                    return ws | wt;
                 }
             }
         }

@@ -14,7 +14,9 @@ int main(int argc, char* argv[])
     }
     app.setStyleSheet(style);
 
-    userInterface theUserInterface(NULL);
+    Settings settings;
+
+    userInterface theUserInterface(settings);
 
     theUserInterface.show();
     return app.exec();

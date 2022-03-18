@@ -6,7 +6,7 @@
 #include <QJsonObject>
 #include <QQueue>
 
-#include "Widgets/Progresses.hpp"
+#include "Widgets/FloatNotifier.hpp"
 #include "Database/ObjectType.hpp"
 #include "Database/Role.hpp"
 #include "Database/command.hpp"
@@ -121,7 +121,8 @@ class Driver : public QObject {
         QVector<command_set>    _commands;
         QVector<objectType_set> _objectTypes;
 
-        QMutex _queueMtx;
+        /* QWaitCondition _newCommand; */
+        QMutex _queueMtx; // useless, only one thread handle db
         QQueue<DatabaseCmd> _cmdQueue;
 
         bool _running;

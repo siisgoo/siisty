@@ -1,9 +1,11 @@
 #include "Controller.hpp"
 
 #include <QException>
+#include "Widgets/QLedIndicator.hpp"
 
 #include "./ui_Controller.h"
 #include <qnamespace.h>
+
 #include <QErrorMessage>
 
 #include "Database/Database.hpp"
@@ -24,67 +26,109 @@ Controller::Controller(Settings settings, QWidget *parent)
         _databaseThread.setObjectName("Database driver thread");
     }
 
-    ui->actionToggle_server->setEnabled(false);
+    {
+        ui->actionToggle_server->setEnabled(false);
+        ui->actionToggle_server->setText("Start");
+    }
 
-    _listenIndicator = new QLabel("Offline");
-    ui->statusbar->addPermanentWidget(_listenIndicator);
+    {
+        ui->statusbar->setFixedHeight(22);
+        _listenIndicator = new QLedIndicator(ui->statusbar);
+        ui->statusbar->layout()->setAlignment(Qt::AlignCenter);
+        _listenIndicator->setLedSize(14);
+        ui->statusbar->addPermanentWidget(_listenIndicator);
+    }
 
-    ui->page_path_layout->setAlignment(Qt::AlignLeft);
+    {
+        ui->page_path_layout->setAlignment(Qt::AlignLeft);
+    }
 
-    ui->actionToggle_server->setText("Start");
+    {
+        connect(ui->clearLogButton, SIGNAL(clicked()), this, SLOT(on_clearLogClicked()));
+        ui->logLevel_cb->setCurrentIndex(_settings.logginLeve);
+        connect(ui->logLevel_cb, SIGNAL(currentIndexChanged(int)), this, SLOT(changeLoggingLeve(int)));
+    }
 
-    connect(ui->clearLogButton, SIGNAL(clicked()), this, SLOT(on_clearLogClicked()));
-    ui->logLevel_cb->setCurrentIndex(_settings.logginLeve);
-    connect(ui->logLevel_cb, SIGNAL(currentIndexChanged(int)), this, SLOT(changeLoggingLeve(int)));
-
-    _pBars = new pSetProgress(this, QMargins(0, 0, 2, ui->statusbar->size().height() + 2));
-    connect(this, SIGNAL(setProgress(int, int, int, QString)), _pBars, SIGNAL(setProgress(int, int, int, QString)), Qt::DirectConnection);
-    connect(this, SIGNAL(resized(QResizeEvent*)), _pBars, SIGNAL(windowResized(QResizeEvent*)));
-
-    QTimer::singleShot(1000, [this]() {
-
-        int uids[4] = { pSetProgress::freeUID(), pSetProgress::freeUID(), pSetProgress::freeUID(), pSetProgress::freeUID(), };
-        connect(&_timer1, &QTimer::timeout, [this, uids]() { if (i1 >= 100) _timer1.stop(); Q_EMIT setProgress(uids[0], ++i1, 100, "Drinking wodka");});
-        connect(&_timer2, &QTimer::timeout, [this, uids]() { if (i2 >= 100) _timer2.stop(); Q_EMIT setProgress(uids[1], ++i2, 100, "Sucking dick");});
-        connect(&_timer3, &QTimer::timeout, [this, uids]() { if (i3 >= 100) _timer3.stop(); Q_EMIT setProgress(uids[2], ++i3, 100, "Pee on face");});
-        connect(&_timer4, &QTimer::timeout, [this, uids]() { if (i4 >= 100) _timer4.stop(); Q_EMIT setProgress(uids[3], ++i4, 100, "Beat brow with penis");});
-
-        _timer1.start(500);
-        _timer2.start(300);
-        _timer3.start(800);
-        _timer4.start(400);
-
-    });
+    {
+        _notifire = new FloatNotifier(this, QMargins(0, 0, 2, ui->statusbar->size().height() + 2));
+        connect(this, SIGNAL(setProgress(int, int, int, QString)), _notifire, SIGNAL(setProgress(int, int, int, QString)), Qt::DirectConnection);
+        connect(this, SIGNAL(resized(QResizeEvent*)), _notifire, SIGNAL(windowResized(QResizeEvent*)));
+    }
 
     setupLogger();
     setupDatabase();
+    setupPages();
 
     _loggingThread.start();
-    _serverThread.start();
     _databaseThread.start();
-
+    _serverThread.start();
 }
 
 Controller::~Controller()
 {
     _database.Stop();
 
+    _databaseThread.quit();
     _loggingThread.quit();
     _serverThread.quit();
-    _databaseThread.quit();
 
+    _databaseThread.wait();
     _loggingThread.wait();
     _serverThread.wait();
-    _databaseThread.wait();
 
+    delete _notifire;
     delete _listenIndicator;
     delete ui;
 }
 
 void
+Controller::setupLogger()
+{
+    connect(this, SIGNAL(send_to_log(QString, int)), &_log, SLOT(logMessage(QString, int)), Qt::DirectConnection);
+    _log.moveToThread(&_loggingThread);
+}
+
+void
+Controller::setupDatabase()
+{
+    connect(&_database, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)), Qt::DirectConnection);
+
+    // inited -> setup service -> setup pages
+    connect(&_database, SIGNAL(Inited()),
+            this, SLOT(on_databaseInited()), Qt::DirectConnection);
+    connect(&_database, SIGNAL(Inited()),
+            this, SLOT(setupServer()));
+    connect(&_database, SIGNAL(Inited()),
+            this, SLOT(connectPages()));
+    connect(&_database, SIGNAL(InitizlizationFailed(QSqlError)),
+            this, SLOT(on_databaseInitializationFailed(QSqlError)), Qt::DirectConnection);
+
+    connect(&_database, SIGNAL(setProgress(int, int, int, QString)), this, SIGNAL(setProgress(int, int, int, QString)), Qt::DirectConnection);
+
+    connect(&_databaseThread, SIGNAL(started()), &_database, SLOT(Run()), Qt::DirectConnection);
+    _database.moveToThread(&_databaseThread);
+}
+
+void
+Controller::setupServer()
+{
+    _server.setForseUseSsl(_settings.useSsl);
+    _server.LoadCertificates(_settings.certPath, _settings.keyPath);
+
+    connect(&_server, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)), Qt::DirectConnection);
+
+    connect(&_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
+            this, SLOT(changeIndicatorState(QHostAddress, quint16, bool)));
+    connect(&_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
+            this, SLOT(on_listeningStateChanged(QHostAddress, quint16, bool)));
+
+    _server.moveToThread(&_serverThread);
+}
+
+void
 Controller::setupPages()
 {
-    QWidget * main          = new WelcomePage(ui->page_view),
+    QWidget * welcome       = new WelcomePage(ui->page_view),
             * controlPannel = new ControlPannel(ui->page_view),
             * service       = new ServerInfoPage(ui->page_view),
             * connections   = new ConnectionsPage(ui->page_view),
@@ -94,14 +138,18 @@ Controller::setupPages()
 
     // can i automize creation? may be
 
-    PagesManager::addRoot("Main",           main,          (int)NavPages::Main,          {"Control Pannel", "Load", "Settings", "Help"});
-    PagesManager::addPage("Control Pannel", controlPannel, (int)NavPages::ControlPannel, {"Service", "Connections", "Users"});
+    QWidget * TMPmain = new QWidget(ui->page_view);
+
+    PagesManager::addRoot("Main",           TMPmain,       (int)NavPages::Main,          { "Welcome", "Control Pannel", "Load", "Settings", "Help"});
+    PagesManager::addPage("Welcome",        welcome,       (int)NavPages::Main);
+    PagesManager::addPage("Control Pannel", controlPannel, (int)NavPages::ControlPannel, { "Service", "Connections", "Users"});
     PagesManager::addPage("Service",        service,       (int)NavPages::ControlPannel);
     PagesManager::addPage("Connections",    connections,   (int)NavPages::ControlPannel);
-    PagesManager::addPage("Users",          users,         (int)NavPages::Users,         {"Register user", "Users list"});
+    PagesManager::addPage("Users",          users,         (int)NavPages::Users,         { "Register user", "Users list"});
     PagesManager::addPage("Users list",     usersList,     (int)NavPages::Users);
     PagesManager::addPage("Register user",  registerUser,  (int)NavPages::Users);
-    ui->page_view->addWidget(main);
+    ui->page_view->addWidget(TMPmain);
+    ui->page_view->addWidget(welcome);
     ui->page_view->addWidget(controlPannel);
     ui->page_view->addWidget(service);
     ui->page_view->addWidget(connections);
@@ -124,64 +172,52 @@ Controller::setupPages()
     connect(ui->open_UsersListBtn,       &QPushButton::clicked, [this]() { changePage("Users list"); });
     connect(ui->open_ControlPannelBtn_2, &QPushButton::clicked, [this]() { changePage("Control Pannel"); });
 
-    changePage(_settings.defultPage.length() ? _settings.defultPage : "Main");
+    QTimer::singleShot(100, [this]() { changePage(PagesManager::getPage(_settings.defultPage) ? _settings.defultPage : "Welcome"); });
+}
 
+void
+Controller::connectPages()
+{
     connect(&_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
-            service, SLOT(onServerListningStateChanged(QHostAddress, quint16, bool)));
+            PagesManager::getPage("Service"), SLOT(onServerListningStateChanged(QHostAddress, quint16, bool)));
 
-    connect(&_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
-            this, SLOT(changeIndicatorState(QHostAddress, quint16, bool)));
-    connect(&_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
-            this, SLOT(on_listeningStateChanged(QHostAddress, quint16, bool)));
-
-    connect(registerUser, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)));
-    connect(registerUser, SIGNAL(registrateUser(Database::RoleId, QJsonObject, Database::DriverAssistant*)),
+    connect(PagesManager::getPage("Register user"), SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)));
+    connect(PagesManager::getPage("Register user"), SIGNAL(registrateUser(Database::RoleId, QJsonObject, Database::DriverAssistant*)),
             &_database,    SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), Qt::DirectConnection);
-    connect(registerUser, SIGNAL(requestedWaponDetails(Database::RoleId, QJsonObject, Database::DriverAssistant*)),
+    connect(PagesManager::getPage("Register user"), SIGNAL(requestedWaponDetails(Database::RoleId, QJsonObject, Database::DriverAssistant*)),
             &_database,    SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), Qt::DirectConnection);
 
-    connect(usersList, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)));
-    connect(usersList, SIGNAL(requestedUsers(Database::RoleId, QJsonObject, Database::DriverAssistant*)),
+    connect(PagesManager::getPage("Users list"), SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)));
+    connect(PagesManager::getPage("Users list"), SIGNAL(requestedUsers(Database::RoleId, QJsonObject, Database::DriverAssistant*)),
             &_database, SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), Qt::DirectConnection);
 }
 
 void
-Controller::setupLogger()
+Controller::changePage(QString page)
 {
-    connect(this, SIGNAL(send_to_log(QString, int)), &_log, SLOT(logMessage(QString, int)), Qt::DirectConnection);
-    _log.moveToThread(&_loggingThread);
-}
+    QLayoutItem * itm;
+    while ((itm = ui->page_path_layout->takeAt(0)) != nullptr) {
+        delete itm->widget();
+        delete itm;
+    }
 
-void
-Controller::setupDatabase()
-{
-    connect(&_database, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)), Qt::DirectConnection);
+    QVector<QString> path = PagesManager::getPagePath(page);
+    for (auto node : path) {
+        QWidget * lbl = new QLabel("->", ui->page_path_frame);
+        lbl->setFont(QFont("Iosevka", 9));
+        lbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+        ui->page_path_layout->addWidget(lbl);
+        ClickableLabel * clbl = new ClickableLabel(node, ui->page_path_frame);
+        clbl->setFont(QFont("Monaco", 9));
+        clbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+        clbl->setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
+        clbl->setStyleSheet("color: #b78620");
+        connect(clbl, SIGNAL(clicked()), this, SLOT(on_pathNodeClicked()));
+        ui->page_path_layout->addWidget(clbl);
+    }
 
-    // inited -> setup service -> setup pages
-    connect(&_database, SIGNAL(Inited()),
-            this, SLOT(on_databaseInited()), Qt::DirectConnection);
-    connect(&_database, SIGNAL(Inited()),
-            this, SLOT(setupServer()));
-    connect(&_database, SIGNAL(Inited()),
-            this, SLOT(setupPages()));
-    connect(&_database, SIGNAL(InitizlizationFailed(QSqlError)),
-            this, SLOT(on_databaseInitializationFailed(QSqlError)), Qt::DirectConnection);
-
-    connect(&_database, SIGNAL(setProgress(int, int, int, QString)), this, SIGNAL(setProgress(int, int, int, QString)), Qt::DirectConnection);
-
-    connect(&_databaseThread, SIGNAL(started()), &_database, SLOT(Run()), Qt::DirectConnection);
-    _database.moveToThread(&_databaseThread);
-}
-
-void
-Controller::setupServer()
-{
-    _server.setForseUseSsl(_settings.useSsl);
-    _server.LoadCertificates(_settings.certPath, _settings.keyPath);
-
-    connect(&_server, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)), Qt::DirectConnection);
-
-    _server.moveToThread(&_serverThread);
+    ui->page_view->setCurrentWidget(PagesManager::getPage(page));
+    ui->NavPages->setCurrentIndex(PagesManager::getPageNav(page));
 }
 
 void
@@ -210,36 +246,6 @@ Controller::changeLoggingLeve(int level)
 }
 
 void
-Controller::changePage(QString page)
-{
-    // todo
-    // clear current path
-    QLayoutItem * itm;
-    while ((itm = ui->page_path_layout->takeAt(0)) != nullptr) {
-        delete itm->widget();
-        delete itm;
-    }
-
-    QVector<QString> path = PagesManager::getPagePath(page);
-    for (auto node : path) {
-        QWidget * lbl = new QLabel("->", ui->page_path_frame);
-        lbl->setFont(QFont("Iosevka", 9));
-        lbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-        ui->page_path_layout->addWidget(lbl);
-        ClickableLabel * clbl = new ClickableLabel(node, ui->page_path_frame);
-        clbl->setFont(QFont("Sans", 9));
-        clbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-        clbl->setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
-        clbl->setStyleSheet("color: #b78620");
-        connect(clbl, SIGNAL(clicked()), this, SLOT(on_pathNodeClicked()));
-        ui->page_path_layout->addWidget(clbl);
-    }
-
-    ui->page_view->setCurrentWidget(PagesManager::getPage(page));
-    ui->NavPages->setCurrentIndex(PagesManager::getPageNav(page));
-}
-
-void
 Controller::on_pathNodeClicked()
 {
     ClickableLabel * lbl = dynamic_cast<ClickableLabel*>(sender());
@@ -251,9 +257,9 @@ void
 Controller::changeIndicatorState(QHostAddress address, quint16 port, bool listening)
 {
     if (listening) {
-        static_cast<QLabel*>(_listenIndicator)->setText(tr("Listening"));
+        _listenIndicator->setLedState(QLedIndicator::LedState::Active);
     } else {
-        static_cast<QLabel*>(_listenIndicator)->setText(tr("Offline"));
+        _listenIndicator->setLedState(QLedIndicator::LedState::Inactive);
     }
 }
 
@@ -274,11 +280,7 @@ Controller::on_listeningStateChanged(QHostAddress dummy, quint16 dummy1, bool li
     }
 }
 
-void
-Controller::on_actionQuit_triggered()
-{
-    QApplication::quit();
-}
+void Controller::on_actionQuit_triggered() { QApplication::quit(); }
 
 void Controller::on_actionToggle_server_triggered()
 {
