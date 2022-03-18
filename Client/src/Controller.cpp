@@ -13,7 +13,7 @@ userInterface::userInterface(QWidget* _parent)
     ui->setupUi(this);
 
     {
-        connect(ui->actionLogin,  SIGNAL(triggered()), this, SLOT(on_actionLoginTriggered()));
+        connect(ui->actionLogin,  SIGNAL(triggered()), this, SLOT(showLogin()));
         connect(ui->actionLogout, SIGNAL(triggered()), this, SLOT(on_actionLogoutTriggered()));
     }
 
@@ -170,15 +170,15 @@ userInterface::on_logouted()
     ui->actionLogout->setEnabled(false);
 }
 
-void
-userInterface::on_actionLoginTriggered()
-{
-    if (QSslSocket::supportsSsl() && _forseUseSsl) {
-        _service.connectToHostEncrypted(_serverAddress.toString(), _serverPort);
-    } else {
-        _service.connectToHost(_serverAddress, _serverPort);
-    }
-}
+/* void */
+/* userInterface::on_actionLoginTriggered() */
+/* { */
+/*     /1* if (QSslSocket::supportsSsl() && _forseUseSsl) { *1/ */
+/*     /1*     _service.connectToHostEncrypted(_serverAddress.toString(), _serverPort); *1/ */
+/*     /1* } else { *1/ */
+/*     /1*     _service.connectToHost(_serverAddress, _serverPort); *1/ */
+/*     /1* } *1/ */
+/* } */
 
 void
 userInterface::on_actionLogoutTriggered()

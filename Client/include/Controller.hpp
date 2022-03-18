@@ -42,7 +42,6 @@ class userInterface : public QMainWindow {
     public Q_SLOTS:
         void recivedMessage(iiNPack::Header, QByteArray);
 
-        void on_actionLoginTriggered();
         void on_actionLogoutTriggered();
 
         void tryLogin(QString, QString);

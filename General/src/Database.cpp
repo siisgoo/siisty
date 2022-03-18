@@ -45,21 +45,15 @@ Driver::Driver(const QString& path, QObject * p)
         OBJECT_TYPE_MAP(XX)
     };
     #undef XX
-
-    // TODO make some more safty
-    srand(time(0));
-    uid_init = rand();
-    srand(time(0));
-    uid_sub_init = rand();
-    srand(time(0));
-    uid_main_init = rand();
 }
 
 //TODO add check if inited
 void
 Driver::Initialize()
 {
-    Q_EMIT setProgress(0, 4, "Initializing db", uid_main_init);
+    int bar_uid = pSetProgress::freeUID();
+    Q_EMIT setProgress(bar_uid, 0, 4, "Database initialization");
+
     connect(this, SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), this, SLOT(on_addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)));
     connect(this, SIGNAL(addCommand(Database::Driver::DatabaseCmd)), this, SLOT(on_addCommand(Database::Driver::DatabaseCmd)));
     _db = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE"));
@@ -67,13 +61,13 @@ Driver::Initialize()
     if (!_db->open())
         throw _db->lastError();
 
-    Q_EMIT setProgress(1, 4, "Initializing db", uid_main_init);
+    Q_EMIT setProgress(bar_uid, 1, 4, "Database initialization");
     checkTables();
-    Q_EMIT setProgress(2, 4, "Initializing db", uid_main_init);
+    Q_EMIT setProgress(bar_uid, 2, 4, "Database initialization");
     insertDefaultsRoles();
-    Q_EMIT setProgress(3, 4, "Initializing db", uid_main_init);
+    Q_EMIT setProgress(bar_uid, 3, 4, "Database initialization");
     insertDefaultsObjectTypes();
-    Q_EMIT setProgress(4, 4, "Initializing db", uid_main_init);
+    Q_EMIT setProgress(bar_uid, 4, 4, "Database initialization");
 
     Q_EMIT Inited();
 }
@@ -89,6 +83,9 @@ Driver::~Driver()
 void
 Driver::checkTables()
 {
+    int bar_uid = pSetProgress::freeUID();
+    Q_EMIT setProgress(bar_uid, 0, (int)Tables::TablesCount, "Looking for tables");
+    qDebug() << bar_uid;
     int i;
     QStringList tables = _db->tables();
     for (i = 0; i < (int)Tables::TablesCount ; i++) {
@@ -103,7 +100,7 @@ Driver::checkTables()
                 throw _db->lastError();
             }
         }
-        Q_EMIT setProgress(i, (int)Tables::TablesCount, "Check tables", uid_init);
+        Q_EMIT setProgress(bar_uid, i+1, (int)Tables::TablesCount, "Looking for tables");
     }
 }
 
@@ -111,6 +108,10 @@ Driver::checkTables()
 void
 Driver::insertDefaultsRoles()
 {
+    int bar_uid = pSetProgress::freeUID();
+    Q_EMIT setProgress(bar_uid, 0, (int)RoleId::ROLES_COUNT, "Looking for roles");
+    qDebug() << bar_uid;
+
     QSqlQuery q;
     bool deleted = false;
     for (int i = 0; i < (int)RoleId::ROLES_COUNT; i++) {
@@ -153,6 +154,9 @@ Driver::insertDefaultsRoles()
 
         // may be deeper check? :) no
         if (!q.next()) {
+            int inner_bar_uid = pSetProgress::freeUID();
+            Q_EMIT setProgress(inner_bar_uid, 0, role.commands.size(), "Looking for " + QString(role.name) + " commands");
+            qDebug() << inner_bar_uid;
             for (int j = 0; j < role.commands.size(); j++) {
                 auto command = role.commands[j];
                 q.prepare("INSERT INTO RoleCommands (role_id, command_id) "
@@ -162,10 +166,10 @@ Driver::insertDefaultsRoles()
                 if (!q.exec()) {
                     throw q.lastError();
                 }
-            Q_EMIT setProgress(i+1, (int)CommandId::COMMANDS_COUNT, "Check commands", uid_sub_init);
+                Q_EMIT setProgress(inner_bar_uid, j+1, role.commands.size(), "Looking for " + QString(role.name) + " commands");
             }
         }
-        Q_EMIT setProgress(i+1, (int)RoleId::ROLES_COUNT, "Check roles", uid_init);
+        Q_EMIT setProgress(bar_uid, i+1, (int)RoleId::ROLES_COUNT, "Looking for roles");
     }
 }
 
@@ -185,6 +189,9 @@ Driver::insertDefaultsObjectTypes()
             throw q.lastError();
         }
 
+        int bar_uid = pSetProgress::freeUID();
+        Q_EMIT setProgress(bar_uid, 0, (int)ObjectType::COUNT, "Inserting default object types");
+        qDebug() << bar_uid;
         obj["command"] = (int)CommandId::ADD_OBJECT_TYPE;
         for (int i = 0; i < (int)ObjectType::COUNT; i++) {
             obj["arg"] = QJsonObject({
@@ -194,7 +201,7 @@ Driver::insertDefaultsObjectTypes()
             if (!autoExecCommand(obj)) {
                 throw _db->lastError();
             }
-            Q_EMIT setProgress(i+1, (int)ObjectType::COUNT, "Check objects", uid_init);
+            Q_EMIT setProgress(bar_uid, i+1, (int)ObjectType::COUNT, "Inserting default object types");
         }
     }
 }
@@ -205,6 +212,7 @@ Driver::Run()
     try {
         this->Initialize();
     } catch (QSqlError e) {
+        // TODO add forse end process
         Q_EMIT InitizlizationFailed(e);
     }
 
@@ -215,15 +223,14 @@ Driver::Run()
 void
 Driver::Stop()
 {
-    QMutexLocker lock(&_queueMtx);
     _running = false;
 }
 
 void
 Driver::worker()
 {
+    QMutexLocker lock(&_queueMtx);
     if (_cmdQueue.length()) {
-        QMutexLocker lock(&_queueMtx);
         DatabaseCmd cmd = _cmdQueue.dequeue();
         this->executeCommand((RoleId)cmd.executorRole, cmd.data, cmd.waiter);
     }

@@ -1,6 +1,8 @@
 #ifndef PROGRESSES_HPP_ANX5GJAI
 #define PROGRESSES_HPP_ANX5GJAI
 
+#include <QWaitCondition>
+#include <QPushButton>
 #include <QLabel>
 #include <QLayout>
 #include <QMainWindow>
@@ -22,22 +24,26 @@ class ProgressItem : public QFrame {
 
     Q_SIGNALS:
         void clicked();
+        void diactivated();
         void completed();
         void progressChanged(int);
 
     public Q_SLOTS:
+        void setTitle(const QString&);
         void activate();
         void setProgress(int);
         void forseComplete();
+        void diactivate();
 
     private Q_SLOTS:
         virtual void mousePressEvent(QMouseEvent*) override;
 
     private:
-        QLabel * _title;
         QPropertyAnimation * _animation;
+        QLabel       * _title;
+        QPushButton  * _closeBtn;
         QProgressBar * _progress;
-        QVBoxLayout * _layout;
+        QVBoxLayout  * _layout;
 
 };
 
@@ -49,27 +55,28 @@ class pSetProgress : public QObject {
         explicit pSetProgress(QWidget * mw, QMargins margins, QWidget * p = nullptr);
         virtual ~pSetProgress();
 
-        static int freeSlot();
+        static int freeUID();
 
     Q_SIGNALS:
         void windowResized(QResizeEvent*);
-        void setProgress(int, int, QString, int);
-            // handle multithread
+        void setProgress(int, int, int, QString);
 
     private Q_SLOTS:
-        QPoint pBarNextPosition(int n);
-        void pBarReorganize();
-        void pBarCompleted();
+        int activeBars();
+        QPoint NextPosition(int n);
+        void reorganize();
+        void hideBar();
+        void on_barCompleted();
 
-        void on_setProgress(int cur, int max, QString, int uid);
+        void on_setProgress(int uid, int v, int max, QString title);
 
     private:
         /*const*/ QWidget * _win;
         QMap<int, ProgressItem*> _bars;
-        QMutex _barsMtx;
+        QMutex _mtx;
+        QWaitCondition _created;
         QMargins _margins;
         int _spacing;
-        QMutex _mtx;
 };
 
 

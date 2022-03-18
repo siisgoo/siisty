@@ -4,7 +4,7 @@
 #include <qnamespace.h>
 
 ProgressItem::ProgressItem(int max, QString title, QWidget* p)
-    : QFrame(p), _progress(new QProgressBar(this))
+    : QFrame(p)
 {
     auto effect = new QGraphicsOpacityEffect(this);
     this->setGraphicsEffect(effect);
@@ -17,6 +17,8 @@ ProgressItem::ProgressItem(int max, QString title, QWidget* p)
     this->setWindowFlag(Qt::WindowType::Widget);
     this->setFixedSize(200, 40);
 
+    _progress = new QProgressBar(this);
+
     _layout = new QVBoxLayout(this);
     this->setLayout(_layout);
 
@@ -28,7 +30,7 @@ ProgressItem::ProgressItem(int max, QString title, QWidget* p)
     _progress->setFormat("");
     _progress->setMinimumSize(200-24, 12);
     _progress->setMaximumHeight(12);
-    _progress->setAlignment(Qt::AlignHCenter);
+    _progress->setAlignment(Qt::AlignHCenter & Qt::AlignBottom);
 
     this->layout()->setAlignment(Qt::AlignHCenter);
     this->layout()->addWidget(_title);
@@ -38,20 +40,29 @@ ProgressItem::ProgressItem(int max, QString title, QWidget* p)
 ProgressItem::~ProgressItem()
 {
     delete _progress;
+    delete _title;
+    delete _layout;
 }
 
 void
 ProgressItem::forseComplete()
 {
+    diactivate();
+    connect(this, SIGNAL(diactivated()), this, SIGNAL(completed()));
+}
+
+void
+ProgressItem::diactivate()
+{
     auto effect = new QGraphicsOpacityEffect();
     this->setGraphicsEffect(effect);
     QPropertyAnimation * a = new QPropertyAnimation(effect, "opacity");
-    a->setDuration(500);
+    a->setDuration(1000);
     a->setStartValue(1);
     a->setEndValue(0);
     a->setEasingCurve(QEasingCurve::InBack);
     a->start(QPropertyAnimation::DeleteWhenStopped);
-    connect(a, SIGNAL(finished()), this, SIGNAL(completed()));
+    connect(a, SIGNAL(finished()), this, SIGNAL(diactivated()));
 }
 
 void
@@ -69,18 +80,13 @@ ProgressItem::mousePressEvent(QMouseEvent * e)
     }
 }
 
+void ProgressItem::setTitle(const QString& t) { _title->setText(t); }
+
 void ProgressItem::setProgress(int v) {
     _progress->setValue(v);
     if (v == _progress->maximum()) {
-        auto effect = new QGraphicsOpacityEffect();
-        this->setGraphicsEffect(effect);
-        QPropertyAnimation * a = new QPropertyAnimation(effect, "opacity");
-        a->setDuration(500);
-        a->setStartValue(1);
-        a->setEndValue(0);
-        a->setEasingCurve(QEasingCurve::InBack);
-        a->start(QPropertyAnimation::DeleteWhenStopped);
-        connect(a, SIGNAL(finished()), this, SIGNAL(completed()));
+        diactivate();
+        connect(this, SIGNAL(diactivated()), this, SIGNAL(completed()));
     }
 }
 
@@ -92,8 +98,8 @@ pSetProgress::pSetProgress(QWidget *w, QMargins mrgns, QWidget * p)
         _margins(mrgns),
         _spacing(2)
 {
-    connect(this, SIGNAL(setProgress(int,int,QString,int)), this, SLOT(on_setProgress(int, int, QString, int)));
-    connect(this, SIGNAL(windowResized(QResizeEvent*)), this, SLOT(pBarReorganize()));
+    connect(this, SIGNAL(setProgress(int,int,int,QString)), this, SLOT(on_setProgress(int, int, int, QString)));
+    connect(this, SIGNAL(windowResized(QResizeEvent*)), this, SLOT(reorganize()));
 }
 
 pSetProgress::~pSetProgress()
@@ -104,31 +110,46 @@ pSetProgress::~pSetProgress()
 }
 
 void
-pSetProgress::pBarReorganize()
+pSetProgress::reorganize()
 {
+    QList<ProgressItem*> active_bars;
+
+    for (auto bar : _bars) {
+        if (!bar->isHidden()) {
+            active_bars.append(bar);
+        }
+    }
     struct {
         bool operator()(QWidget* a, QWidget* b) const { return a->pos().y() > b->pos().y(); };
     } posCheck;
-    QList<ProgressItem*> pbars = _bars.values();
-    std::sort(pbars.begin(), pbars.end(), posCheck);
+    std::sort(active_bars.begin(), active_bars.end(), posCheck);
 
     int i = 0;
-    for (auto bar : pbars) {
-        bar->move(pBarNextPosition(i++));
+    for (auto bar : active_bars) {
+        bar->move(NextPosition(i++));
     }
 }
 
 void
-pSetProgress::pBarCompleted()
+pSetProgress::on_barCompleted()
 {
     ProgressItem* bar = dynamic_cast<ProgressItem*>(sender());
     _bars.remove(bar->objectName().toInt());
     delete bar;
-    pBarReorganize();
+    reorganize();
+}
+
+void
+pSetProgress::hideBar()
+{
+    ProgressItem* bar = dynamic_cast<ProgressItem*>(sender());
+    bar->diactivate();
+    connect(bar, SIGNAL(diactivated()), bar, SLOT(hide()));
+    connect(bar, SIGNAL(diactivated()), this, SLOT(reorganize()));
 }
 
 QPoint
-pSetProgress::pBarNextPosition(int i)
+pSetProgress::NextPosition(int i)
 {
     const int winw = _win->size().width(),
               winh = _win->size().height(),
@@ -143,27 +164,39 @@ pSetProgress::pBarNextPosition(int i)
     return pos;
 }
 
-/* void */
-/* pSetProgress::pBarFadeOut(QProgressBar * bar) */
-/* { */
-/* } */
+int
+pSetProgress::activeBars()
+{
+    int i = 0;
+    for (auto bar : _bars) {
+        if (!bar->isHidden()) {
+            i++;
+        }
+    }
+    return i;
+}
+
+int
+pSetProgress::freeUID()
+{
+    static int i = 0;
+    return i++;
+}
 
 void
-pSetProgress::on_setProgress(int cur, int max, QString title, int uid)
+pSetProgress::on_setProgress(int uid, int cur, int max, QString title)
 {
-    QMutexLocker lock(&_mtx);
-
     if (!_bars.contains(uid)) {
-        _bars[uid] = new ProgressItem(max,title, _win);
+        _bars[uid] = new ProgressItem(max, title, _win);
         _bars[uid]->setObjectName(QString::number(uid)); // for delete from qmap
 
-        connect(_bars[uid], SIGNAL(clicked()), this, SLOT(pBarCompleted()));
-        connect(_bars[uid], SIGNAL(completed()), this, SLOT(pBarCompleted()));
+        connect(_bars[uid], SIGNAL(clicked()), this, SLOT(hideBar()));
+        connect(_bars[uid], SIGNAL(completed()), this, SLOT(on_barCompleted()));
 
-        _bars[uid]->move(pBarNextPosition(_bars.count()-1));
+        _bars[uid]->move(NextPosition(activeBars())); // new progressitem on creation is hidden
         _bars[uid]->activate();
     }
 
+    _bars[uid]->setTitle(title);
     _bars[uid]->setProgress(cur);
 }
-

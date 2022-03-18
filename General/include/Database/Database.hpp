@@ -1,13 +1,12 @@
 #ifndef DATABASE_HPP_DP4AIHQZ
 #define DATABASE_HPP_DP4AIHQZ
 
-#include <QProgressBar>
-#include <QLabel>
 #include <QtSql>
 #include <QString>
 #include <QJsonObject>
 #include <QQueue>
 
+#include "Widgets/Progresses.hpp"
 #include "Database/ObjectType.hpp"
 #include "Database/Role.hpp"
 #include "Database/command.hpp"
@@ -91,7 +90,7 @@ class Driver : public QObject {
 
         void logMessage(QString, int = LoggingLevel::Trace);
 
-        void setProgress(int, int, QString, int);
+        void setProgress(int, int, int, QString);
 
     public Q_SLOTS:
         void Run();
@@ -124,10 +123,6 @@ class Driver : public QObject {
 
         QMutex _queueMtx;
         QQueue<DatabaseCmd> _cmdQueue;
-
-        int uid_main_init;
-        int uid_init;
-        int uid_sub_init;
 
         bool _running;
         QString _path;

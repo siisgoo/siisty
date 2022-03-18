@@ -38,20 +38,21 @@ Controller::Controller(Settings settings, QWidget *parent)
     connect(ui->logLevel_cb, SIGNAL(currentIndexChanged(int)), this, SLOT(changeLoggingLeve(int)));
 
     _pBars = new pSetProgress(this, QMargins(0, 0, 2, ui->statusbar->size().height() + 2));
-    connect(this, SIGNAL(setProgress(int, int, QString, int)), _pBars, SIGNAL(setProgress(int, int, QString, int)));
+    connect(this, SIGNAL(setProgress(int, int, int, QString)), _pBars, SIGNAL(setProgress(int, int, int, QString)), Qt::DirectConnection);
     connect(this, SIGNAL(resized(QResizeEvent*)), _pBars, SIGNAL(windowResized(QResizeEvent*)));
 
     QTimer::singleShot(1000, [this]() {
 
-        connect(&_timer1, &QTimer::timeout, [this]() { if (i1 >= im1) _timer1.stop(); Q_EMIT setProgress(++i1, im1, "Worker 1", 4);});
-        connect(&_timer2, &QTimer::timeout, [this]() { if (i2 >= im2) _timer2.stop(); Q_EMIT setProgress(++i2, im2, "Worker 2", 9);});
-        connect(&_timer3, &QTimer::timeout, [this]() { if (i3 >= im3) _timer3.stop(); Q_EMIT setProgress(++i3, im3, "Worker 3", 3);});
-        connect(&_timer4, &QTimer::timeout, [this]() { if (i4 >= im4) _timer4.stop(); Q_EMIT setProgress(++i4, im4, "Worker 4", 5);});
+        int uids[4] = { pSetProgress::freeUID(), pSetProgress::freeUID(), pSetProgress::freeUID(), pSetProgress::freeUID(), };
+        connect(&_timer1, &QTimer::timeout, [this, uids]() { if (i1 >= 100) _timer1.stop(); Q_EMIT setProgress(uids[0], ++i1, 100, "Drinking wodka");});
+        connect(&_timer2, &QTimer::timeout, [this, uids]() { if (i2 >= 100) _timer2.stop(); Q_EMIT setProgress(uids[1], ++i2, 100, "Sucking dick");});
+        connect(&_timer3, &QTimer::timeout, [this, uids]() { if (i3 >= 100) _timer3.stop(); Q_EMIT setProgress(uids[2], ++i3, 100, "Pee on face");});
+        connect(&_timer4, &QTimer::timeout, [this, uids]() { if (i4 >= 100) _timer4.stop(); Q_EMIT setProgress(uids[3], ++i4, 100, "Beat brow with penis");});
 
-        _timer1.start(100);
-        _timer2.start(600);
-        _timer3.start(200);
-        _timer4.start(300);
+        _timer1.start(500);
+        _timer2.start(300);
+        _timer3.start(800);
+        _timer4.start(400);
 
     });
 
@@ -166,7 +167,7 @@ Controller::setupDatabase()
     connect(&_database, SIGNAL(InitizlizationFailed(QSqlError)),
             this, SLOT(on_databaseInitializationFailed(QSqlError)), Qt::DirectConnection);
 
-    connect(&_database, SIGNAL(setProgress(int, int, QString, int)), this, SIGNAL(setProgress(int, int, QString, int)), Qt::DirectConnection);
+    connect(&_database, SIGNAL(setProgress(int, int, int, QString)), this, SIGNAL(setProgress(int, int, int, QString)), Qt::DirectConnection);
 
     connect(&_databaseThread, SIGNAL(started()), &_database, SLOT(Run()), Qt::DirectConnection);
     _database.moveToThread(&_databaseThread);
