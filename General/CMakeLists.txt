@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(General LANGUAGES CXX VERSION 0.0.1 DESCRIPTION "siisty General")
+project(General LANGUAGES CXX VERSION 1.2.1 DESCRIPTION "siisty General")
 
 #####################
 #  finding sources  #

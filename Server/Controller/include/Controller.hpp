@@ -69,7 +69,7 @@ class Controller : public QMainWindow
 
     Q_SIGNALS:
         void resized(QResizeEvent*);
-        void setProgress(int, int, int);
+        void setProgress(int, int, QString, int);
         void send_to_log(QString, int);
 
     public Q_SLOTS:
@@ -122,10 +122,10 @@ class Controller : public QMainWindow
 
         pSetProgress * _pBars;
         
-        int im1 = 5000;
-        int im2 = 400;
-        int im3 = 2000;
-        int im4 = 200;
+        int im1 = 200;
+        int im2 = 100;
+        int im3 = 200;
+        int im4 = 50;
 
         int i1 = -1;
         int i2 = -1;

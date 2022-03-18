@@ -51,12 +51,15 @@ Driver::Driver(const QString& path, QObject * p)
     uid_init = rand();
     srand(time(0));
     uid_sub_init = rand();
+    srand(time(0));
+    uid_main_init = rand();
 }
 
 //TODO add check if inited
 void
 Driver::Initialize()
 {
+    Q_EMIT setProgress(0, 4, "Initializing db", uid_main_init);
     connect(this, SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), this, SLOT(on_addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)));
     connect(this, SIGNAL(addCommand(Database::Driver::DatabaseCmd)), this, SLOT(on_addCommand(Database::Driver::DatabaseCmd)));
     _db = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE"));
@@ -64,9 +67,13 @@ Driver::Initialize()
     if (!_db->open())
         throw _db->lastError();
 
+    Q_EMIT setProgress(1, 4, "Initializing db", uid_main_init);
     checkTables();
+    Q_EMIT setProgress(2, 4, "Initializing db", uid_main_init);
     insertDefaultsRoles();
+    Q_EMIT setProgress(3, 4, "Initializing db", uid_main_init);
     insertDefaultsObjectTypes();
+    Q_EMIT setProgress(4, 4, "Initializing db", uid_main_init);
 
     Q_EMIT Inited();
 }
@@ -96,7 +103,7 @@ Driver::checkTables()
                 throw _db->lastError();
             }
         }
-        Q_EMIT setProgress(i, (int)Tables::TablesCount, uid_init);
+        Q_EMIT setProgress(i, (int)Tables::TablesCount, "Check tables", uid_init);
     }
 }
 
@@ -155,10 +162,10 @@ Driver::insertDefaultsRoles()
                 if (!q.exec()) {
                     throw q.lastError();
                 }
-            Q_EMIT setProgress(i+1, (int)CommandId::COMMANDS_COUNT, uid_sub_init);
+            Q_EMIT setProgress(i+1, (int)CommandId::COMMANDS_COUNT, "Check commands", uid_sub_init);
             }
         }
-        Q_EMIT setProgress(i+1, (int)RoleId::ROLES_COUNT, uid_init);
+        Q_EMIT setProgress(i+1, (int)RoleId::ROLES_COUNT, "Check roles", uid_init);
     }
 }
 
@@ -187,7 +194,7 @@ Driver::insertDefaultsObjectTypes()
             if (!autoExecCommand(obj)) {
                 throw _db->lastError();
             }
-            Q_EMIT setProgress(i+1, (int)ObjectType::COUNT, uid_init);
+            Q_EMIT setProgress(i+1, (int)ObjectType::COUNT, "Check objects", uid_init);
         }
     }
 }

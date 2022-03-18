@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(Server LANGUAGES CXX VERSION 0.0.1 DESCRIPTION "siisty Secure Server application")
+project(Server LANGUAGES CXX VERSION 0.4.5 DESCRIPTION "siisty Secure Server application")
 
 ####################
 #  global include  #

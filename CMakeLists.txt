@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(siisty VERSION 0.1 LANGUAGES CXX)
+project(siisty VERSION 0.2 LANGUAGES CXX)
 
 # set(default_build_type "Release")
 # if(EXISTS "${CMAKE_SOURCE_DIR}/.git")

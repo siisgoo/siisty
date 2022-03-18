@@ -3,9 +3,8 @@
 #include <QStandardItemModel>
 #include <qnamespace.h>
 
-ProgressItem::ProgressItem(int max, QWidget *p)
-    : QFrame(p),
-        _progress(new QProgressBar(this))
+ProgressItem::ProgressItem(int max, QString title, QWidget* p)
+    : QFrame(p), _progress(new QProgressBar(this))
 {
     auto effect = new QGraphicsOpacityEffect(this);
     this->setGraphicsEffect(effect);
@@ -21,7 +20,7 @@ ProgressItem::ProgressItem(int max, QWidget *p)
     _layout = new QVBoxLayout(this);
     this->setLayout(_layout);
 
-    _title = new QLabel("Worker Title");
+    _title = new QLabel(title);
     _title->setFont(QFont("JetBrains Mono NL Thin", 7));
 
     connect(_progress, SIGNAL(valueChanged(int)), this, SIGNAL(progressChanged(int)));
@@ -93,7 +92,7 @@ pSetProgress::pSetProgress(QWidget *w, QMargins mrgns, QWidget * p)
         _margins(mrgns),
         _spacing(2)
 {
-    connect(this, SIGNAL(setProgress(int,int,int)), this, SLOT(on_setProgress(int, int, int)));
+    connect(this, SIGNAL(setProgress(int,int,QString,int)), this, SLOT(on_setProgress(int, int, QString, int)));
     connect(this, SIGNAL(windowResized(QResizeEvent*)), this, SLOT(pBarReorganize()));
 }
 
@@ -150,12 +149,12 @@ pSetProgress::pBarNextPosition(int i)
 /* } */
 
 void
-pSetProgress::on_setProgress(int cur, int max, int uid)
+pSetProgress::on_setProgress(int cur, int max, QString title, int uid)
 {
     QMutexLocker lock(&_mtx);
 
     if (!_bars.contains(uid)) {
-        _bars[uid] = new ProgressItem(max, _win);
+        _bars[uid] = new ProgressItem(max,title, _win);
         _bars[uid]->setObjectName(QString::number(uid)); // for delete from qmap
 
         connect(_bars[uid], SIGNAL(clicked()), this, SLOT(pBarCompleted()));

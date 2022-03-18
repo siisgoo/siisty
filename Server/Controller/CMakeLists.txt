@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(Controller LANGUAGES CXX VERSION 0.0.1 DESCRIPTION "Shelly server")
+project(Controller LANGUAGES CXX VERSION 0.9.2 DESCRIPTION "siisty GUI and main controller")
 
 set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/src/Ui
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Ui/Pages

@@ -38,22 +38,22 @@ Controller::Controller(Settings settings, QWidget *parent)
     connect(ui->logLevel_cb, SIGNAL(currentIndexChanged(int)), this, SLOT(changeLoggingLeve(int)));
 
     _pBars = new pSetProgress(this, QMargins(0, 0, 2, ui->statusbar->size().height() + 2));
-    connect(this, SIGNAL(setProgress(int, int, int)), _pBars, SIGNAL(setProgress(int, int, int)));
+    connect(this, SIGNAL(setProgress(int, int, QString, int)), _pBars, SIGNAL(setProgress(int, int, QString, int)));
     connect(this, SIGNAL(resized(QResizeEvent*)), _pBars, SIGNAL(windowResized(QResizeEvent*)));
 
     QTimer::singleShot(1000, [this]() {
 
-    connect(&_timer1, &QTimer::timeout, [this]() { if (i1 < im1) Q_EMIT setProgress(++i1, im1, 4);});
-    connect(&_timer2, &QTimer::timeout, [this]() { if (i2 < im2) Q_EMIT setProgress(++i2, im2, 9);});
-    connect(&_timer3, &QTimer::timeout, [this]() { if (i3 < im3) Q_EMIT setProgress(++i3, im3, 3);});
-    connect(&_timer4, &QTimer::timeout, [this]() { if (i4 < im4) Q_EMIT setProgress(++i4, im4, 5);});
+        connect(&_timer1, &QTimer::timeout, [this]() { if (i1 >= im1) _timer1.stop(); Q_EMIT setProgress(++i1, im1, "Worker 1", 4);});
+        connect(&_timer2, &QTimer::timeout, [this]() { if (i2 >= im2) _timer2.stop(); Q_EMIT setProgress(++i2, im2, "Worker 2", 9);});
+        connect(&_timer3, &QTimer::timeout, [this]() { if (i3 >= im3) _timer3.stop(); Q_EMIT setProgress(++i3, im3, "Worker 3", 3);});
+        connect(&_timer4, &QTimer::timeout, [this]() { if (i4 >= im4) _timer4.stop(); Q_EMIT setProgress(++i4, im4, "Worker 4", 5);});
 
-    _timer1.start(100);
-    _timer2.start(1000);
-    _timer3.start(200);
-    _timer4.start(2000);
+        _timer1.start(100);
+        _timer2.start(600);
+        _timer3.start(200);
+        _timer4.start(300);
 
-            });
+    });
 
     setupLogger();
     setupDatabase();
@@ -166,7 +166,7 @@ Controller::setupDatabase()
     connect(&_database, SIGNAL(InitizlizationFailed(QSqlError)),
             this, SLOT(on_databaseInitializationFailed(QSqlError)), Qt::DirectConnection);
 
-    connect(&_database, SIGNAL(setProgress(int, int, int)), this, SIGNAL(setProgress(int, int, int)), Qt::DirectConnection);
+    connect(&_database, SIGNAL(setProgress(int, int, QString, int)), this, SIGNAL(setProgress(int, int, QString, int)), Qt::DirectConnection);
 
     connect(&_databaseThread, SIGNAL(started()), &_database, SLOT(Run()), Qt::DirectConnection);
     _database.moveToThread(&_databaseThread);

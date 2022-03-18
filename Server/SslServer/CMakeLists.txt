@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(SslServer LANGUAGES CXX VERSION 0.0.1 DESCRIPTION "siisty Server Core")
+project(SslServer LANGUAGES CXX VERSION 0.0.9 DESCRIPTION "siisty Server Core")
 
 #####################
 #  finding sources  #

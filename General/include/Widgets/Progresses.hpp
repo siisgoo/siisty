@@ -17,7 +17,7 @@ class ProgressItem : public QFrame {
     Q_OBJECT
 
     public:
-        ProgressItem(int max, QWidget * p = nullptr);
+        ProgressItem(int max, QString title = "Worker", QWidget * p = nullptr);
         ~ProgressItem();
 
     Q_SIGNALS:
@@ -53,7 +53,7 @@ class pSetProgress : public QObject {
 
     Q_SIGNALS:
         void windowResized(QResizeEvent*);
-        void setProgress(int, int, int);
+        void setProgress(int, int, QString, int);
             // handle multithread
 
     private Q_SLOTS:
@@ -61,7 +61,7 @@ class pSetProgress : public QObject {
         void pBarReorganize();
         void pBarCompleted();
 
-        void on_setProgress(int cur, int max, int uid);
+        void on_setProgress(int cur, int max, QString, int uid);
 
     private:
         /*const*/ QWidget * _win;

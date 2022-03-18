@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(Client LANGUAGES CXX VERSION 0.0.1 DESCRIPTION "siisty Client")
+project(Client LANGUAGES CXX VERSION 0.0.4 DESCRIPTION "siisty Client")
 
 set(CMAKE_AUTOUIC_SEARCH_PATHS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Ui
