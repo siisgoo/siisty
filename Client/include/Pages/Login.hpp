@@ -16,6 +16,13 @@ class Login : public QDialog
         explicit Login(QWidget *parent = nullptr);
         ~Login();
 
+    Q_SIGNALS:
+        void tryLogin(QString, QString);
+
+    private Q_SLOTS:
+        void on_submit_clicked();
+        void on_auth_changed(QString);
+
     private:
         Ui::Login *ui;
 };

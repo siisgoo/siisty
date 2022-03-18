@@ -35,8 +35,8 @@
     XX( 23, IDENTIFY,             exec_identify           ) \
 
 QPixmap QPixmapFromQString(const QString& str);
-QIcon QIconFromQString(const QString& str);
-QImage QImageFromQString(const QString& str);
+QIcon   QIconFromQString(const QString& str);
+QImage  QImageFromQString(const QString& str);
 QString QStringFromQImage(const QImage& img);
 
 namespace Database {

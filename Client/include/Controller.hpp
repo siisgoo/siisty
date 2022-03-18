@@ -8,6 +8,7 @@
 #include <QTextEdit>
 #include <QThread>
 
+#include "Widgets/Progresses.hpp"
 #include "General/ClickableLabel.hpp"
 #include "General/PagesManager.hpp"
 #include "General/logger.hpp"
@@ -35,11 +36,8 @@ class userInterface : public QMainWindow {
 
     Q_SIGNALS:
         void send_to_log(QString message, int level);
-
-    private Q_SLOTS:
-        void changePage(QString);
-        void on_pathNodeClicked();
-        void showLogin();
+        void setProgress(int, int, QString, int);
+        void resized(QResizeEvent*);
 
     public Q_SLOTS:
         void recivedMessage(iiNPack::Header, QByteArray);
@@ -47,14 +45,20 @@ class userInterface : public QMainWindow {
         void on_actionLoginTriggered();
         void on_actionLogoutTriggered();
 
-        void on_connetedToServer();
-        void on_disconnetedFromServer();
+        void tryLogin(QString, QString);
 
         void on_logined();
         void on_login_failed();
         void on_logouted();
 
+    private Q_SLOTS:
+        void changePage(QString);
+        void on_pathNodeClicked();
+        void showLogin();
+
         void logMessage(QString _message, int);
+
+        void resizeEvent(QResizeEvent *);
 
     private:
         void setupLogger();
@@ -73,6 +77,8 @@ class userInterface : public QMainWindow {
 
         QString _login;
         QString _password;
+
+        pSetProgress * _pBars;
 
         bool _forseUseSsl = false;
 

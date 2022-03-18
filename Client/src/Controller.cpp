@@ -17,6 +17,10 @@ userInterface::userInterface(QWidget* _parent)
         connect(ui->actionLogout, SIGNAL(triggered()), this, SLOT(on_actionLogoutTriggered()));
     }
 
+    _pBars = new pSetProgress(this, QMargins(0, 0, 2, ui->statusbar->size().height() + 2));
+    connect(this, SIGNAL(resized(QResizeEvent*)), _pBars, SIGNAL(windowResized(QResizeEvent*)));
+    connect(this, SIGNAL(setProgress(int,int,QString,int)), _pBars, SIGNAL(setProgress(int, int, QString, int)));
+
     setupLogger();
     setupService();
     setupPages();
@@ -111,10 +115,20 @@ userInterface::on_pathNodeClicked()
 }
 
 void
+userInterface::resizeEvent(QResizeEvent * e)
+{
+    e->accept();
+    Q_EMIT resized(e);
+}
+
+void
 userInterface::showLogin()
 {
     changePage("Empty");
     Login * login = new Login(this);
+
+    connect(login, SIGNAL(tryLogin(QString, QString)), this, SLOT(tryLogin(QString, QString)));
+
     login->show();
     if (login->exec()) {
 
@@ -128,20 +142,15 @@ userInterface::recivedMessage(iiNPack::Header, QByteArray)
 }
 
 void
-userInterface::on_connetedToServer()
+userInterface::tryLogin(QString login, QString pass)
 {
-    Q_EMIT logMessage("Connected to server", Debug);
-}
-
-void
-userInterface::on_disconnetedFromServer()
-{
-    Q_EMIT on_logouted();
+    Q_EMIT setProgress(0, 1, "Logining", 0);
 }
 
 void
 userInterface::on_logined()
 {
+    Q_EMIT setProgress(1, 1, "Login success", 0);
     ui->actionLogin->setEnabled(false);
     ui->actionLogout->setEnabled(true);
 }
@@ -149,6 +158,7 @@ userInterface::on_logined()
 void
 userInterface::on_login_failed()
 {
+    Q_EMIT setProgress(1, 1, "Login failed", 0);
     ui->actionLogin->setEnabled(true);
     ui->actionLogout->setEnabled(false);
 }
