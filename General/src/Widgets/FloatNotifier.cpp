@@ -5,12 +5,12 @@
 #include <qnamespace.h>
 
 FloatNotifier::FloatNotifier(QWidget * mainWindow,
-                               QMargins margins,
-                               QSize itemSize,
-                               int maxActive,
-                               int completeTimeout,
-                               StackType stacking,
-                               QObject * parent)
+                             QMargins margins,
+                             QSize itemSize,
+                             int maxActive,
+                             int completeTimeout,
+                             StackType stacking,
+                             QObject * parent)
     : QObject(parent),
         _win(mainWindow),
         _margins(margins),
@@ -60,30 +60,31 @@ FloatNotifier::setItemPropery(int uid, const QByteArray& name, const QVariant& v
 void
 FloatNotifier::createNotifyItem(NotifyItemFactory * factory, int& uid)
 {
-    QMutexLocker lock(&_mtx);
-    uid = freeUID();
+    {
+        QMutexLocker lock(&_mtx);
+        uid = freeUID();
 
-    factory->setActivationDuration(_activationDur);
-    factory->setDiactivationDuration(_diactivationDur);
-    factory->setMinimumSize(_imtSize);
-    NotifyItem * item = factory->produce(_win);
+        factory->setActivationDuration(_activationDur);
+        factory->setDiactivationDuration(_diactivationDur);
+        factory->setMinimumSize(_imtSize);
+        NotifyItem * item = factory->produce(_win);
 
-    _items[uid] = item;
+        _items[uid] = item;
 
-    item->setObjectName(QString::number(uid));
-    findMaxItemWidth();
-    item->activate(NextPosition(activeItemsCount()-1));
+        item->setUID(uid);
+        item->activate(NextPosition(activeItemsCount()-1));
 
-    connect(item, SIGNAL(clicked()), this, SLOT(hideItem()));
-    connect(item, SIGNAL(completed()), this, SLOT(on_itemCompleted()));
-    connect(item, SIGNAL(onDiactivation()), this,
-            SLOT(on_itemDiactivation()));
+        connect(item, SIGNAL(clicked()), this, SLOT(hideItem()));
+        connect(item, SIGNAL(completed()), this, SLOT(on_itemCompleted()));
+        connect(item, SIGNAL(diactivated()), this, SLOT(reorganize()));
+    }
     reorganize();
 }
 
 void
 FloatNotifier::reorganize()
 {
+    QMutexLocker lock(&_mtx);
     findMaxItemWidth();
     _winSize = _win->size();
     QList<NotifyItem *> active_bars = activeItems();
@@ -105,16 +106,19 @@ FloatNotifier::resizeItems(int w)
         i->setMinimumWidth(w);
         i->adjustSize();
     }
-    reorganize();
+    /* reorganize(); */
 }
 
 int
 FloatNotifier::findMaxItemWidth()
 {
     int w = 0;
-    QList<NotifyItem *> active = activeItems([](NotifyItem*i){ return i->isNotActivated() || i->isOnActivation(); });
+    QList<NotifyItem *> active = activeItems([](NotifyItem*i){ return i->isNotActivated() || i->isOnActivation() || i->isOnDiactivation(); });
 
     for (auto itm : active) {
+        if (!itm) {
+            continue;
+          }
         if (itm->sizeHint().width() > w) {
             w = std::max(_imtSize.width(), itm->sizeHint().width());
         }
@@ -171,16 +175,22 @@ void
 FloatNotifier::on_itemCompleted()
 {
     NotifyItem * item = dynamic_cast<NotifyItem *>(sender());
-    _items.remove(item->objectName().toInt());
-    delete item;
-    reorganize();
+    QTimer::singleShot((item->completeTimeout() ? item->completeTimeout() : _completeTimeout), [this, item]() {
+        connect(item, SIGNAL(diactivated()), this, SLOT(removeItem()), Qt::SingleShotConnection);
+        item->diactivate();
+    });
 }
 
 void
-FloatNotifier::on_itemDiactivation()
+FloatNotifier::removeItem()
 {
     NotifyItem * item = dynamic_cast<NotifyItem *>(sender());
-    connect(item, SIGNAL(diactivated()), this, SLOT(reorganize()));
+    {
+        QMutexLocker lock(&_mtx);
+        _items.remove(item->UID());
+        delete item;
+    }
+    reorganize();
 }
 
 void
@@ -188,8 +198,7 @@ FloatNotifier::hideItem()
 {
     if (_hideOnClick) {
         NotifyItem * item = dynamic_cast<NotifyItem *>(sender());
+        connect(item, SIGNAL(diactivated()), item, SLOT(hide()), Qt::SingleShotConnection);
         item->diactivate();
-        connect(item, SIGNAL(diactivated()), item, SLOT(hide()), Qt::QueuedConnection);
-        connect(item, SIGNAL(diactivated()), this, SLOT(reorganize()), Qt::QueuedConnection);
     }
 }

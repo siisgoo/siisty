@@ -68,8 +68,6 @@ class Controller : public QMainWindow
 
         virtual ~Controller();
 
-        /* static int newProgressUid(); */
-
     Q_SIGNALS:
         void resized(QResizeEvent*);
         void createNotifyItem(NotifyItemFactory *, int&);
@@ -130,6 +128,11 @@ class Controller : public QMainWindow
         int item_uid2;
         int item_uid3;
         int item_uid4;
+
+        int i1 = 0;
+        int i2 = 0;
+        int i3 = 0;
+        int i4 = 0;
 
         QTimer _timer1;
         QTimer _timer2;

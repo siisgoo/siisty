@@ -7,6 +7,7 @@ NotifyItemFactory::NotifyItemFactory()
 NotifyItemFactory::~NotifyItemFactory()
 {
 }
+
 void NotifyItemFactory::setTitle(const QString& t) { _title = t; }
 void NotifyItemFactory::setNotifyLevel(NotifyItem::NotifyLevel t) { _type = t; }
 void NotifyItemFactory::setCompleteTimeout(int ms) { _cmplTimeout = ms; }

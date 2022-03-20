@@ -68,8 +68,8 @@ class FloatNotifier : public QObject {
         void reorganize();
         void resizeItems(int width);
         void hideItem();
-        void on_itemCompleted();     // timeout completed and end animation finished
-        void on_itemDiactivation();  // on end animation started
+        void on_itemCompleted();
+        void removeItem();
 
     private:
         /*const*/ QWidget* _win;  // link

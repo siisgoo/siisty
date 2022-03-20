@@ -10,9 +10,9 @@ Service::~Service()
 }
 
 void
-Service::login()
+Service::login(const QString& login, const QString& password)
 {
-
+    Q_EMIT loginSuccess("asdf", 1, 1);
 }
 
 void

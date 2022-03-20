@@ -25,7 +25,7 @@ class Service : public SslClientBase {
         void commandResponceFailed();
 
     public Q_SLOTS:
-        void login();
+        void login(const QString& login, const QString& password);
 
         void sendCommand(QJsonObject&);
 

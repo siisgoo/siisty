@@ -36,9 +36,16 @@ NotifyProgressItem::setProgress(int count)
     _pbar->setValue(count);
     if (count >= _pbar->maximum() && _exitOnComplete) {
         setSchemeByType(NotifySuccess);
-        diactivate();
-        connect(this, SIGNAL(diactivated()), this, SIGNAL(completed()));
+        /* diactivate(); */
+        /* connect(this, SIGNAL(diactivated()), this, SIGNAL(completed())); */
+        Q_EMIT completed();
     }
+}
+
+void
+NotifyProgressItem::setMaxProgress(int max)
+{
+    _pbar->setMaximum(max);
 }
 
 void

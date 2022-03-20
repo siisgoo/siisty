@@ -13,8 +13,10 @@
 class NotifyItem : public QFrame {
     Q_OBJECT
 
+    Q_PROPERTY(QString title WRITE setTitle)
     Q_PROPERTY(NotifyLevel level MEMBER _notifyLevel READ notifyLevel WRITE setNotifyLevel)
     Q_PROPERTY(int completeTimeout MEMBER _completeTimeout READ completeTimeout WRITE setCompleteTimeout)
+    Q_PROPERTY(NotifyLevel forceComplete WRITE forseComplete)
 
     public:
         enum NotifyLevel {
@@ -41,6 +43,9 @@ class NotifyItem : public QFrame {
 
         int completeTimeout() const;
 
+        void setUID(int);
+        int UID();
+
     Q_SIGNALS:
         void clicked();
         void resized(QResizeEvent*);
@@ -51,12 +56,11 @@ class NotifyItem : public QFrame {
         void completed(); // diactivated
 
     public Q_SLOTS:
+        void forseComplete(NotifyLevel);
         void setCompleteTimeout(int ms);
-
         void setNotifyLevel(NotifyLevel);
         void setTitle(const QString&);
         void activate(const QPoint& pos);
-        void forseComplete();
         void diactivate();
 
     protected Q_SLOTS:
@@ -69,6 +73,8 @@ class NotifyItem : public QFrame {
         void setActive();
 
     protected:
+        int _uid;
+
         NotifyLevel _notifyLevel;
         bool _diactivating;
         bool _activating;

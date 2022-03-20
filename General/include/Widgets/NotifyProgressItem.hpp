@@ -7,6 +7,7 @@ class NotifyProgressItem : public NotifyItem {
     Q_OBJECT
 
     Q_PROPERTY(int progress WRITE setProgress)
+    Q_PROPERTY(int maxProgress WRITE setMaxProgress)
     Q_PROPERTY(bool exitOnComplete MEMBER _exitOnComplete WRITE setExitOnCompleted)
 
     public:
@@ -26,6 +27,7 @@ class NotifyProgressItem : public NotifyItem {
     public Q_SLOTS:
         void setExitOnCompleted(bool);
         void setProgress(int count);
+        void setMaxProgress(int count);
         void endProgress(NotifyLevel success);
 
     private:

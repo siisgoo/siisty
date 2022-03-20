@@ -992,6 +992,26 @@ NotifyItem > QProgressBar {
     border-radius: 0;
 }
 
+NotifyItem#NotifyNormal {
+
+}
+
+NotifyItem#NotifySuccess {
+
+}
+
+NotifyProgressItem#NotifySuccess {
+    background-color: green;
+}
+
+NotifyItem#NotifyError {
+
+}
+
+NotifyItem#NotifyWraning {
+
+}
+
 /*-----QStatusBar-----*/
 QStatusBar
 {
@@ -1014,6 +1034,11 @@ QLineEdit#login {
 }
 
 QLineEdit#password {
+    border: 0px;
+    background-color: #3a3a3a;
+}
+
+QLineEdit#port {
     border: 0px;
     background-color: #3a3a3a;
 }

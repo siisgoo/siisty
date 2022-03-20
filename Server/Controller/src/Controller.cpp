@@ -57,24 +57,32 @@ Controller::Controller(Settings settings, QWidget *parent)
     }
 
     NotifyProgressItemFactory * fa = new NotifyProgressItemFactory();
-    fa->setTitle("Dummy");
-    fa->setNotifyLevel(NotifyItem::NotififyNormal);
-    fa->setMaximum(100);
-    fa->setExitOnCompleted(true);
-    Q_EMIT createNotifyItem(fa, item_uid1);
-    fa->setTitle("Dummy 1");
-    Q_EMIT createNotifyItem(fa, item_uid2);
-    fa->setTitle("Dummy 2");
-    Q_EMIT createNotifyItem(fa, item_uid3);
-    fa->setTitle("Dummy 3");
-    Q_EMIT createNotifyItem(fa, item_uid4);
+    /* fa->setTitle("Dummy"); */
+    /* fa->setNotifyLevel(NotifyItem::NotififyNormal); */
+    /* fa->setMaximum(100); */
+    /* fa->setExitOnCompleted(true); */
+    /* Q_EMIT createNotifyItem(fa, item_uid1); */
+    /* fa->setTitle("Dummy 1"); */
+    /* Q_EMIT createNotifyItem(fa, item_uid2); */
+    /* fa->setTitle("Dummy 2"); */
+    /* Q_EMIT createNotifyItem(fa, item_uid3); */
+    /* fa->setTitle("Dummy 3"); */
+    /* Q_EMIT createNotifyItem(fa, item_uid4); */
 
-    QTimer timer1;
-    QTimer timer2;
-    QTimer timer3;
-    QTimer timer4;
+    /* QTimer * timer1 = new QTimer; */
+    /* QTimer * timer2 = new QTimer; */
+    /* QTimer * timer3 = new QTimer; */
+    /* QTimer * timer4 = new QTimer; */
 
-    Q_EMIT setNotifyItemPropery(item_uid1, "progress", 10);
+    /* connect(timer1, &QTimer::timeout, [this](){ Q_EMIT setNotifyItemPropery(item_uid1, "progress", i1++); Q_EMIT setNotifyItemPropery(item_uid1, "title", "DUmmy " + QString::number(i1)); }); */
+    /* connect(timer2, &QTimer::timeout, [this](){ Q_EMIT setNotifyItemPropery(item_uid2, "progress", i2++); Q_EMIT setNotifyItemPropery(item_uid2, "title", "DUmmy " + QString::number(i2)); }); */
+    /* connect(timer3, &QTimer::timeout, [this](){ Q_EMIT setNotifyItemPropery(item_uid3, "progress", i3++); Q_EMIT setNotifyItemPropery(item_uid3, "title", "DUmmy " + QString::number(i3)); }); */
+    /* connect(timer4, &QTimer::timeout, [this](){ Q_EMIT setNotifyItemPropery(item_uid4, "progress", i4++); Q_EMIT setNotifyItemPropery(item_uid4, "title", "DUmmy " + QString::number(i4)); }); */
+
+    /* timer1->start(100); */
+    /* timer2->start(250); */
+    /* timer3->start(130); */
+    /* timer4->start(310); */
 
     {
         connect(this, SIGNAL(send_to_log(QString, int)), &_log, SLOT(logMessage(QString, int)), Qt::DirectConnection);

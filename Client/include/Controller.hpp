@@ -15,6 +15,9 @@
 #include "General/iiNPack.hpp"
 #include "Service.hpp"
 
+#include "Widgets/NotifyProgressItem.hpp"
+#include "Widgets/NotifyProgressItemFactory.hpp"
+
 #include "Pages/Login.hpp"
 
 QT_BEGIN_NAMESPACE
@@ -22,8 +25,6 @@ namespace Ui { class Controller; }
 QT_END_NAMESPACE
 
 struct Settings {
-    bool useSsl = false;
-
     QHostAddress _serverAddress = QHostAddress::LocalHost;
     quint16      _serverPort = 2142;
 
@@ -58,7 +59,8 @@ class userInterface : public QMainWindow {
 
     Q_SIGNALS:
         void send_to_log(QString message, int level);
-        /* void setProgress(int, int, QString, int); */
+        void createNotifyItem(NotifyItemFactory*, int&);
+        void setNotifyItemPropery(int, const QByteArray&, const QVariant&);
         void resized(QResizeEvent*);
 
     public Q_SLOTS:
@@ -66,8 +68,10 @@ class userInterface : public QMainWindow {
 
         void on_actionLogoutTriggered();
 
-        void tryLogin(QString, QString);
+        void tryLogin(ConnectSettings);
 
+        void on_conneted();
+        void on_connectError(QAbstractSocket::SocketError);
         void on_logined();
         void on_login_failed();
         void on_logouted();
@@ -82,8 +86,6 @@ class userInterface : public QMainWindow {
         void resizeEvent(QResizeEvent *);
 
     private:
-        void setupLogger();
-        void setupService();
         void setupPages();
 
     protected:
@@ -94,7 +96,11 @@ class userInterface : public QMainWindow {
 
         Settings _settings;
 
+        NotifyProgressItemFactory * _npf;
         FloatNotifier * _notifier;
+
+        ConnectSettings _conn_s;
+        int _login_puid;
 
         Ui::Controller * ui;
 };

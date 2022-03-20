@@ -57,8 +57,16 @@ NotifyItem::~NotifyItem()
 }
 
 void
+NotifyItem::forseComplete(NotifyLevel l)
+{
+    setSchemeByType(l);
+    diactivate();
+    connect(this, SIGNAL(diactivated()), this, SIGNAL(completed()));
+}
+
+void
 NotifyItem::setSchemeByType(NotifyItem::NotifyLevel t) {
-    QString scheme;
+    QString scheme = "null";
     switch (t) {
         case NotifyItem::NotifySuccess: scheme = "NotifySuccess";
             break;
@@ -69,8 +77,13 @@ NotifyItem::setSchemeByType(NotifyItem::NotifyLevel t) {
         case NotifyItem::NotifyError: scheme = "NotifyError";
             break;
     }
+    /* qDebug() << scheme; */
     this->setObjectName(scheme);
+    /* this->setProperty("level", scheme); */
 }
+
+void NotifyItem::setUID(int uid) { _uid = uid; }
+int NotifyItem::UID() { return _uid; }
 
 NotifyItem::NotifyLevel NotifyItem::notifyLevel() const { return _notifyLevel; }
 bool NotifyItem::isOnDiactivation() const             { return _diactivating; }
@@ -79,17 +92,10 @@ bool NotifyItem::isNotActivated() const               { return _notActivated; }
 int  NotifyItem::completeTimeout() const              { return _completeTimeout; }
 
 void NotifyItem::setTitle(const QString& title) { _title->setText(title); }
-void NotifyItem::setNotifyLevel(NotifyLevel type) { _notifyLevel = type; }
+void NotifyItem::setNotifyLevel(NotifyLevel type) { _notifyLevel = type; setSchemeByType(type); }
 void NotifyItem::setCompleteTimeout(int ms) { _completeTimeout = ms; }
 
 void NotifyItem::setActive() { _activating = false; }
-
-void
-NotifyItem::forseComplete()
-{
-    diactivate();
-    connect(this, SIGNAL(diactivated()), this, SIGNAL(completed()));
-}
 
 void
 NotifyItem::diactivate()
