@@ -20,39 +20,41 @@ void DriverAssistant::Failed(CmdError err) { Q_EMIT failed(err); }
 
 Driver::Driver(const QString& path, QObject * p)
     : QObject(p),
-        _path(path)
+        _path(path),
+        _pf(new NotifyProgressItemFactory)
 {
     #define XX(num, name, query) { Tables:: name, QUOTE(name), query },
-    _tables = {
-        TABLES_MAP(XX)
-    };
+    _tables = { TABLES_MAP(XX) };
     #undef XX
-
     #define XX(id, val, comm, mult, period) { RoleId:: val, QUOTE(val), comm, mult, period },
-    _roles = {
-        ROLE_MAP(XX)
-    };
+    _roles = { ROLE_MAP(XX) };
     #undef XX
-
     #define XX(id, n, exe) { CommandId:: n, QUOTE(n), exe },
-    _commands = {
-        COMMANDS_MAP(XX)
-    };
+    _commands = { COMMANDS_MAP(XX) };
+    #undef XX
+    #define XX(id, name, price) { ObjectType:: name, QUOTE(name), price },
+    _objectTypes = { OBJECT_TYPE_MAP(XX) };
     #undef XX
 
-    #define XX(id, name, price) { ObjectType:: name, QUOTE(name), price },
-    _objectTypes = {
-        OBJECT_TYPE_MAP(XX)
-    };
-    #undef XX
+    _pf->setExitOnCompleted(true);
+}
+
+Driver::~Driver()
+{
+    delete _pf;
+    if (_db && _db->isOpen()) {
+        _db->close();
+        delete _db;
+    }
 }
 
 //TODO add check if inited
 void
 Driver::Initialize()
 {
-    int bar_uid = FloatNotifier::freeUID();
-    Q_EMIT setProgress(bar_uid, 0, 4, "Database initialization");
+    _pf->setTitle("Database initialization");
+    _pf->setMaximum(4);
+    Q_EMIT createNotifyItem(_pf, _p_uid_main);
 
     connect(this, SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), this, SLOT(on_addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)));
     connect(this, SIGNAL(addCommand(Database::Driver::DatabaseCmd)), this, SLOT(on_addCommand(Database::Driver::DatabaseCmd)));
@@ -61,33 +63,26 @@ Driver::Initialize()
     if (!_db->open())
         throw _db->lastError();
 
-    Q_EMIT setProgress(bar_uid, 1, 4, "Database initialization");
+    Q_EMIT setNotifyItemPropery(_p_uid_main, "progress", 1);
     checkTables();
-    Q_EMIT setProgress(bar_uid, 2, 4, "Database initialization");
+    Q_EMIT setNotifyItemPropery(_p_uid_main, "progress", 2);
     insertDefaultsRoles();
-    Q_EMIT setProgress(bar_uid, 3, 4, "Database initialization");
+    Q_EMIT setNotifyItemPropery(_p_uid_main, "progress", 3);
     insertDefaultsObjectTypes();
-    Q_EMIT setProgress(bar_uid, 4, 4, "Database initialization");
+    Q_EMIT setNotifyItemPropery(_p_uid_main, "progress", 4);
 
     Q_EMIT Inited();
-}
-
-Driver::~Driver()
-{
-    if (_db && _db->isOpen()) {
-        _db->close();
-        delete _db;
-    }
 }
 
 void
 Driver::checkTables()
 {
-    int bar_uid = FloatNotifier::freeUID();
-    Q_EMIT setProgress(bar_uid, 0, (int)Tables::TablesCount, "Looking for tables");
+    _pf->setTitle("Looking for tables");
+    _pf->setMaximum((int)Tables::TablesCount);
+    Q_EMIT createNotifyItem(_pf, _p_uid);
     int i;
     QStringList tables = _db->tables();
-    for (i = 0; i < (int)Tables::TablesCount ; i++) {
+    for (i = 0; i < (int)Tables::TablesCount; i++) {
         if (!tables.contains(_tables[i].name)) {
             QJsonObject cmd{
                     {"command", (int)CommandId::CREATE_TABLE},
@@ -99,7 +94,7 @@ Driver::checkTables()
                 throw _db->lastError();
             }
         }
-        Q_EMIT setProgress(bar_uid, i+1, (int)Tables::TablesCount, "Looking for tables");
+        Q_EMIT setNotifyItemPropery(_p_uid, "progress", i+1);
     }
 }
 
@@ -107,12 +102,16 @@ Driver::checkTables()
 void
 Driver::insertDefaultsRoles()
 {
-    int bar_uid = FloatNotifier::freeUID();
-    Q_EMIT setProgress(bar_uid, 0, (int)RoleId::ROLES_COUNT, "Looking for roles");
+    _pf->setTitle("Looking for roles");
+    _pf->setMaximum((int)RoleId::ROLES_COUNT);
+    Q_EMIT createNotifyItem(_pf, _p_uid);
 
     QSqlQuery q;
     bool deleted = false;
     for (int i = 0; i < (int)RoleId::ROLES_COUNT; i++) {
+        if (_roles[i].id == RoleId::AUTO) {
+            continue;
+        }
         auto role = _roles[i];
         q.prepare("SELECT * FROM Roles WHERE id = :id and name = :name");
         q.bindValue(":id", (int)role.id);
@@ -153,8 +152,10 @@ Driver::insertDefaultsRoles()
         // may be deeper check? :) no
         if (!q.next()) {
             int inner_bar_uid = FloatNotifier::freeUID();
-            Q_EMIT setProgress(inner_bar_uid, 0, role.commands.size(), "Looking for " + QString(role.name) + " commands");
-            for (int j = 0; j < role.commands.size(); j++) {
+            _pf->setTitle("Looking " + QString(role.name) + " role");
+            _pf->setMaximum(role.commands.length());
+            Q_EMIT createNotifyItem(_pf, _p_uid_sub);
+            for (int j = 0; j < role.commands.length(); j++) {
                 auto command = role.commands[j];
                 q.prepare("INSERT INTO RoleCommands (role_id, command_id) "
                           "VALUES (:role_id, :command_id)");
@@ -163,10 +164,10 @@ Driver::insertDefaultsRoles()
                 if (!q.exec()) {
                     throw q.lastError();
                 }
-                Q_EMIT setProgress(inner_bar_uid, j+1, role.commands.size(), "Looking for " + QString(role.name) + " commands");
+                Q_EMIT setNotifyItemPropery(_p_uid_sub, "progress", j+1);
             }
         }
-        Q_EMIT setProgress(bar_uid, i+1, (int)RoleId::ROLES_COUNT, "Looking for roles");
+        Q_EMIT setNotifyItemPropery(_p_uid, "progress", i+1);
     }
 }
 
@@ -187,7 +188,9 @@ Driver::insertDefaultsObjectTypes()
         }
 
         int bar_uid = FloatNotifier::freeUID();
-        Q_EMIT setProgress(bar_uid, 0, (int)ObjectType::COUNT, "Inserting default object types");
+        _pf->setTitle("Looking for default object types");
+        _pf->setMaximum((int)ObjectType::COUNT);
+        Q_EMIT createNotifyItem(_pf, _p_uid);
         obj["command"] = (int)CommandId::ADD_OBJECT_TYPE;
         for (int i = 0; i < (int)ObjectType::COUNT; i++) {
             obj["arg"] = QJsonObject({
@@ -197,7 +200,7 @@ Driver::insertDefaultsObjectTypes()
             if (!autoExecCommand(obj)) {
                 throw _db->lastError();
             }
-            Q_EMIT setProgress(bar_uid, i+1, (int)ObjectType::COUNT, "Inserting default object types");
+            Q_EMIT setNotifyItemPropery(_p_uid, "progress", i+1);
         }
     }
 }

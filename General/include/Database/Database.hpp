@@ -13,6 +13,9 @@
 #include "Database/CmdError.hpp"
 #include "General/logger.hpp"
 
+#include "Widgets/NotifyProgressItem.hpp"
+#include "Widgets/NotifyProgressItemFactory.hpp"
+
 namespace Database {
 
 class DriverAssistant : public QObject {
@@ -90,7 +93,8 @@ class Driver : public QObject {
 
         void logMessage(QString, int = LoggingLevel::Trace);
 
-        void setProgress(int, int, int, QString);
+        void setNotifyItemPropery(int, const QByteArray &, const QVariant &);
+        void createNotifyItem(NotifyItemFactory *, int& uid);
 
     public Q_SLOTS:
         void Run();
@@ -122,8 +126,13 @@ class Driver : public QObject {
         QVector<objectType_set> _objectTypes;
 
         /* QWaitCondition _newCommand; */
-        QMutex _queueMtx; // useless, only one thread handle db
+        QMutex _queueMtx; // useless, only one thread handle db and one instance of dirver
         QQueue<DatabaseCmd> _cmdQueue;
+
+        NotifyProgressItemFactory * _pf;
+        int _p_uid;
+        int _p_uid_main;
+        int _p_uid_sub;
 
         bool _running;
         QString _path;

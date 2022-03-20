@@ -13,63 +13,76 @@
 class NotifyItem : public QFrame {
     Q_OBJECT
 
-    // add properties
+    Q_PROPERTY(NotifyLevel level MEMBER _notifyLevel READ notifyLevel WRITE setNotifyLevel)
+    Q_PROPERTY(int completeTimeout MEMBER _completeTimeout READ completeTimeout WRITE setCompleteTimeout)
 
     public:
-        enum NotifyType {
+        enum NotifyLevel {
             NotifySuccess,
             NotififyNormal,
             NotifyWarning,
             NotifyError,
         };
-        Q_ENUM(NotifyType)
+        Q_ENUM(NotifyLevel)
 
-        NotifyItem(const QString& title, NotifyType notifyType,
+        NotifyItem(const QString& title, NotifyLevel notifyLevel,
+                   int completeTmeout,
                    int activationDuration,
                    int diactivationDuration,
-                   QPropertyAnimation* activationAnimation,
-                   QPropertyAnimation* diactivationAnimation,
                    QSize = {160, 42},
                    QWidget* p = nullptr);
         virtual ~NotifyItem();
 
-        NotifyType notifyType() const;
+        NotifyLevel notifyLevel() const;
 
         bool isOnDiactivation() const;
+        bool isOnActivation() const;
+        bool isNotActivated() const;
+
+        int completeTimeout() const;
 
     Q_SIGNALS:
         void clicked();
         void resized(QResizeEvent*);
+        void activated();
+        void onActivation(); // appear animation started
         void onDiactivation(); // disapear animation started
         void diactivated(); // disapear animation completed
-        void completed(); // progress 100%
+        void completed(); // diactivated
 
     public Q_SLOTS:
-        void setSchemeByType(NotifyType);
+        void setCompleteTimeout(int ms);
 
-        void setNotifyType(NotifyType);
+        void setNotifyLevel(NotifyLevel);
         void setTitle(const QString&);
         void activate(const QPoint& pos);
         void forseComplete();
         void diactivate();
 
     protected Q_SLOTS:
+        void setSchemeByType(NotifyLevel);
         virtual void mousePressEvent(QMouseEvent*) override;
         /* virtual void resizeEvent(QResizeEvent*) override; */
 
+        virtual void on_activated();
+
+        void setActive();
+
     protected:
-        NotifyType _notifyType;
+        NotifyLevel _notifyLevel;
         bool _diactivating;
+        bool _activating;
+        bool _notActivated;
         QLabel       * _title;
         /* QPushButton  * _closeBtn; */
         QVBoxLayout  * _layout;
 
         QSize _minSize;
+            // remove
 
-        int  _activationDur;
-        int  _diactivationDur;
-        QPropertyAnimation * _activationAnimation;
-        QPropertyAnimation * _diactivationAnimation;
+        int _completeTimeout = 0;
+        int _activationDur;
+        int _diactivationDur;
 };
 
 #endif /* end of include guard: NOTIFYITEM_HPP_WKRUDOKF */

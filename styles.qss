@@ -984,11 +984,11 @@ QProgressBar::chunk
     margin: 0px;
 }
 
-ProgressItem {
+NotifyItem {
     border: 1px solid #666666;
 }
 
-ProgressItem > QProgressBar {
+NotifyItem > QProgressBar {
     border-radius: 0;
 }
 

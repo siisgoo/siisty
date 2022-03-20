@@ -1,4 +1,4 @@
-#include "Widgets/NotifyProgressFactory.hpp"
+#include "Widgets/NotifyProgressItemFactory.hpp"
 #include "Widgets/NotifyProgressItem.hpp"
 
 NotifyProgressItemFactory::NotifyProgressItemFactory()
@@ -13,8 +13,8 @@ NotifyItem *
 NotifyProgressItemFactory::produce(QWidget * p)
 {
     return new NotifyProgressItem(
-        _exitOnComplete, _maxProgress, _title, _type, _aDur, _daDur,
-        _aAnimation, _daAnimation, _minSize, p);
+            _exitOnComplete, _maxProgress, _title, _type,
+            _cmplTimeout, _aDur, _daDur, _minSize, p);
 }
 
 void NotifyProgressItemFactory::setMaximum(int maxProgress) { _maxProgress = maxProgress; }

@@ -3,8 +3,6 @@
 
 #include "Widgets/NotifyItem.hpp"
 
-class FloatNotifier;
-
 class NotifyItemFactory {
     public:
         NotifyItemFactory();
@@ -12,24 +10,20 @@ class NotifyItemFactory {
 
         virtual NotifyItem * produce(QWidget * p = nullptr) = 0;
 
-    protected:
-        friend class FloatNotifier;
-
         void setTitle(const QString&);
-        void setNotifyType(NotifyItem::NotifyType);
+        void setNotifyLevel(NotifyItem::NotifyLevel);
+        void setCompleteTimeout(int ms);
         void setActivationDuration(int ms);
         void setDiactivationDuration(int ms);
-        void setActivationAnimation(QPropertyAnimation *);
-        void setDiactivationAnimation(QPropertyAnimation *);
         void setMinimumSize(const QSize&);
 
-        QString _title;
-        NotifyItem::NotifyType _type;
-        int _aDur;
-        int _daDur;
-        QPropertyAnimation * _aAnimation;
-        QPropertyAnimation * _daAnimation;
-        QSize _minSize;
+    protected:
+        QString _title = "No title";
+        NotifyItem::NotifyLevel _type = NotifyItem::NotififyNormal;
+        int _cmplTimeout = 0;
+        int _aDur = 1000;
+        int _daDur = 1000;
+        QSize _minSize = {100, 40};
 };
 
 #endif /* end of include guard: NOTIFYITEMFACTORY_HPP_VOFLIWUB */

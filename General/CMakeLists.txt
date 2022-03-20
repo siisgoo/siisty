@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(General LANGUAGES CXX VERSION 1.2.1 DESCRIPTION "siisty General")
+project(General LANGUAGES CXX VERSION 1.3.1 DESCRIPTION "siisty General")
 
 #####################
 #  finding sources  #
@@ -8,7 +8,7 @@ project(General LANGUAGES CXX VERSION 1.2.1 DESCRIPTION "siisty General")
 set(SRCS "")
 
 # Sources
-file(GLOB SRCS_G "src/*.cpp")
+file(GLOB_RECURSE SRCS_G "src/*.cpp")
 POCO_SOURCES_AUTO(SRCS ${SRCS_G})
 
 # Headers
@@ -16,7 +16,7 @@ file(GLOB_RECURSE HDRS_G "include/*.hpp")
 POCO_HEADERS_AUTO(SRCS ${HDRS_G})
 
 # Resources
-file(GLOB QRCS_G "src/*.qrc")
+file(GLOB_RECURSE QRCS_G "src/*.qrc")
 POCO_SOURCES_AUTO(QRCS ${QRCS_G})
 
 qt6_add_resources(SRCS ${QRCS})

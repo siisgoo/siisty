@@ -14,9 +14,18 @@ userInterface::userInterface(const Settings& settings, QWidget* _parent)
     connect(ui->actionLogin,  SIGNAL(triggered()), this, SLOT(showLogin()));
     connect(ui->actionLogout, SIGNAL(triggered()), this, SLOT(on_actionLogoutTriggered()));
 
-    _notifier = new FloatNotifier(this, QMargins(0, 0, 2, ui->statusbar->size().height() + 2));
-    connect(this, SIGNAL(resized(QResizeEvent*)), _notifier, SIGNAL(windowResized(QResizeEvent*)));
-    connect(this, SIGNAL(setProgress(int,int,QString,int)), _notifier, SIGNAL(setProgress(int, int, QString, int)));
+        _notifier = new FloatNotifier(
+                this,
+                QMargins(0, 0, 2, ui->statusbar->size().height() + 2),
+                {120, 50},
+                10,
+                3000,
+                FloatNotifier::StackAbove);
+        connect(this, SIGNAL(resized(QResizeEvent*)), _notifier, SIGNAL(windowResized(QResizeEvent*)));
+        connect(this,
+                SIGNAL(createNotifyItem(NotifyItemFactory *, NotifyItem *)),
+                _notifier,
+                SLOT(createNotifyItem(NotifyItemFactory *, NotifyItem *)));
 
     setupLogger();
     setupService();
@@ -141,13 +150,13 @@ userInterface::recivedMessage(iiNPack::Header, QByteArray)
 void
 userInterface::tryLogin(QString login, QString pass)
 {
-    Q_EMIT setProgress(0, 1, "Logining", 0);
+    /* Q_EMIT setProgress(0, 1, "Logining", 0); */
 }
 
 void
 userInterface::on_logined()
 {
-    Q_EMIT setProgress(1, 1, "Login success", 0);
+    /* Q_EMIT setProgress(1, 1, "Login success", 0); */
     ui->actionLogin->setEnabled(false);
     ui->actionLogout->setEnabled(true);
 }
@@ -155,7 +164,7 @@ userInterface::on_logined()
 void
 userInterface::on_login_failed()
 {
-    Q_EMIT setProgress(1, 1, "Login failed", 0);
+    /* Q_EMIT setProgress(1, 1, "Login failed", 0); */
     ui->actionLogin->setEnabled(true);
     ui->actionLogout->setEnabled(false);
 }

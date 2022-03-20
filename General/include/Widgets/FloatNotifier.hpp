@@ -1,29 +1,37 @@
 #ifndef PROGRESSES_HPP_ANX5GJAI
 #define PROGRESSES_HPP_ANX5GJAI
 
-#include <QWaitCondition>
-#include <QPushButton>
-#include <QLabel>
-#include <QLayout>
 #include <QMainWindow>
-#include <QTimer>
-#include <QMutexLocker>
 #include <QMargins>
-#include <QProgressBar>
+#include <QMutexLocker>
+#include <QWaitCondition>
 #include <QResizeEvent>
-#include <QGraphicsOpacityEffect>
-#include <QPropertyAnimation>
-#include <QEasingCurve>
+#include <QTimer>
+#include <QVariant>
 
 #include "Widgets/NotifyItem.hpp"
 #include "Widgets/NotifyItemFactory.hpp"
 
-// worst name in uniwerse
+// TODO reanme as NotifyManager
+// Dont move this in another thread
 class FloatNotifier : public QObject {
     Q_OBJECT
 
+    /* Q_PROPERTY(int maxItemWidth MEMBER _prevMaxWidth NOTIFY maxWidthChanged) */
+
     public:
-        explicit FloatNotifier(QWidget * mw, QMargins margins, QWidget * p = nullptr);
+        enum StackType {
+            StackAbove,
+            StackUnder,
+        };
+
+        explicit FloatNotifier(QWidget* mainWindow,
+                               QMargins margins,
+                               QSize _itemSize,
+                               int maxActive = 5,
+                               int diactivationTimeout = 3000,
+                               StackType stacking = StackAbove,
+                               QObject* p = nullptr);
         virtual ~FloatNotifier();
 
         static int freeUID();
@@ -37,38 +45,53 @@ class FloatNotifier : public QObject {
         void setDiactivationAnimation(QPropertyAnimation* a);
         void setActivationAnimation(QPropertyAnimation* a);
 
-        const QPropertyAnimation * diactivationAnimation() const;
-        const QPropertyAnimation * activationAnimation() const;
+        const QPropertyAnimation* diactivationAnimation() const;
+        const QPropertyAnimation* activationAnimation() const;
 
     Q_SIGNALS:
         void windowResized(QResizeEvent*);
-        void notifyItemCreated(NotifyItem *);
+        void maxWidthChanged(int);
 
     public Q_SLOTS:
-        void createNotifyItem(NotifyItemFactory *);
+        int activeItemsCount(std::function<bool(NotifyItem*)> filter = [](NotifyItem*){return false;});
+        QList<NotifyItem*> activeItems(std::function<bool(NotifyItem*)> filter = [](NotifyItem*){return false;}) const;
+        int itemsCount();
+
+        void setItemPropery(int uid, const QByteArray& name, const QVariant& value);
+        void createNotifyItem(NotifyItemFactory*, int& uid);
+            // creates notify item in main thread and return as param
+            // use Qt::BlockingQueuedConnection for connection
 
     private Q_SLOTS:
-        int activeItemsCount();
+        int findMaxItemWidth();
         QPoint NextPosition(int n);
         void reorganize();
+        void resizeItems(int width);
         void hideItem();
-        void on_itemCompleted(); // timeout completed and end animation finished
-        void on_itemDiactivation(); // on end animation started
+        void on_itemCompleted();     // timeout completed and end animation finished
+        void on_itemDiactivation();  // on end animation started
 
     private:
-        /*const*/ QWidget * _win; // link
-        QMap<int, NotifyItem *> _items;
+        /*const*/ QWidget* _win;  // link
+        QMap<int, NotifyItem*> _items;
         QMutex _mtx;
         QWaitCondition _created;
         QMargins _margins;
         int _spacing;
 
-        int _diactivationTimeout; // TODO
+        QSize _winSize;
+
+        int _prevMaxWidth = 0;
+
+        bool _hideOnClick;
+        QSize _imtSize;
+            // height is fixed
+            // width - can be variabled
+        StackType _stack;
+        int _maxActiveItems;
+        int _completeTimeout = 3000;
         int _activationDur;
         int _diactivationDur;
-        QPropertyAnimation * _activationAnimation;
-        QPropertyAnimation * _diactivationAnimation;
 };
-
 
 #endif /* end of include guard: PROGRESSES_HPP_ANX5GJAI */

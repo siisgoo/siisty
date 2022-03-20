@@ -27,6 +27,8 @@
 #include "Pages/Users/UsersList.hpp"
 #include "Widgets/FloatNotifier.hpp"
 #include "Widgets/QLedIndicator.hpp"
+#include "Widgets/NotifyProgressItemFactory.hpp"
+#include "Widgets/NotifyProgressItem.hpp"
 
 #include "General/Matrix.hpp"
 #include "General/logger.hpp"
@@ -70,7 +72,8 @@ class Controller : public QMainWindow
 
     Q_SIGNALS:
         void resized(QResizeEvent*);
-        void setProgress(int, int, int, QString);
+        void createNotifyItem(NotifyItemFactory *, int&);
+        void setNotifyItemPropery(int uid, const QByteArray& name, const QVariant& value);
         void send_to_log(QString, int);
 
     public Q_SLOTS:
@@ -80,8 +83,6 @@ class Controller : public QMainWindow
     private Q_SLOTS:
         void setupPages();
         void connectPages();
-        void setupLogger();
-        void setupDatabase();
         void setupServer();
 
         void on_listeningStateChanged(QHostAddress, quint16, bool);
@@ -122,12 +123,13 @@ class Controller : public QMainWindow
         logger   _log;
         Database::Driver _database;
 
-        FloatNotifier * _notifire;
+        FloatNotifier * _notifier;
 
-        int i1 = -1;
-        int i2 = -1;
-        int i3 = -1;
-        int i4 = -1;
+        NotifyProgressItemFactory * f;
+        int item_uid1;
+        int item_uid2;
+        int item_uid3;
+        int item_uid4;
 
         QTimer _timer1;
         QTimer _timer2;

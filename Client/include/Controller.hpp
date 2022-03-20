@@ -58,7 +58,7 @@ class userInterface : public QMainWindow {
 
     Q_SIGNALS:
         void send_to_log(QString message, int level);
-        void setProgress(int, int, QString, int);
+        /* void setProgress(int, int, QString, int); */
         void resized(QResizeEvent*);
 
     public Q_SLOTS:

@@ -3,8 +3,6 @@
 
 #include "Widgets/NotifyItemFactory.hpp"
 
-class FloatNotifier;
-
 class NotifyProgressItemFactory : public NotifyItemFactory {
     public:
         NotifyProgressItemFactory();
@@ -12,13 +10,12 @@ class NotifyProgressItemFactory : public NotifyItemFactory {
 
         virtual NotifyItem * produce(QWidget * p = nullptr) override;
 
-    protected:
-        friend class FloatNotifier;
         void setMaximum(int maxProgress);
         void setExitOnCompleted(bool exit);
 
-        int _maxProgress;
-        bool _exitOnComplete;
+    protected:
+        int _maxProgress = 0;
+        bool _exitOnComplete = false;
 };
 
 

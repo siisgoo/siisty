@@ -1,26 +1,34 @@
 #include "Widgets/NotifyProgressItem.hpp"
+#include <qnamespace.h>
 
 NotifyProgressItem::NotifyProgressItem(
     bool exitOnComplete,
-    int maxProgress, const QString& title, NotifyType notifyType,
-    int activationDuration, int diactivationDuration,
-    QPropertyAnimation* activationAnimation,
-    QPropertyAnimation* diactivationAnimation, QSize minSize, QWidget* p)
-    : NotifyItem(title, notifyType, activationDuration, diactivationDuration,
-                 activationAnimation, diactivationAnimation, minSize, p),
+    int maxProgress,
+    const QString& title,
+    NotifyLevel notifyLevel,
+    int completeTmeout,
+    int activationDuration,
+    int diactivationDuration,
+    QSize minSize,
+    QWidget* p)
+    : NotifyItem(title, notifyLevel, completeTmeout, activationDuration, diactivationDuration, minSize, p),
         _exitOnComplete(exitOnComplete),
         _pbar(new QProgressBar(this))
 {
     _pbar->setRange(0, maxProgress);
-    this->layout()->addWidget(_pbar);
+    _layout->addWidget(_pbar, 0, Qt::AlignBottom);
+    _pbar->setAlignment(Qt::AlignBottom);
+    _pbar->setFormat(""); // TODO make as property
 
-    connect(_pbar, SIGNAL(valueChanged(int)), this, SLOT(valueChanged(int)));
+    connect(_pbar, SIGNAL(valueChanged(int)), this, SIGNAL(progressChanged(int)));
 }
 
 NotifyProgressItem::~NotifyProgressItem()
 {
     delete _pbar;
 }
+
+void NotifyProgressItem::setExitOnCompleted(bool exit) { _exitOnComplete = exit; }
 
 void
 NotifyProgressItem::setProgress(int count)
@@ -34,7 +42,7 @@ NotifyProgressItem::setProgress(int count)
 }
 
 void
-NotifyProgressItem::endProgress(NotifyType type)
+NotifyProgressItem::endProgress(NotifyLevel type)
 {
     setSchemeByType(type);
     diactivate();

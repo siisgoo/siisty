@@ -1,37 +1,52 @@
 #include "Widgets/NotifyItem.hpp"
 
+#include <QTimer>
 #include <QMouseEvent>
 #include <QResizeEvent>
+#include <QGraphicsOpacityEffect>
+#include <qnamespace.h>
 
-NotifyItem::NotifyItem(const QString& title, NotifyType notifyType,
+NotifyItem::NotifyItem(const QString& title,
+           NotifyLevel notifyLevel,
+           int completeTmeout,
            int activationDuration,
            int diactivationDuration,
-           QPropertyAnimation* activationAnimation,
-           QPropertyAnimation* diactivationAnimation,
            QSize minSize,
            QWidget* p)
     : QFrame(p),
-    _notifyType(notifyType),
-    _activationDur(activationDuration),
-    _diactivationDur(diactivationDuration),
-    _activationAnimation(activationAnimation),
-    _diactivationAnimation(diactivationAnimation),
-    _minSize(minSize),
-    _diactivating(false)
+        _notifyLevel(notifyLevel),
+        _activationDur(activationDuration),
+        _diactivationDur(diactivationDuration),
+        _minSize(minSize),
+        _diactivating(false),
+        _activating(false),
+        _notActivated(true),
+        _completeTimeout(completeTmeout)
 {
+    this->setFrameShadow(QFrame::Sunken);
+    this->setFrameShape(QFrame::Shape::StyledPanel);
+
     this->setWindowFlag(Qt::WindowType::Widget);
-    this->setMinimumSize(minSize);
+    this->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Fixed);
+    /* this->setFixedHeight(minSize.height()); */
+    this->setMaximumSize(500, _minSize.height());
+
+    _title = new QLabel(title, this);
+    _title->setAlignment(Qt::AlignHCenter);
+    _title->setFont(QFont("Monaco", 8));
 
     _layout = new QVBoxLayout(this);
-    this->setLayout(_layout);
+    _layout->setDirection(QVBoxLayout::Direction::Down);
+    _layout->setSpacing(5);
+    _layout->setContentsMargins(6, 4, 4, 6);
+    _layout->setAlignment(Qt::AlignHCenter);
+    _layout->addWidget(_title, 0);
+    _layout->setSizeConstraint(QLayout::SizeConstraint::SetDefaultConstraint);
 
-    _title = new QLabel(title);
-    _title->setFont(QFont("JetBrains Mono", 7));
+    _layout->activate();
+    this->adjustSize();
 
-    this->layout()->setAlignment(Qt::AlignHCenter);
-    this->layout()->addWidget(_title);
-
-    this->setSchemeByType(notifyType);
+    this->setSchemeByType(notifyLevel);
 }
 
 NotifyItem::~NotifyItem()
@@ -42,7 +57,7 @@ NotifyItem::~NotifyItem()
 }
 
 void
-NotifyItem::setSchemeByType(NotifyItem::NotifyType t) {
+NotifyItem::setSchemeByType(NotifyItem::NotifyLevel t) {
     QString scheme;
     switch (t) {
         case NotifyItem::NotifySuccess: scheme = "NotifySuccess";
@@ -57,11 +72,17 @@ NotifyItem::setSchemeByType(NotifyItem::NotifyType t) {
     this->setObjectName(scheme);
 }
 
-NotifyItem::NotifyType NotifyItem::notifyType() const { return _notifyType; }
+NotifyItem::NotifyLevel NotifyItem::notifyLevel() const { return _notifyLevel; }
 bool NotifyItem::isOnDiactivation() const             { return _diactivating; }
+bool NotifyItem::isOnActivation() const               { return _activating; }
+bool NotifyItem::isNotActivated() const               { return _notActivated; }
+int  NotifyItem::completeTimeout() const              { return _completeTimeout; }
 
 void NotifyItem::setTitle(const QString& title) { _title->setText(title); }
-void NotifyItem::setNotifyType(NotifyType type) { _notifyType = type; }
+void NotifyItem::setNotifyLevel(NotifyLevel type) { _notifyLevel = type; }
+void NotifyItem::setCompleteTimeout(int ms) { _completeTimeout = ms; }
+
+void NotifyItem::setActive() { _activating = false; }
 
 void
 NotifyItem::forseComplete()
@@ -73,18 +94,53 @@ NotifyItem::forseComplete()
 void
 NotifyItem::diactivate()
 {
+    auto e = new QGraphicsOpacityEffect(this);
+    QPropertyAnimation * a = new QPropertyAnimation(e, "opacity");
+    a->setDuration(_diactivationDur);
+    a->setStartValue(1);
+    a->setEndValue(0);
+    /* a->setStartValue(this->pos()); */
+    /* a->setEndValue(QPoint(this->pos().x(), -this->size().height())); */
+    a->setEasingCurve(QEasingCurve::InBack);
+
+    connect(a, SIGNAL(finished()), this, SIGNAL(diactivated()));
+
     _diactivating = true;
     Q_EMIT onDiactivation();
 
-    _diactivationAnimation->start(QPropertyAnimation::DeleteWhenStopped);
-    connect(_diactivationAnimation, SIGNAL(finished()), this, SIGNAL(diactivated()));
+    this->setGraphicsEffect(e);
+    a->start(QPropertyAnimation::DeleteWhenStopped);
 }
 
 void
 NotifyItem::activate(const QPoint& pos)
 {
+    _notActivated = false;
+    _activating = true;
+    Q_EMIT onActivation();
+
+    auto e = new QGraphicsOpacityEffect(this);
+    QPropertyAnimation * a = new QPropertyAnimation(e, "opacity");
+    a->setDuration(_activationDur);
+    a->setStartValue(0);
+    a->setEndValue(1);
+    /* a->setDuration(_activationDur); */
+    /* a->setStartValue(QPoint(pos.x(), this->parentWidget()->size().height() + */
+    /*                                  this->size().height())); */
+    /* a->setEndValue(pos); */
+    a->setEasingCurve(QEasingCurve::InBack);
+
+    this->setGraphicsEffect(e);
+    this->move(pos);
     this->show();
-    _activationAnimation->start(QPropertyAnimation::DeleteWhenStopped);
+    a->start(QPropertyAnimation::DeleteWhenStopped);
+    connect(a, SIGNAL(finished()), this, SIGNAL(activated()));
+    connect(a, SIGNAL(finished()), this, SLOT(setActive()));
+}
+
+void
+NotifyItem::on_activated()
+{
 }
 
 void

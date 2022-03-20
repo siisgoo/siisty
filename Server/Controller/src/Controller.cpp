@@ -20,48 +20,103 @@ Controller::Controller(Settings settings, QWidget *parent)
 {
     ui->setupUi(this);
 
-    { // debug only
-        _loggingThread.setObjectName("Logging thread");
-        _serverThread.setObjectName("Service thread");
-        _databaseThread.setObjectName("Database driver thread");
-    }
-
     {
         ui->actionToggle_server->setEnabled(false);
         ui->actionToggle_server->setText("Start");
-    }
 
-    {
         ui->statusbar->setFixedHeight(22);
         _listenIndicator = new QLedIndicator(ui->statusbar);
         ui->statusbar->layout()->setAlignment(Qt::AlignCenter);
         _listenIndicator->setLedSize(14);
         ui->statusbar->addPermanentWidget(_listenIndicator);
-    }
 
-    {
         ui->page_path_layout->setAlignment(Qt::AlignLeft);
-    }
 
-    {
         connect(ui->clearLogButton, SIGNAL(clicked()), this, SLOT(on_clearLogClicked()));
         ui->logLevel_cb->setCurrentIndex(_settings.logginLeve);
         connect(ui->logLevel_cb, SIGNAL(currentIndexChanged(int)), this, SLOT(changeLoggingLeve(int)));
     }
 
     {
-        _notifire = new FloatNotifier(this, QMargins(0, 0, 2, ui->statusbar->size().height() + 2));
-        connect(this, SIGNAL(setProgress(int, int, int, QString)), _notifire, SIGNAL(setProgress(int, int, int, QString)), Qt::DirectConnection);
-        connect(this, SIGNAL(resized(QResizeEvent*)), _notifire, SIGNAL(windowResized(QResizeEvent*)));
+        _notifier = new FloatNotifier(
+                this,
+                QMargins(0, 0, 2, ui->statusbar->size().height() + 2),
+                {120, 40},
+                10,
+                3000,
+                FloatNotifier::StackAbove);
+        connect(this, SIGNAL(resized(QResizeEvent*)), _notifier, SIGNAL(windowResized(QResizeEvent*)));
+        connect(this,
+                SIGNAL(createNotifyItem(NotifyItemFactory*, int&)),
+                _notifier,
+                SLOT(createNotifyItem(NotifyItemFactory*, int&)));
+        connect(this,
+                SIGNAL(setNotifyItemPropery(int, const QByteArray &, const QVariant &)),
+                _notifier,
+                SLOT(setItemPropery(int, const QByteArray &, const QVariant &)));
     }
 
-    setupLogger();
-    setupDatabase();
+    NotifyProgressItemFactory * fa = new NotifyProgressItemFactory();
+    fa->setTitle("Dummy");
+    fa->setNotifyLevel(NotifyItem::NotififyNormal);
+    fa->setMaximum(100);
+    fa->setExitOnCompleted(true);
+    Q_EMIT createNotifyItem(fa, item_uid1);
+    fa->setTitle("Dummy 1");
+    Q_EMIT createNotifyItem(fa, item_uid2);
+    fa->setTitle("Dummy 2");
+    Q_EMIT createNotifyItem(fa, item_uid3);
+    fa->setTitle("Dummy 3");
+    Q_EMIT createNotifyItem(fa, item_uid4);
+
+    QTimer timer1;
+    QTimer timer2;
+    QTimer timer3;
+    QTimer timer4;
+
+    Q_EMIT setNotifyItemPropery(item_uid1, "progress", 10);
+
+    {
+        connect(this, SIGNAL(send_to_log(QString, int)), &_log, SLOT(logMessage(QString, int)), Qt::DirectConnection);
+        _log.moveToThread(&_loggingThread);
+    }
+
+    {
+        connect(&_database, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)), Qt::DirectConnection);
+
+        // inited -> setup service -> setup pages
+        connect(&_database, SIGNAL(Inited()),
+                this, SLOT(on_databaseInited()), Qt::QueuedConnection);
+        connect(&_database, SIGNAL(Inited()),
+                this, SLOT(setupServer()), Qt::QueuedConnection);
+        connect(&_database, SIGNAL(Inited()),
+                this, SLOT(connectPages()));
+        connect(&_database, SIGNAL(InitizlizationFailed(QSqlError)),
+                this, SLOT(on_databaseInitializationFailed(QSqlError)));
+
+        connect(&_database,
+                SIGNAL(createNotifyItem(NotifyItemFactory *, int&)),
+                _notifier,
+                SLOT(createNotifyItem(NotifyItemFactory *, int&)),
+                Qt::BlockingQueuedConnection);
+        connect(&_database,
+                SIGNAL(setNotifyItemPropery(int, const QByteArray &, const QVariant &)),
+                _notifier,
+                SLOT(setItemPropery(int, const QByteArray &, const QVariant &)),
+                Qt::BlockingQueuedConnection);
+
+        connect(&_databaseThread, SIGNAL(started()), &_database, SLOT(Run()), Qt::DirectConnection);
+        _database.moveToThread(&_databaseThread);
+    }
+
     setupPages();
 
     _loggingThread.start();
     _databaseThread.start();
-    _serverThread.start();
+
+    _loggingThread.setObjectName("Logging thread");
+    _serverThread.setObjectName("Service thread");
+    _databaseThread.setObjectName("Database driver thread");
 }
 
 Controller::~Controller()
@@ -76,42 +131,16 @@ Controller::~Controller()
     _loggingThread.wait();
     _serverThread.wait();
 
-    delete _notifire;
+    delete _notifier;
     delete _listenIndicator;
     delete ui;
 }
 
 void
-Controller::setupLogger()
-{
-    connect(this, SIGNAL(send_to_log(QString, int)), &_log, SLOT(logMessage(QString, int)), Qt::DirectConnection);
-    _log.moveToThread(&_loggingThread);
-}
-
-void
-Controller::setupDatabase()
-{
-    connect(&_database, SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)), Qt::DirectConnection);
-
-    // inited -> setup service -> setup pages
-    connect(&_database, SIGNAL(Inited()),
-            this, SLOT(on_databaseInited()), Qt::DirectConnection);
-    connect(&_database, SIGNAL(Inited()),
-            this, SLOT(setupServer()));
-    connect(&_database, SIGNAL(Inited()),
-            this, SLOT(connectPages()));
-    connect(&_database, SIGNAL(InitizlizationFailed(QSqlError)),
-            this, SLOT(on_databaseInitializationFailed(QSqlError)), Qt::DirectConnection);
-
-    connect(&_database, SIGNAL(setProgress(int, int, int, QString)), this, SIGNAL(setProgress(int, int, int, QString)), Qt::DirectConnection);
-
-    connect(&_databaseThread, SIGNAL(started()), &_database, SLOT(Run()), Qt::DirectConnection);
-    _database.moveToThread(&_databaseThread);
-}
-
-void
 Controller::setupServer()
 {
+    _server.moveToThread(&_serverThread);
+
     _server.setForseUseSsl(_settings.useSsl);
     _server.LoadCertificates(_settings.certPath, _settings.keyPath);
 
@@ -122,7 +151,7 @@ Controller::setupServer()
     connect(&_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
             this, SLOT(on_listeningStateChanged(QHostAddress, quint16, bool)));
 
-    _server.moveToThread(&_serverThread);
+    _serverThread.start();
 }
 
 void
