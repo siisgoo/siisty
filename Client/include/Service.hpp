@@ -6,6 +6,7 @@
 #include <QHostAddress>
 
 #include "General/SslClientBase.hpp"
+#include "Database/Database.hpp"
 
 class Service : public SslClientBase {
     Q_OBJECT
@@ -15,22 +16,26 @@ class Service : public SslClientBase {
         virtual ~Service();
 
     Q_SIGNALS:
-        void loginSuccess(QString name, int role, int id);
-        void loginFailed(int err, QString msg);
+        void loginSuccess(QString, int, int); // name, role, id
+        void loginFailed(int, QString);
 
-        void commandSendSuccess();
-        void commandSendFailed();
-
-        void commandResponceSuccess();
-        void commandResponceFailed();
+        void commandSuccess(QJsonObject);
+        void commandFailed(int, QString details);
 
     public Q_SLOTS:
         void login(const QString& login, const QString& password);
 
         void sendCommand(QJsonObject&);
 
+    private Q_SLOTS:
+        void parseResonce(iiNPack::Header, QByteArray);
+
+        void parseLoginResponce(QJsonObject);
+
+        void on_sslError(const QList<QSslError>&);
+        void on_networkError(QAbstractSocket::SocketError);
+
     private:
-        bool _forseUseSsl = false;
 };
 
 #endif /* end of include guard: SERVICE_HPP_CBPTLJJQ */

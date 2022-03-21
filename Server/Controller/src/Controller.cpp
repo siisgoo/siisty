@@ -159,6 +159,9 @@ Controller::setupServer()
     connect(&_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
             this, SLOT(on_listeningStateChanged(QHostAddress, quint16, bool)));
 
+    connect(&_server, SIGNAL(addCommand(Database::Driver::DatabaseCmd)),
+            &_database, SLOT(addCommand(Database::Driver::DatabaseCmd)), Qt::QueuedConnection);
+
     _serverThread.start();
 }
 
@@ -218,15 +221,34 @@ Controller::connectPages()
     connect(&_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
             PagesManager::getPage("Service"), SLOT(onServerListningStateChanged(QHostAddress, quint16, bool)));
 
-    connect(PagesManager::getPage("Register user"), SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)));
-    connect(PagesManager::getPage("Register user"), SIGNAL(registrateUser(Database::RoleId, QJsonObject, Database::DriverAssistant*)),
-            &_database,    SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), Qt::DirectConnection);
-    connect(PagesManager::getPage("Register user"), SIGNAL(requestedWaponDetails(Database::RoleId, QJsonObject, Database::DriverAssistant*)),
-            &_database,    SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), Qt::DirectConnection);
+    connect(PagesManager::getPage("Register user"),
+            SIGNAL(logMessage(QString, int)), this,
+            SLOT(logMessage(QString, int)));
+    connect(PagesManager::getPage("Register user"),
+            SIGNAL(registrateUser(Database::RoleId, QJsonObject,
+                                  Database::DriverAssistant *)),
+            &_database,
+            SLOT(addCommand(Database::RoleId, QJsonObject,
+                            Database::DriverAssistant *)),
+            Qt::DirectConnection);
+    connect(PagesManager::getPage("Register user"),
+            SIGNAL(requestedWaponDetails(Database::RoleId, QJsonObject,
+                                         Database::DriverAssistant *)),
+            &_database,
+            SLOT(addCommand(Database::RoleId, QJsonObject,
+                            Database::DriverAssistant *)),
+            Qt::DirectConnection);
 
-    connect(PagesManager::getPage("Users list"), SIGNAL(logMessage(QString, int)), this, SLOT(logMessage(QString, int)));
-    connect(PagesManager::getPage("Users list"), SIGNAL(requestedUsers(Database::RoleId, QJsonObject, Database::DriverAssistant*)),
-            &_database, SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), Qt::DirectConnection);
+    connect(PagesManager::getPage("Users list"),
+            SIGNAL(logMessage(QString, int)), this,
+            SLOT(logMessage(QString, int)));
+    connect(PagesManager::getPage("Users list"),
+            SIGNAL(requestedUsers(Database::RoleId, QJsonObject,
+                                  Database::DriverAssistant *)),
+            &_database,
+            SLOT(addCommand(Database::RoleId, QJsonObject,
+                            Database::DriverAssistant *)),
+            Qt::DirectConnection);
 }
 
 void
@@ -352,9 +374,9 @@ Controller::on_databaseInitializationFailed(QSqlError e)
 void
 Controller::logMessage(QString str, int level)
 {
-    if (level >= _settings.logginLeve) {
+    /* if (level >= _settings.logginLeve) { */
         ui->loggingOutput->append(str);
-    }
+    /* } */
         /* // ignore setted logging level, its need? */
     Q_EMIT send_to_log(str, level);
 }

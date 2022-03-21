@@ -25,7 +25,7 @@ class Login : public QDialog
     Q_OBJECT
 
     public:
-        explicit Login(QWidget *parent = nullptr);
+        explicit Login(ConnectSettings cs, QWidget *parent = nullptr);
         ~Login();
 
     Q_SIGNALS:

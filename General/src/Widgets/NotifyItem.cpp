@@ -91,7 +91,7 @@ bool NotifyItem::isOnActivation() const               { return _activating; }
 bool NotifyItem::isNotActivated() const               { return _notActivated; }
 int  NotifyItem::completeTimeout() const              { return _completeTimeout; }
 
-void NotifyItem::setTitle(const QString& title) { _title->setText(title); }
+void NotifyItem::setTitle(const QString& title) { _title->setText(title); adjustSize(); }
 void NotifyItem::setNotifyLevel(NotifyLevel type) { _notifyLevel = type; setSchemeByType(type); }
 void NotifyItem::setCompleteTimeout(int ms) { _completeTimeout = ms; }
 

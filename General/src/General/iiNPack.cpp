@@ -1,6 +1,9 @@
 #include "General/iiNPack.hpp"
 #include "General/logger.hpp"
 
+#include <QJsonObject>
+#include <QJsonDocument>
+
 const qsizetype iiNPack::HeaderSize =
     sizeof(quint32) + sizeof(qint64) + sizeof(quint8) + sizeof(quint8);
 
@@ -30,11 +33,11 @@ iiNPack::pack(const QByteArray& load, const PacketType type)
 QByteArray
 iiNPack::packError(const QString& errDesc, const ResponseError err)
 {
-    QByteArray load(0);
-    load.append((quint8)err);
-    load.append(errDesc.toLocal8Bit());
-
-    return iiNPack::pack(load, PacketType::ERROR_MESSAGE);
+    QJsonDocument d(QJsonObject{
+        { "errno", (int)err },
+        { "details", errDesc }
+    });
+    return iiNPack::pack(d.toJson(QJsonDocument::Compact), PacketType::ERROR_MESSAGE);
 }
 
 iiNPack::Header

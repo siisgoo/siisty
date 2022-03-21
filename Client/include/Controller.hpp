@@ -17,6 +17,8 @@
 
 #include "Widgets/NotifyProgressItem.hpp"
 #include "Widgets/NotifyProgressItemFactory.hpp"
+#include "Widgets/NotifyMsgItem.hpp"
+#include "Widgets/NotifyMsgItemFactory.hpp"
 
 #include "Pages/Login.hpp"
 
@@ -25,15 +27,6 @@ namespace Ui { class Controller; }
 QT_END_NAMESPACE
 
 struct Settings {
-    QHostAddress _serverAddress = QHostAddress::LocalHost;
-    quint16      _serverPort = 2142;
-
-    QHostAddress serveAddress = QHostAddress::AnyIPv4;
-    quint16 servePort = 2142;
-
-    QString _login;
-    QString _password;
-
     QString certPath = "./cert.pem";
     QString caPath = "./ca.pem";
     QString keyPath = "./key.pem";
@@ -64,22 +57,24 @@ class userInterface : public QMainWindow {
         void resized(QResizeEvent*);
 
     public Q_SLOTS:
-        void recivedMessage(iiNPack::Header, QByteArray);
-
         void on_actionLogoutTriggered();
 
         void tryLogin(ConnectSettings);
 
-        void on_conneted();
-        void on_connectError(QAbstractSocket::SocketError);
-        void on_logined();
-        void on_login_failed();
-        void on_logouted();
+        void saveAuth();
+        void readAuth();
 
     private Q_SLOTS:
         void changePage(QString);
         void on_pathNodeClicked();
+
         void showLogin();
+
+        void on_conneted();
+        void on_disconnetWhenLogin();
+        void on_logined(QString name, int role, int id);
+        void on_login_failed(int, QString);
+        void on_logouted();
 
         void logMessage(QString _message, int);
 
@@ -97,6 +92,7 @@ class userInterface : public QMainWindow {
         Settings _settings;
 
         NotifyProgressItemFactory * _npf;
+        NotifyMsgItemFactory * _nmf;
         FloatNotifier * _notifier;
 
         ConnectSettings _conn_s;

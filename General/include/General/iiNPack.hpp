@@ -36,11 +36,15 @@ struct iiNPack {
         RAW,
     };
 
+    // TODO create error map
     enum ResponseError : quint8
     {
         ACCESS_DENIED = 0,
+        NETWORK_ERROR,
         REQUEST_ERROR,
-        UNSUPPORTED_MSG_FORMAT,
+        UNSUPPORTED_FORMAT,
+        UNSUPPORTED_TYPE,
+        PARSE_ERROR,
     };
 
     struct Header

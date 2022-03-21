@@ -96,6 +96,7 @@ FloatNotifier::reorganize()
     int i = 0;
     for (auto bar : active_bars) {
         bar->move(NextPosition(i++));
+        bar->adjustSize();
     }
 }
 

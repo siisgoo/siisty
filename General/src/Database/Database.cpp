@@ -16,7 +16,7 @@ DriverAssistant::DriverAssistant(QObject * p)
 { }
 DriverAssistant::~DriverAssistant() { }
 void DriverAssistant::Success(QJsonObject o) { Q_EMIT success(o); }
-void DriverAssistant::Failed(CmdError err) { Q_EMIT failed(err); }
+void DriverAssistant::Failed(Database::CmdError err) { Q_EMIT failed(err); }
 
 Driver::Driver(const QString& path, QObject * p)
     : QObject(p),
@@ -56,8 +56,6 @@ Driver::Initialize()
     _pf->setMaximum(4);
     Q_EMIT createNotifyItem(_pf, _p_uid_main);
 
-    connect(this, SIGNAL(addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)), this, SLOT(on_addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*)));
-    connect(this, SIGNAL(addCommand(Database::Driver::DatabaseCmd)), this, SLOT(on_addCommand(Database::Driver::DatabaseCmd)));
     _db = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE"));
     _db->setDatabaseName(_path);
     if (!_db->open())
@@ -241,8 +239,8 @@ Driver::worker()
 
 const QVector<Driver::role_set>& Driver::avalibleRoles() const { return _roles; }
 
-void Driver::on_addCommand(Database::RoleId r, QJsonObject o, Database::DriverAssistant* w) { on_addCommand({(int)r, o, w}); }
-void Driver::on_addCommand(Database::Driver::DatabaseCmd cmd) {
+void Driver::addCommand(Database::RoleId r, QJsonObject o, Database::DriverAssistant* a) { addCommand({(int)r, o, a}); }
+void Driver::addCommand(Database::Driver::DatabaseCmd cmd) {
     QMutexLocker lock(&_queueMtx);
     _cmdQueue.append(cmd);
 }

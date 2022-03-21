@@ -6,6 +6,8 @@
 class NotifyMsgItem : public NotifyItem {
     Q_OBJECT
 
+    Q_PROPERTY(QString message WRITE setMessage)
+
     public:
         NotifyMsgItem(const QString& title,
                       const QString& msg,
@@ -15,6 +17,9 @@ class NotifyMsgItem : public NotifyItem {
                       int diactivationDuration,
                       QSize = {160, 42}, QWidget* p = nullptr);
         virtual ~NotifyMsgItem();
+
+    public Q_SLOTS:
+        void setMessage(const QString& msg);
 
     protected:
         QLabel * _msg;

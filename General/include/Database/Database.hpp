@@ -39,6 +39,12 @@ class DriverAssistant : public QObject {
         /* bool _delete_on_success; */
 };
 
+struct DatabaseCmd {
+    int executorRole;
+    QJsonObject data;
+    DriverAssistant * waiter;
+};
+
 // own thread-oriented sqlite driver
 class Driver : public QObject {
     Q_OBJECT
@@ -71,12 +77,6 @@ class Driver : public QObject {
             double price;
         };
 
-        struct DatabaseCmd {
-            int executorRole;
-            QJsonObject data;
-            DriverAssistant * waiter;
-        };
-
     public:
         Driver(const QString& path, QObject * p = nullptr);
         virtual ~Driver();
@@ -86,10 +86,6 @@ class Driver : public QObject {
     Q_SIGNALS:
         void Inited();
         void InitizlizationFailed(QSqlError);
-
-        void addCommand(Database::RoleId role, QJsonObject, Database::DriverAssistant*);
-        void addCommand(Database::Driver::DatabaseCmd);
-            // add command to execution queue
 
         void logMessage(QString, int = LoggingLevel::Trace);
 
@@ -104,8 +100,8 @@ class Driver : public QObject {
         void worker();
             // worker ¯\_(ツ)_/¯
 
-        void on_addCommand(Database::Driver::DatabaseCmd);
-        void on_addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*);
+        void addCommand(Database::Driver::DatabaseCmd);
+        void addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*);
 
         void executeCommand(Database::RoleId role, QJsonObject o, DriverAssistant*);
             // all permission controll system BASED on this small role variable
@@ -125,8 +121,7 @@ class Driver : public QObject {
         QVector<command_set>    _commands;
         QVector<objectType_set> _objectTypes;
 
-        /* QWaitCondition _newCommand; */
-        QMutex _queueMtx; // useless, only one thread handle db and one instance of dirver
+        QMutex _queueMtx;
         QQueue<DatabaseCmd> _cmdQueue;
 
         NotifyProgressItemFactory * _pf;
@@ -138,6 +133,9 @@ class Driver : public QObject {
         QString _path;
         QSqlDatabase * _db;
 };
+
+
+Q_DECLARE_METATYPE(Database::Driver::DatabaseCmd)
 
 } /* Database */
 

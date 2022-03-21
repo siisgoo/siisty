@@ -4,7 +4,7 @@
 #include <QtSvgWidgets/QSvgWidget>
 #include <qssl.h>
 
-Login::Login(QWidget *parent) :
+Login::Login(ConnectSettings cs, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Login)
 {
@@ -28,6 +28,20 @@ Login::Login(QWidget *parent) :
     ui->encryptionType->addItem("Disable", QSsl::UnknownProtocol);
     ui->encryptionType->addItem("TLSv1.2", QSsl::TlsV1_2);
     ui->encryptionType->addItem("TLSv1.3", QSsl::TlsV1_3);
+
+    for (int i = 0; i < ui->encryptionType->count(); i++) {
+        if (ui->encryptionType->itemData(i) == cs.protocol) {
+            ui->encryptionType->setCurrentIndex(i);
+            break;
+        }
+    }
+
+    ui->host->setText(cs.host.toString());
+    ui->port->setText(QString::number(cs.port));
+    ui->login->setText(cs.login);
+    ui->password->setText(cs.password);
+    ui->rememberLogin->setChecked(cs.rememberLogin);
+    ui->rememberPassword->setChecked(cs.rememberPassword);
 }
 
 Login::~Login()
@@ -39,7 +53,7 @@ void
 Login::on_submit_clicked()
 {
     Q_EMIT tryLogin({
-            QHostAddress(ui->host->currentText()),
+            QHostAddress(ui->host->text()),
             (quint16)ui->port->text().toUInt(),
             ui->encryptionType->currentData().toInt(),
             ui->login->text(),
@@ -55,7 +69,7 @@ Login::on_auth_changed(QString)
     if (ui->login->text().length() > 0 &&
             ui->password->text().length() > 7 &&
             ui->port->text().length() > 0 &&
-            ui->host->currentText().length()) // TODO add normal validator
+            ui->host->text().length()) // TODO add normal validator
     {
         ui->submit->setEnabled(true);
     } else {

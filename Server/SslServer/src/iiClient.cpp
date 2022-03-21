@@ -7,7 +7,7 @@ iiClient::iiClient(QSslSocket * socket, QObject * parent)
         _ident_tries(0)
 {
     connect(_dbAssistant, SIGNAL(success(QJsonObject)), this, SIGNAL(identified(QJsonObject)));
-    connect(_dbAssistant, SIGNAL(failed(QJsonObject)),  this, SIGNAL(identificationFailed(Database::CmdError)));
+    connect(_dbAssistant, SIGNAL(failed(Database::CmdError)),  this, SIGNAL(identificationFailed(Database::CmdError)));
 
     connect(this, SIGNAL(identified(QJsonObject)),
             this, SLOT(on_identified(QJsonObject)));
@@ -27,7 +27,8 @@ iiClient::identify(QString login, QString password)
 {
     _login = login;
     _password = password;
-    Q_EMIT addCommand(Database::RoleId::AUTO,
+    Q_EMIT logMessage("Trying identify user", Debug);
+    Q_EMIT addCommand({(int)Database::RoleId::AUTO,
             QJsonObject{
                 { "command", (int)Database::CommandId::IDENTIFY },
                 { "arg",
@@ -37,7 +38,7 @@ iiClient::identify(QString login, QString password)
                     }
                 }
             },
-            _dbAssistant);
+            _dbAssistant});
 }
 
 void
@@ -58,6 +59,9 @@ iiClient::on_identified(QJsonObject obj)
 
     QJsonDocument doc(obj); // must contain role and basic user information
     QByteArray res = iiNPack::pack(doc.toJson(QJsonDocument::Compact), iiNPack::RESPONSE);
+
+    Q_EMIT logMessage("Identified user: " + obj["name"].toString(), Trace);
+
     this->sendMessage(res);
 
     _password.clear();
@@ -66,15 +70,19 @@ iiClient::on_identified(QJsonObject obj)
 void
 iiClient::on_identificationFailed(Database::CmdError err)
 {
-    _ident_tries++;
-    if (_ident_tries > _max_tries) { // make configurable
-        this->disconnectFromHost();
-        // TODO set timeout for connect avalible again
-        return;
-    }
+    /* _ident_tries++; */
+    /* if (_ident_tries > _max_tries) { // make configurable */
+    /*     this->disconnectFromHost(); */
+    /*     // TODO set timeout for connect avalible again */
+    /*     return; */
+    /* } */
+
+    Q_EMIT logMessage("User identification error: " + err.String(), Debug);
 
     QByteArray res = iiNPack::packError(err.String(), iiNPack::ACCESS_DENIED);
     this->sendMessage(res);
+    /* this->waitForBytesWritten(); */
+    this->disconnectFromHost();
 }
 
 void

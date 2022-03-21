@@ -36,7 +36,7 @@ RegisterUser::RegisterUser(const QVector<Database::Driver::role_set>& roles, QWi
 
     for (auto role : roles) {
         if ((int)role.id > 0)
-            ui->role_cb->addItem(role.name, (int)role.id);
+            ui->role_cb->addItem(role.name, (int)role.id + 1);
     }
 
     connect(_dbRWaiter, SIGNAL(success(QJsonObject)), this, SLOT(on_saveSuccess(QJsonObject)));

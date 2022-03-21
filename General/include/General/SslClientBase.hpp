@@ -51,7 +51,7 @@ class SslClientBase : public QObject {
         qint64  bytesAvailable() const;
         qint64  bytesToWrite() const;
 
-        /* bool waitForBytesWritten(int msecs = 30000); */
+        bool waitForBytesWritten(int msecs = 30000);
         /* bool waitForConnected(int msecs = 30000); */
         /* bool waitForDisconnected(int msecs = 30000); */
         /* bool waitForReadyRead(int msecs = 30000); */
@@ -86,9 +86,9 @@ class SslClientBase : public QObject {
 
         void peerVerifyError(const QSslError &);
         void sslErrors(const QList<QSslError>&);
-        void errorOccurred(QAbstractSocket::SocketError socketError);
-        void proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator);
-        void stateChanged(QAbstractSocket::SocketState socketState);
+        void errorOccurred(QAbstractSocket::SocketError);
+        void proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *);
+        void stateChanged(QAbstractSocket::SocketState);
 
         void logMessage(QString, int);
 

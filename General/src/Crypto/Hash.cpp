@@ -30,9 +30,9 @@ static QMap<quint8, std::function<char(quint32)>> saltCharGen({
             { Alpha,           [](quint32 rand32) { return randCharFrom(alphabet, rand32);                                                      }},
             { Digit,           [](quint32 rand32) { return randCharFrom(digits, rand32);                                                        }},
             { Special,         [](quint32 rand32) { return randCharFrom(specials, rand32);                                                      }},
-            { Alpha & Digit,   [](quint32 rand32) { return (strongRand(0, 1) ? randCharFrom(alphabet, rand32) : randCharFrom(digits, rand32));  }},
-            { Alpha & Special, [](quint32 rand32) { return (strongRand(0, 1) ? randCharFrom(alphabet, rand32) : randCharFrom(specials, rand32));}},
-            { Special & Digit, [](quint32 rand32) { return (strongRand(0, 1) ? randCharFrom(specials, rand32) : randCharFrom(digits, rand32));  }},
+            { Alpha | Digit,   [](quint32 rand32) { return (strongRand(0, 1) ? randCharFrom(alphabet, rand32) : randCharFrom(digits, rand32));  }},
+            { Alpha | Special, [](quint32 rand32) { return (strongRand(0, 1) ? randCharFrom(alphabet, rand32) : randCharFrom(specials, rand32));}},
+            { Special | Digit, [](quint32 rand32) { return (strongRand(0, 1) ? randCharFrom(specials, rand32) : randCharFrom(digits, rand32));  }},
         });
 
 QByteArray saltGen(quint8 w)

@@ -12,9 +12,17 @@ NotifyMsgItem::NotifyMsgItem(const QString& title,
 {
     _msg = new QLabel(msg, this);
     _msg->setWordWrap(true);
+
+    _layout->addWidget(_msg);
 }
 
 NotifyMsgItem::~NotifyMsgItem()
 {
     delete _msg;
+}
+
+void
+NotifyMsgItem::setMessage(const QString& msg)
+{
+    _msg->setText(msg);
 }

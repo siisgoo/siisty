@@ -3,6 +3,7 @@
 
 #include <QTimer>
 #include <qnamespace.h>
+#include <qssl.h>
 
 userInterface::userInterface(const Settings& settings, QWidget* _parent)
     : QMainWindow(_parent),
@@ -48,6 +49,7 @@ userInterface::userInterface(const Settings& settings, QWidget* _parent)
     setupPages();
 
     _npf = new NotifyProgressItemFactory;
+    _nmf = new NotifyMsgItemFactory;
 
     // add check if saved auth data
     QTimer::singleShot(100, [this](){ showLogin(); });
@@ -129,7 +131,8 @@ void
 userInterface::showLogin()
 {
     changePage("Empty");
-    Login * login = new Login(this);
+    readAuth();
+    Login * login = new Login(_conn_s, this);
 
     connect(login, SIGNAL(tryLogin(ConnectSettings)), this, SLOT(tryLogin(ConnectSettings)), Qt::SingleShotConnection);
 
@@ -141,9 +144,66 @@ userInterface::showLogin()
 }
 
 void
-userInterface::recivedMessage(iiNPack::Header, QByteArray)
+userInterface::saveAuth()
 {
+    // TODO add optional save pass
+    QFile authf("./auth.json");
+    if (!authf.permissions().testFlag(QFile::Permission::WriteOwner)) {
+        int msg_pid;
+        _nmf->setTitle("Cannot save auth");
+        _nmf->setMsg("No write permission");
+        _nmf->setCompleteTimeout(3000);
+        _notifier->createNotifyItem(_nmf, msg_pid);
+    }
+    authf.open(QIODevice::WriteOnly);
+    authf.setPermissions(QFile::Permissions::enum_type::ReadOwner | QFile::Permissions::enum_type::WriteOwner);
+    QJsonDocument d(QJsonObject{
+        { "login", (_conn_s.rememberLogin ? _conn_s.login : "") },
+        { "password", (_conn_s.rememberPassword ? _conn_s.password : "") },
+        { "host", _conn_s.host.toString() },
+        { "port", (int)_conn_s.port },
+        { "encryption", (int)_conn_s.protocol },
+        { "rememberLogin", _conn_s.rememberLogin },
+        { "rememberPassword", _conn_s.rememberPassword }
+    });
+    authf.write(d.toJson());
+}
 
+void
+userInterface::readAuth()
+{
+    QFile authf("./auth.json");
+    authf.open(QIODevice::ReadOnly);
+
+    QJsonParseError err;
+    if (authf.permissions().testFlag(QFile::Permission::ReadOwner)) {
+        int msg_pid;
+        _nmf->setTitle("Cannot read auth");
+        _nmf->setMsg("No read permission");
+        _nmf->setCompleteTimeout(3000);
+        _notifier->createNotifyItem(_nmf, msg_pid);
+    }
+    QJsonDocument d = QJsonDocument::fromJson(authf.readAll(), &err);
+
+    if (err.error != QJsonParseError::NoError || d.isNull() || !d.isObject()) {
+        _conn_s.host = QHostAddress("127.0.0.1");
+        _conn_s.port = 2142;
+        _conn_s.login = "";
+        _conn_s.password = "";
+        _conn_s.protocol = (int)QSsl::UnknownProtocol;
+        _conn_s.rememberLogin = true;
+        _conn_s.rememberPassword = false;
+        return;
+    }
+
+    QJsonObject obj = d.object();
+    _conn_s.host = QHostAddress(obj["host"].toString());
+    _conn_s.port = obj["port"].toInteger();
+    _conn_s.protocol = obj["encryption"].toInt();
+    _conn_s.login = obj["login"].toString();
+    _conn_s.password = obj["password"].toString();
+    _conn_s.rememberLogin = obj["rememberLogin"].toBool();
+    _conn_s.rememberPassword = obj["rememberPassword"].toBool();
 }
 
 void
@@ -157,15 +217,21 @@ userInterface::tryLogin(ConnectSettings cs)
     _notifier->setItemPropery(_login_puid, "progress", 0);
 
     _conn_s = cs;
+    saveAuth();
 
-    connect(&_service, SIGNAL(errorOccurred(QAbstractSocket::SocketError)),
-            this, SLOT(on_connectError(QAbstractSocket::SocketError)), Qt::SingleShotConnection);
+    connect(&_service, SIGNAL(loginFailed(int, QString)),
+            this, SLOT(on_login_failed(int, QString)),
+            Qt::SingleShotConnection);
+
+    connect(&_service, SIGNAL(disconnected()),
+            this, SLOT(on_disconnetWhenLogin()),
+            Qt::SingleShotConnection);
 
     if (cs.protocol > 0) {
-        connect(&_service, SIGNAL(encrypted()), this, SLOT(on_conneted()));
+        connect(&_service, SIGNAL(encrypted()), this, SLOT(on_conneted()), Qt::SingleShotConnection);
         _service.connectToHostEncrypted(cs.host.toString(), cs.port);
     } else {
-        connect(&_service, SIGNAL(connected()), this, SLOT(on_conneted()));
+        connect(&_service, SIGNAL(connected()), this, SLOT(on_conneted()), Qt::SingleShotConnection);
         _service.connectToHost(cs.host, cs.port);
     }
 }
@@ -173,19 +239,23 @@ userInterface::tryLogin(ConnectSettings cs)
 void
 userInterface::on_conneted()
 {
+    _notifier->setItemPropery(_login_puid, "title", "Trying sing up");
     connect(&_service, SIGNAL(loginSuccess(QString, int, int)), this,
-            SLOT(on_logined()), Qt::SingleShotConnection);
+            SLOT(on_logined(QString, int, int)), Qt::SingleShotConnection);
     _service.login(_conn_s.login, _conn_s.password);
 }
 
 void
-userInterface::on_connectError(QAbstractSocket::SocketError)
+userInterface::on_disconnetWhenLogin()
 {
-    on_login_failed();
+    _notifier->setItemPropery(_login_puid, "title", "Host not avalible"); //TODO...
+    QTimer::singleShot(2000, [this]() {
+        _notifier->setItemPropery(_login_puid, "forseComplete", NotifyItem::NotifySuccess);
+    });
 }
 
 void
-userInterface::on_logined()
+userInterface::on_logined(QString name, int role, int id)
 {
     _notifier->setItemPropery(_login_puid, "title", "Logined");
     QTimer::singleShot(2000, [this]() {
@@ -196,8 +266,10 @@ userInterface::on_logined()
 }
 
 void
-userInterface::on_login_failed()
+userInterface::on_login_failed(int err, QString str)
 {
+    Q_EMIT logMessage(
+        "Login failed. Error code: " + QString::number(err) + " Reason: " + str, Error);
     _notifier->setItemPropery(_login_puid, "title", "Login failed");
     _notifier->setItemPropery(_login_puid, "maxProgress", 1);
     _notifier->setItemPropery(_login_puid, "progress", 1);

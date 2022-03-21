@@ -82,11 +82,11 @@ void SslClientBase::connectToHostEncrypted(
 qint64  SslClientBase::bytesAvailable() const { return _control->bytesAvailable(); }
 qint64  SslClientBase::bytesToWrite() const   { return _control->bytesToWrite(); }
 
-/* bool waitForBytesWritten(int msecs = 30000) */
-/* bool waitForConnected(int msecs = 30000) */
-/* bool waitForDisconnected(int msecs = 30000) */
-/* bool waitForReadyRead(int msecs = 30000) */
-/* bool waitForEncrypted(int msecs = 30000) */
+bool SslClientBase::waitForBytesWritten(int msecs) { return _control->waitForBytesWritten(msecs); }
+/* bool SslClientBase::waitForConnected(int msecs = 30000) */
+/* bool SslClientBase::waitForDisconnected(int msecs = 30000) */
+/* bool SslClientBase::waitForReadyRead(int msecs = 30000) */
+/* bool SslClientBase::waitForEncrypted(int msecs = 30000) */
 
 bool SslClientBase::isEncrypted() const { return _control->isEncrypted(); }
 

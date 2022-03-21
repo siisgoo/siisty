@@ -25,7 +25,7 @@ class iiClient : public SslClientBase {
         void requestSuccess(QJsonObject);
         void requestFailed(Database::CmdError);
 
-        void addCommand(Database::RoleId role, QJsonObject, Database::DriverAssistant*);
+        void addCommand(Database::Driver::DatabaseCmd);
 
     private Q_SLOTS:
         void on_identified(QJsonObject);

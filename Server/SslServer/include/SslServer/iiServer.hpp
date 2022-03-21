@@ -34,7 +34,7 @@ class iiServer : public QObject {
         void logMessage(QString, int = LoggingLevel::Trace);
         void listeningStateChanged(QHostAddress, quint16, bool);
 
-        void addCommand(Database::RoleId role, QJsonObject, Database::DriverAssistant*);
+        void addCommand(Database::Driver::DatabaseCmd);
 
     protected Q_SLOTS:
 
