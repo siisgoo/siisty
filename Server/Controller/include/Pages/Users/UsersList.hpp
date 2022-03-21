@@ -27,7 +27,7 @@ class UsersList : public QWidget {
      ~UsersList();
 
     Q_SIGNALS:
-        void requestedUsers(Database::RoleId, QJsonObject, Database::DriverAssistant*);
+        void requestedUsers(Database::DatabaseCmd);
 
         void logMessage(QString, int = LoggingLevel::Trace);
 

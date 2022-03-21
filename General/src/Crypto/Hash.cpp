@@ -129,7 +129,8 @@ QByteArray encryptPassword(const QByteArray& pass, const QByteArray& salt, QCryp
             // push real password char
 
         // used Rule №2
-        if (inserted < salt_length) {
+        /* if (inserted < salt_length) { */
+        if (inserted < salt.length()) {
             cur = getBit(pass[i], sizeof(pass[i])) ^
                   getBit(hash[i], sizeof(hash[i]));
 

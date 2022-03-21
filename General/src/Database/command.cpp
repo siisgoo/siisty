@@ -99,14 +99,14 @@ exec_identify(QJsonObject& obj)
         return CmdError(InvalidParam, "Passed empty parameters");
     }
 
-    q.prepare("SELECT id, name, role, password, salt FROM EmployeesAndCustomers"
+    q.prepare("SELECT id, name, role_id, password, salt FROM EmployeesAndCustomers "
               "WHERE login = :login");
     q.bindValue(":login", login);
 
     if (!q.exec()) {
         return CmdError(SQLError, q.lastQuery() + " " + q.lastError().text());
     }
-    if (q.record().count() == 0) {
+    if (!q.next()) {
         return CmdError(AccessDenied, "No user registreted with login: " + login);
     }
 
@@ -118,7 +118,7 @@ exec_identify(QJsonObject& obj)
         return CmdError(AccessDenied, "Invalid password");
     }
 
-    obj["role"] = q.record().value("role").toInt();
+    obj["role_id"] = q.record().value("role").toInt();
     obj["name"] = q.record().value("name").toString();
     obj["id"] = q.record().value("id").toString();
 

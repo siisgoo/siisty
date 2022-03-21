@@ -79,7 +79,7 @@ void RegisterUser::on_dbWaponsChanged() { requestWaponDetails(); }
 void
 RegisterUser::requestWaponDetails()
 {
-    Q_EMIT requestedWaponDetails(Database::RoleId::AUTO,
+    Q_EMIT requestedWaponDetails({(int)Database::RoleId::AUTO,
             QJsonObject{
                 { "command", (int)Database::CommandId::GET_WAPON_DETAILS },
                 { "arg",
@@ -90,7 +90,7 @@ RegisterUser::requestWaponDetails()
                     }
                 }
             },
-            _dbWWaiter);
+            _dbWWaiter});
 }
 
 void
@@ -138,7 +138,7 @@ RegisterUser::on_register_buttons_accepted()
         }
     };
 
-    Q_EMIT registrateUser(Database::RoleId::AUTO, data, _dbRWaiter);
+    Q_EMIT registrateUser({(int)Database::RoleId::AUTO, data, _dbRWaiter});
 }
 
 

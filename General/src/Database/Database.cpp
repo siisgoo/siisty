@@ -240,7 +240,7 @@ Driver::worker()
 const QVector<Driver::role_set>& Driver::avalibleRoles() const { return _roles; }
 
 void Driver::addCommand(Database::RoleId r, QJsonObject o, Database::DriverAssistant* a) { addCommand({(int)r, o, a}); }
-void Driver::addCommand(Database::Driver::DatabaseCmd cmd) {
+void Driver::addCommand(Database::DatabaseCmd cmd) {
     QMutexLocker lock(&_queueMtx);
     _cmdQueue.append(cmd);
 }

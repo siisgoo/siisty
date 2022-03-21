@@ -148,14 +148,15 @@ userInterface::saveAuth()
 {
     // TODO add optional save pass
     QFile authf("./auth.json");
+    authf.open(QIODevice::WriteOnly);
     if (!authf.permissions().testFlag(QFile::Permission::WriteOwner)) {
         int msg_pid;
         _nmf->setTitle("Cannot save auth");
         _nmf->setMsg("No write permission");
         _nmf->setCompleteTimeout(3000);
         _notifier->createNotifyItem(_nmf, msg_pid);
+        return;
     }
-    authf.open(QIODevice::WriteOnly);
     authf.setPermissions(QFile::Permissions::enum_type::ReadOwner | QFile::Permissions::enum_type::WriteOwner);
     QJsonDocument d(QJsonObject{
         { "login", (_conn_s.rememberLogin ? _conn_s.login : "") },
@@ -176,12 +177,13 @@ userInterface::readAuth()
     authf.open(QIODevice::ReadOnly);
 
     QJsonParseError err;
-    if (authf.permissions().testFlag(QFile::Permission::ReadOwner)) {
+    if (!authf.permissions().testFlag(QFile::Permission::ReadOwner)) {
         int msg_pid;
         _nmf->setTitle("Cannot read auth");
         _nmf->setMsg("No read permission");
         _nmf->setCompleteTimeout(3000);
         _notifier->createNotifyItem(_nmf, msg_pid);
+        return;
     }
     QJsonDocument d = QJsonDocument::fromJson(authf.readAll(), &err);
 

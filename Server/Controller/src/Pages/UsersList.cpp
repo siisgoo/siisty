@@ -36,7 +36,7 @@ UsersList::~UsersList()
 void
 UsersList::requestUsers()
 {
-    Q_EMIT requestedUsers(Database::RoleId::AUTO,
+    Q_EMIT requestedUsers({(int)Database::RoleId::AUTO,
                           QJsonObject{
                             { "command", (int)Database::CommandId::GET_EMPLOYEE_ENTRY },
                             { "arg",
@@ -45,7 +45,7 @@ UsersList::requestUsers()
                                 }
                             }
                           },
-                          _usersWaiter);
+                          _usersWaiter});
 }
 
 void

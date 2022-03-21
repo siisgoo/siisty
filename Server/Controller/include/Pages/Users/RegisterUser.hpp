@@ -19,9 +19,9 @@ class RegisterUser : public QWidget {
         virtual ~RegisterUser();
 
     Q_SIGNALS:
-        void registrateUser(Database::RoleId, QJsonObject, Database::DriverAssistant*);
-        void requestedWaponDetails(Database::RoleId, QJsonObject, Database::DriverAssistant*);
-        void requestedUserDetails(Database::RoleId, QJsonObject, Database::DriverAssistant*);
+        void registrateUser(Database::DatabaseCmd);
+        void requestedWaponDetails(Database::DatabaseCmd);
+        void requestedUserDetails(Database::DatabaseCmd);
 
         void imgFileNotValid();
         void imgFileValid();

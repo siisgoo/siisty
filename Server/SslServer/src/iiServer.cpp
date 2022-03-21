@@ -107,8 +107,8 @@ void iiServer::acceptConnection()
     connect(client, SIGNAL(logMessage(QString, int)),
             this, SIGNAL(logMessage(QString, int)));
 
-    connect(client, SIGNAL(addCommand(Database::Driver::DatabaseCmd)),
-            this, SIGNAL(addCommand(Database::Driver::DatabaseCmd)),
+    connect(client, SIGNAL(addCommand(Database::DatabaseCmd)),
+            this, SIGNAL(addCommand(Database::DatabaseCmd)),
             Qt::QueuedConnection);
 
     if (QSslSocket::supportsSsl() && _forseUseSsl)

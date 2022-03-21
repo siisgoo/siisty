@@ -133,11 +133,11 @@ Controller::~Controller()
 
     _databaseThread.quit();
     _loggingThread.quit();
-    _serverThread.quit();
+    /* _serverThread.quit(); */
 
     _databaseThread.wait();
     _loggingThread.wait();
-    _serverThread.wait();
+    /* _serverThread.wait(); */
 
     delete _notifier;
     delete _listenIndicator;
@@ -147,8 +147,6 @@ Controller::~Controller()
 void
 Controller::setupServer()
 {
-    _server.moveToThread(&_serverThread);
-
     _server.setForseUseSsl(_settings.useSsl);
     _server.LoadCertificates(_settings.certPath, _settings.keyPath);
 
@@ -159,10 +157,9 @@ Controller::setupServer()
     connect(&_server, SIGNAL(listeningStateChanged(QHostAddress, quint16, bool)),
             this, SLOT(on_listeningStateChanged(QHostAddress, quint16, bool)));
 
-    connect(&_server, SIGNAL(addCommand(Database::Driver::DatabaseCmd)),
-            &_database, SLOT(addCommand(Database::Driver::DatabaseCmd)), Qt::QueuedConnection);
-
-    _serverThread.start();
+    int cmd = qRegisterMetaType<Database::DatabaseCmd>();
+    connect(&_server, SIGNAL(addCommand(Database::DatabaseCmd)),
+            &_database, SLOT(addCommand(Database::DatabaseCmd)), Qt::QueuedConnection);
 }
 
 void
@@ -225,29 +222,23 @@ Controller::connectPages()
             SIGNAL(logMessage(QString, int)), this,
             SLOT(logMessage(QString, int)));
     connect(PagesManager::getPage("Register user"),
-            SIGNAL(registrateUser(Database::RoleId, QJsonObject,
-                                  Database::DriverAssistant *)),
+            SIGNAL(registrateUser(Database::DatabaseCmd)),
             &_database,
-            SLOT(addCommand(Database::RoleId, QJsonObject,
-                            Database::DriverAssistant *)),
+            SLOT(addCommand(Database::DatabaseCmd)),
             Qt::DirectConnection);
     connect(PagesManager::getPage("Register user"),
-            SIGNAL(requestedWaponDetails(Database::RoleId, QJsonObject,
-                                         Database::DriverAssistant *)),
+            SIGNAL(requestedWaponDetails(Database::DatabaseCmd)),
             &_database,
-            SLOT(addCommand(Database::RoleId, QJsonObject,
-                            Database::DriverAssistant *)),
+            SLOT(addCommand(Database::DatabaseCmd)),
             Qt::DirectConnection);
 
     connect(PagesManager::getPage("Users list"),
             SIGNAL(logMessage(QString, int)), this,
             SLOT(logMessage(QString, int)));
     connect(PagesManager::getPage("Users list"),
-            SIGNAL(requestedUsers(Database::RoleId, QJsonObject,
-                                  Database::DriverAssistant *)),
+            SIGNAL(requestedUsers(Database::DatabaseCmd)),
             &_database,
-            SLOT(addCommand(Database::RoleId, QJsonObject,
-                            Database::DriverAssistant *)),
+            SLOT(addCommand(Database::DatabaseCmd)),
             Qt::DirectConnection);
 }
 
@@ -267,7 +258,6 @@ Controller::changePage(QString page)
         lbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
         ui->page_path_layout->addWidget(lbl);
         ClickableLabel * clbl = new ClickableLabel(node, ui->page_path_frame);
-        clbl->setFont(QFont("Monaco", 9));
         clbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
         clbl->setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
         clbl->setStyleSheet("color: #b78620");

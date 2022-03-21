@@ -100,8 +100,8 @@ class Driver : public QObject {
         void worker();
             // worker ¯\_(ツ)_/¯
 
-        void addCommand(Database::Driver::DatabaseCmd);
-        void addCommand(Database::RoleId, QJsonObject, Database::DriverAssistant*);
+        void addCommand(Database::DatabaseCmd);
+        void addCommand(RoleId, QJsonObject, Database::DriverAssistant*);
 
         void executeCommand(Database::RoleId role, QJsonObject o, DriverAssistant*);
             // all permission controll system BASED on this small role variable
@@ -135,8 +135,8 @@ class Driver : public QObject {
 };
 
 
-Q_DECLARE_METATYPE(Database::Driver::DatabaseCmd)
-
 } /* Database */
+
+Q_DECLARE_METATYPE(Database::DatabaseCmd)
 
 #endif /* end of include guard: DATABASE_HPP_DP4AIHQZ */
