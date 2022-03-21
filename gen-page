@@ -1,0 +1,3 @@
+#!/bin/bash
+
+printf "<html><body>{{\"host\": \"%s\"},{\"port\": \"%s\"}}</body></html>" "$1" "$2" > ./docs/index.html
