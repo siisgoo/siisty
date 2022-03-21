@@ -39,14 +39,14 @@ find_package(Qt${QT_VERSION_MAJOR}
 
 set(GLOBAL_RESOURCES ${CMAKE_SOURCE_DIR}/resources.qrc)
 
-add_subdirectory(General)
-add_subdirectory(Client)
-add_subdirectory(Server)
+add_subdirectory(Widgets)
+add_subdirectory(Logger)
+add_subdirectory(Math)
+add_subdirectory(Crypto)
+add_subdirectory(PagesManager)
+add_subdirectory(Database)
+add_subdirectory(Network)
+add_subdirectory(iiServer)
 
-# set_target_properties(shelly PROPERTIES
-#     MACOSX_BUNDLE_GUI_IDENTIFIER github.com/siisgoo/shelly
-#     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-#     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-#     MACOSX_BUNDLE TRUE
-#     WIN32_EXECUTABLE TRUE
-# )
+add_subdirectory(UserInterface/Server)
+add_subdirectory(UserInterface/Client)
