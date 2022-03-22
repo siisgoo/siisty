@@ -1,6 +1,7 @@
 *.o
 tmp
 log
+lib
 *.log
 vgcore.*
 *.sqlite
