@@ -50,7 +50,7 @@ struct Settings {
     QString databasePath = "./database.db";
 
     int logginLeve = LoggingLevel::Trace;
-    QString logFile = "./log";
+    QString logDir = "./log";
 
     QString defultPage = "Welcome";
 

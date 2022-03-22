@@ -81,30 +81,14 @@ target_include_directories(${PROJECT_NAME}
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-# install(
-#     TARGETS ${PROJECT_NAME}
-#     RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/${OUTPUT_NAME}
-# )
+install(
+    TARGETS ${PROJECT_NAME}
+    RUNTIME DESTINATION ${BINARY_DIR}/Client
+)
 
-# set(SO_OUTPUT_DIR "${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/${OUTPUT_NAME}/lib")
-
-# add_custom_command(
-#     TARGET ${PROJECT_NAME} POST_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#     $<TARGET_FILE:Qt6::Core>
-#     ${SO_OUTPUT_DIR}/$<TARGET_FILE_NAME:Qt6::Core>
-# )
-
-# add_custom_command(
-#     TARGET ${PROJECT_NAME} POST_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#     $<TARGET_FILE:Qt6::Widgets>
-#     ${SO_OUTPUT_DIR}/$<TARGET_FILE_NAME:Qt6::Widgets>
-# )
-
-# add_custom_command(
-#     TARGET ${PROJECT_NAME} POST_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#     $<TARGET_FILE:Qt6::Network>
-#     ${SO_OUTPUT_DIR}/$<TARGET_FILE_NAME:Qt6::Network>
-# )
+get_target_property(DEPS ${PROJECT_NAME} LINK_LIBRARIES)
+foreach (DEP ${DEPS})
+    install(
+        FILES $<TARGET_FILE:${DEP}>
+        DESTINATION ${BINARY_DIR}/Client/lib)
+endforeach()

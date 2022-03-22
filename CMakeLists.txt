@@ -39,6 +39,8 @@ find_package(Qt${QT_VERSION_MAJOR}
 
 set(GLOBAL_RESOURCES ${CMAKE_SOURCE_DIR}/resources.qrc)
 
+set(BINARY_DIR ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
+
 add_subdirectory(Widgets)
 add_subdirectory(Logger)
 add_subdirectory(Math)

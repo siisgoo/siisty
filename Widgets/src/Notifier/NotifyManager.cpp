@@ -6,22 +6,20 @@
 
 NotifyManager::NotifyManager(QWidget * mainWindow,
                              QMargins margins,
-                             QSize itemSize,
+                             QSize itemHints,
                              int maxActive,
-                             int completeTimeout,
-                             StackType stacking,
+                             StackDirection direction,
                              QObject * parent)
     : QObject(parent),
         _win(mainWindow),
         _margins(margins),
-        _spacing(2),
-        _activationDur(1500),
-        _diactivationDur(1000),
-        _completeTimeout(completeTimeout),
-        _stack(stacking),
+        _spacing(1),
+        _activationDur(800),
+        _diactivationDur(1300),
+        _stackDir(direction),
         _maxActiveItems(maxActive),
         _hideOnClick(true),
-        _imtSize(itemSize)
+        _itemHints(itemHints)
 {
     _winSize = _win->size();
     connect(this, SIGNAL(windowResized(QResizeEvent*)), this, SLOT(reorganize()));
@@ -66,7 +64,7 @@ NotifyManager::createNotifyItem(NotifyItemFactory * factory, int& uid)
 
         factory->setActivationDuration(_activationDur);
         factory->setDiactivationDuration(_diactivationDur);
-        factory->setMinimumSize(_imtSize);
+        factory->setSizeHints(_itemHints);
         NotifyItem * item = factory->produce(_win);
 
         _items[uid] = item;
@@ -74,8 +72,8 @@ NotifyManager::createNotifyItem(NotifyItemFactory * factory, int& uid)
         item->setUID(uid);
         item->activate(NextPosition(activeItemsCount()-1));
 
-        connect(item, SIGNAL(clicked()), this, SLOT(hideItem()));
-        connect(item, SIGNAL(completed()), this, SLOT(on_itemCompleted()));
+        connect(item, SIGNAL(clicked()),     this, SLOT(hideItem()));
+        connect(item, SIGNAL(completed()),   this, SLOT(removeItem()));
         connect(item, SIGNAL(diactivated()), this, SLOT(reorganize()));
     }
     reorganize();
@@ -121,7 +119,7 @@ NotifyManager::findMaxItemWidth()
             continue;
           }
         if (itm->sizeHint().width() > w) {
-            w = std::max(_imtSize.width(), itm->sizeHint().width());
+            w = std::max(_itemHints.width(), itm->sizeHint().width());
         }
     }
 
@@ -140,7 +138,7 @@ NotifyManager::NextPosition(int i)
     const int winw = _winSize.width(),
               winh = _winSize.height(),
               itmw = _prevMaxWidth,
-              itmh = _imtSize.height();
+              itmh = _itemHints.height();
     QPoint pos = {winw - itmw - _margins.right(), // first item pos
                   winh - itmh - _margins.bottom() };
 
@@ -173,25 +171,17 @@ NotifyManager::activeItems(std::function<bool(NotifyItem*)> filter) const
 int NotifyManager::itemsCount() { return _items.count(); }
 
 void
-NotifyManager::on_itemCompleted()
-{
-    NotifyItem * item = dynamic_cast<NotifyItem *>(sender());
-    QTimer::singleShot((item->completeTimeout() ? item->completeTimeout() : _completeTimeout), [this, item]() {
-        connect(item, SIGNAL(diactivated()), this, SLOT(removeItem()), Qt::SingleShotConnection);
-        item->diactivate();
-    });
-}
-
-void
 NotifyManager::removeItem()
 {
     NotifyItem * item = dynamic_cast<NotifyItem *>(sender());
-    {
-        QMutexLocker lock(&_mtx);
-        _items.remove(item->UID());
-        delete item;
-    }
-    reorganize();
+    QTimer::singleShot(item->completeTimeout(), [this, item]() {
+        {
+            QMutexLocker lock(&_mtx);
+            _items.remove(item->UID());
+            delete item;
+        }
+        reorganize();
+    });
 }
 
 void

@@ -24,7 +24,6 @@ userInterface::userInterface(const Settings& settings, QWidget* _parent)
                 QMargins(0, 0, 2, ui->statusbar->size().height() + 2),
                 {120, 40},
                 -1,
-                3000,
                 NotifyManager::StackAbove);
         connect(this, SIGNAL(resized(QResizeEvent*)), _notifier, SIGNAL(windowResized(QResizeEvent*)));
         connect(this,

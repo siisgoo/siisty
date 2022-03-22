@@ -13,7 +13,7 @@ Controller::Controller(Settings settings, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Controller),
         _settings(settings),
-        _log(_settings.logginLeve, "siisty-server", nullptr),
+        _log(_settings.logginLeve, "siisty-server", _settings.logDir, nullptr),
         _server(nullptr),
         _database(_settings.databasePath)
 {
@@ -42,7 +42,6 @@ Controller::Controller(Settings settings, QWidget *parent)
                 QMargins(0, 0, 2, ui->statusbar->size().height() + 2),
                 {120, 40},
                 10,
-                3000,
                 NotifyManager::StackAbove);
         connect(this, SIGNAL(resized(QResizeEvent*)), _notifier, SIGNAL(windowResized(QResizeEvent*)));
         connect(this,

@@ -35,9 +35,7 @@ logger::openLogFile()
 
     if (!QDir(dir).exists()) {
         QFileInfo dir_info(dir);
-        if (dir_info.isWritable()) {
-            QDir().mkdir(dir);
-        } else {
+        if (!dir_info.isWritable() && !QDir().mkdir(dir)) {
             throw "Cannot create log in " + dir; //TODO
         }
     }

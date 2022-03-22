@@ -42,7 +42,7 @@ endif()
 
 target_link_libraries(
     ${PROJECT_NAME}
-    PUBLIC
+    PRIVATE
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Network
@@ -63,8 +63,10 @@ endif()
 #  setting project properties  #
 ################################
 
+set(OUTPUT_NAME "siisty-Server")
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
-    OUTPUT_NAME    "siisty-Server"
+    OUTPUT_NAME    ${OUTPUT_NAME}
     SUFFIX         ""
     PREFIX         ""
     VERSION        "${PROJECT_VERSION}"
@@ -83,28 +85,14 @@ target_include_directories(${PROJECT_NAME}
 #  installing files  #
 ######################
 
-# install(
-#     TARGETS ${PROJECT_NAME}
-#     RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/${PROJECT_NAME}
-# )
+install(
+    TARGETS ${PROJECT_NAME}
+    RUNTIME DESTINATION ${BINARY_DIR}/Server
+)
 
-# add_custom_command(
-#     TARGET ${PROJECT_NAME} POST_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#     $<TARGET_FILE:Qt6::Core>
-#     ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/${PROJECT_NAME}
-# )
-
-# add_custom_command(
-#     TARGET ${PROJECT_NAME} POST_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#     $<TARGET_FILE:Qt6::Widgets>
-#     ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/${PROJECT_NAME}
-# )
-
-# add_custom_command(
-#     TARGET ${PROJECT_NAME} POST_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#     $<TARGET_FILE:Qt6::Network>
-#     ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/${PROJECT_NAME}
-# )
+get_target_property(DEPS ${PROJECT_NAME} LINK_LIBRARIES)
+foreach (DEP ${DEPS})
+    install(
+        FILES $<TARGET_FILE:${DEP}>
+        DESTINATION ${BINARY_DIR}/Server/lib)
+endforeach()

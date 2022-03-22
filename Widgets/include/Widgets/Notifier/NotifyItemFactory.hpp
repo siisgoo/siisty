@@ -15,7 +15,7 @@ class NotifyItemFactory {
         void setCompleteTimeout(int ms);
         void setActivationDuration(int ms);
         void setDiactivationDuration(int ms);
-        void setMinimumSize(const QSize&);
+        void setSizeHints(const QSize&);
 
     protected:
         QString _title = "No title";

@@ -18,7 +18,7 @@ class NotifyProgressItem : public NotifyItem {
                         int completeTmeout,
                         int activationDuration,
                         int diactivationDuration,
-                        QSize = {160, 42}, QWidget* p = nullptr);
+                        QSize = {160, 40}, QWidget* p = nullptr);
      ~NotifyProgressItem();
 
     Q_SIGNALS:

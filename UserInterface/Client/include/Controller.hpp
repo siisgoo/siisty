@@ -33,7 +33,7 @@ struct Settings {
     QString keyPath = "./key.pem";
 
     int logginLeve = LoggingLevel::Trace;
-    QString logDir = "./";
+    QString logDir = "./log";
 
     int maxThreads = QThread::idealThreadCount();
 };

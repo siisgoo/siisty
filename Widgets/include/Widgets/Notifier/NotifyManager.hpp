@@ -20,17 +20,22 @@ class NotifyManager : public QObject {
     /* Q_PROPERTY(int maxItemWidth MEMBER _prevMaxWidth NOTIFY maxWidthChanged) */
 
     public:
-        enum StackType {
+        // TODO
+        enum StackDirection {
             StackAbove,
             StackUnder,
+        };
+
+        // TODO
+        enum DockArea {
+            DockLeft,
         };
 
         explicit NotifyManager(QWidget* mainWindow,
                                QMargins margins,
                                QSize _itemSize,
-                               int maxActive = 5,
-                               int diactivationTimeout = 3000,
-                               StackType stacking = StackAbove,
+                               int maxVisible = 5, //  TODO
+                               StackDirection stacking = StackAbove,
                                QObject* p = nullptr);
         virtual ~NotifyManager();
 
@@ -68,7 +73,6 @@ class NotifyManager : public QObject {
         void reorganize();
         void resizeItems(int width);
         void hideItem();
-        void on_itemCompleted();
         void removeItem();
 
     private:
@@ -84,12 +88,11 @@ class NotifyManager : public QObject {
         int _prevMaxWidth = 0;
 
         bool _hideOnClick;
-        QSize _imtSize;
-            // height is fixed
-            // width - can be variabled
-        StackType _stack;
+        QSize _itemHints;
+            // width - maximum avalible width
+            // height - fixed item height
+        StackDirection _stackDir;
         int _maxActiveItems;
-        int _completeTimeout = 3000;
         int _activationDur;
         int _diactivationDur;
 };

@@ -16,7 +16,7 @@ class NotifyItem : public QFrame {
     Q_PROPERTY(QString title WRITE setTitle)
     Q_PROPERTY(NotifyLevel level MEMBER _notifyLevel READ notifyLevel WRITE setNotifyLevel)
     Q_PROPERTY(int completeTimeout MEMBER _completeTimeout READ completeTimeout WRITE setCompleteTimeout)
-    Q_PROPERTY(NotifyLevel forceComplete WRITE forseComplete)
+    Q_PROPERTY(NotifyLevel forceComplete WRITE forceComplete)
 
     public:
         enum NotifyLevel {
@@ -56,12 +56,13 @@ class NotifyItem : public QFrame {
         void completed(); // diactivated
 
     public Q_SLOTS:
-        void forseComplete(NotifyLevel);
+        void activate(const QPoint& pos);
+        void diactivate();
+        void forceComplete(NotifyLevel = NotifySuccess);
+
         void setCompleteTimeout(int ms);
         void setNotifyLevel(NotifyLevel);
         void setTitle(const QString&);
-        void activate(const QPoint& pos);
-        void diactivate();
 
     protected Q_SLOTS:
         void setSchemeByType(NotifyLevel);

@@ -28,8 +28,8 @@ NotifyItem::NotifyItem(const QString& title,
 
     this->setWindowFlag(Qt::WindowType::Widget);
     this->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Fixed);
-    /* this->setFixedHeight(minSize.height()); */
-    this->setMaximumSize(500, _minSize.height());
+    this->setMinimumSize(minSize.width(), _minSize.height());
+    this->setMaximumSize(this->parentWidget()->size().width() * 0.2, _minSize.height());
 
     _title = new QLabel(title, this);
     _title->setAlignment(Qt::AlignHCenter);
@@ -47,6 +47,10 @@ NotifyItem::NotifyItem(const QString& title,
     this->adjustSize();
 
     this->setSchemeByType(notifyLevel);
+
+    if (_completeTimeout > 0) {
+        QTimer::singleShot(_completeTimeout, this, SLOT(forceComplete()));
+    }
 }
 
 NotifyItem::~NotifyItem()
@@ -57,8 +61,9 @@ NotifyItem::~NotifyItem()
 }
 
 void
-NotifyItem::forseComplete(NotifyLevel l)
+NotifyItem::forceComplete(NotifyLevel l)
 {
+    _completeTimeout = 0;
     setSchemeByType(l);
     diactivate();
     connect(this, SIGNAL(diactivated()), this, SIGNAL(completed()));
@@ -86,14 +91,14 @@ void NotifyItem::setUID(int uid) { _uid = uid; }
 int NotifyItem::UID() { return _uid; }
 
 NotifyItem::NotifyLevel NotifyItem::notifyLevel() const { return _notifyLevel; }
-bool NotifyItem::isOnDiactivation() const             { return _diactivating; }
-bool NotifyItem::isOnActivation() const               { return _activating; }
-bool NotifyItem::isNotActivated() const               { return _notActivated; }
-int  NotifyItem::completeTimeout() const              { return _completeTimeout; }
+bool NotifyItem::isOnDiactivation() const               { return _diactivating; }
+bool NotifyItem::isOnActivation() const                 { return _activating; }
+bool NotifyItem::isNotActivated() const                 { return _notActivated; }
+int  NotifyItem::completeTimeout() const                { return _completeTimeout; }
 
-void NotifyItem::setTitle(const QString& title) { _title->setText(title); adjustSize(); }
+void NotifyItem::setTitle(const QString& title)   { _title->setText(title); adjustSize(); }
 void NotifyItem::setNotifyLevel(NotifyLevel type) { _notifyLevel = type; setSchemeByType(type); }
-void NotifyItem::setCompleteTimeout(int ms) { _completeTimeout = ms; }
+void NotifyItem::setCompleteTimeout(int ms)       { _completeTimeout = ms; }
 
 void NotifyItem::setActive() { _activating = false; }
 
@@ -156,9 +161,3 @@ NotifyItem::mousePressEvent(QMouseEvent * e)
         Q_EMIT clicked();
     }
 }
-
-/* void */
-/* NotifyItem::resizeEvent(QResizeEvent*) */
-/* { */
-
-/* } */
