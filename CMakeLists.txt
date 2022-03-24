@@ -51,4 +51,4 @@ add_subdirectory(Network)
 add_subdirectory(iiServer)
 
 add_subdirectory(UserInterface/Server)
-add_subdirectory(UserInterface/Client)
+# add_subdirectory(UserInterface/Client)

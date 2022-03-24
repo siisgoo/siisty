@@ -1,9 +1,9 @@
-project(ServerGUI LANGUAGES CXX VERSION 0.9.2 DESCRIPTION "siisty Server GUI")
+project(Server LANGUAGES CXX VERSION 0.9.2 DESCRIPTION "siisty Server GUI")
 
-set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/src/Ui
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Ui/Pages
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Ui/ControlPannel
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Ui/Users)
+set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/Ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/Ui/Pages
+    ${CMAKE_CURRENT_SOURCE_DIR}/Ui/ControlPannel
+    ${CMAKE_CURRENT_SOURCE_DIR}/Ui/Users)
 
 #####################
 #  finding sources  #

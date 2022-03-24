@@ -1,42 +1,103 @@
 #ifndef PAGESMANAGER_HPP_AC3HJAY0
 #define PAGESMANAGER_HPP_AC3HJAY0
 
+#include <QLabel>
+#include <QPushButton>
+#include <QLayout>
+#include <QMainWindow>
+#include <QStackedWidget>
 #include <QPair>
 #include <QDebug>
 #include <QMap>
 #include <QWidget>
 #include <QString>
 
-class PagesManager {
-    private:
-        PagesManager();
-        PagesManager(const PagesManager&) = delete;
-        PagesManager& operator = (const PagesManager&) = delete;
-
-        struct Page {
-            QWidget * widget;
-            int navId;
-            QVector<QString> edges;
-        };
-
-        QList<Page> _pages;
-        QString _root;
+class NavFrame : public QFrame {
+    Q_OBJECT
 
     public:
+     NavFrame(const QVector<QString>& pages, bool createBack = true,
+              QWidget* p = nullptr);
+     virtual ~NavFrame();
 
-        static PagesManager&  instance();
+    Q_SIGNALS:
+        void clicked(QString);
 
-        static int pages();
-        static void addRoot(const QString& accessName, QWidget*, int nav,
-                            const QVector<QString>& edges = {});
-        static void addPage(const QString& accessName, QWidget*, int nav,
-                            const QVector<QString>& edges = {});
-        static QWidget* getPage(const QString& name);
-        static int getPageNav(const QString& name);
-        static QVector<QString> getPagePath(const QString& name);
-        /* static QWidget * getPage(const int n); */
+    private:
+        QVBoxLayout * _layout;
 
-        ~PagesManager();
+};
+
+class NavWidget : public QStackedWidget {
+    Q_OBJECT
+
+    public:
+        NavWidget(QWidget * p = nullptr);
+        virtual ~NavWidget();
+
+        int addNav(const QVector<QString>& pages, bool createBack = true);
+            // creates new nav frame in stack
+            // return nav page uid
+        void changeNav(int navUID);
+            // change current nav page index to navUID
+
+    Q_SIGNALS:
+        void clicked(QString);
+};
+
+class PagePathFrame : public QFrame {
+    Q_OBJECT
+
+    public:
+        PagePathFrame(QWidget * p = nullptr);
+        virtual ~PagePathFrame();
+
+        void changePath(const QVector<QString>& path);
+        void setDelemiter(const QString& d);
+
+    Q_SIGNALS:
+        void clicked(QString);
+
+    private:
+        QHBoxLayout * _layout;
+        QString _delemiter;
+};
+
+class PagesManager : public QFrame {
+    Q_OBJECT
+
+    private:
+        struct Page {
+            QWidget * widget = nullptr;
+            int navId = -1;
+            QVector<QString> edges = {};
+        };
+
+        QMap<QString, Page> _pages;
+        QString _root;
+
+        PagePathFrame * _pagePath;
+        NavWidget * _nav;
+        QStackedWidget * _view;
+        QVBoxLayout * _layout_main;
+        QHBoxLayout * _layout_sub;
+
+    public:
+        PagesManager(QWidget * p = nullptr);
+        virtual ~PagesManager();
+
+        int pages();
+        void addRoot(const QString& accessName, QWidget*,
+                     const QVector<QString>& edges = {});
+        void addPage(const QString& accessName, QWidget*,
+                     const QVector<QString>& edges = {});
+        void finalize();
+
+    public Q_SLOTS:
+        void changePage(QString);
+
+    private:
+        QVector<QString> pagePath(const QString& pageName);
 };
 
 #endif /* end of include guard: PAGESMANAGER_HPP_AC3HJAY0 */

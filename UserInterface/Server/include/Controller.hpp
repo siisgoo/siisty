@@ -78,8 +78,6 @@ class Controller : public QMainWindow
         void changeLoggingLeve(int level);
 
     private Q_SLOTS:
-        void setupPages();
-        void connectPages();
         void setupServer();
 
         void on_listeningStateChanged(QHostAddress, quint16, bool);
@@ -90,10 +88,6 @@ class Controller : public QMainWindow
             // command exec error
         void on_databaseInited();
         void on_databaseInitializationFailed(QSqlError e);
-
-        void on_pathNodeClicked();
-            // draw path
-        void changePage(QString);
 
         void changeIndicatorState(QHostAddress, quint16, bool);
         void logMessage(QString, int = LoggingLevel::Trace);
@@ -120,23 +114,9 @@ class Controller : public QMainWindow
         logger   _log;
         Database::Driver _database;
 
+        PagesManager * _pageman;
+
         NotifyManager * _notifier;
-
-        NotifyProgressItemFactory * f;
-        int item_uid1;
-        int item_uid2;
-        int item_uid3;
-        int item_uid4;
-
-        int i1 = 0;
-        int i2 = 0;
-        int i3 = 0;
-        int i4 = 0;
-
-        QTimer _timer1;
-        QTimer _timer2;
-        QTimer _timer3;
-        QTimer _timer4;
 
         QLedIndicator * _listenIndicator;
         Ui::Controller * ui;

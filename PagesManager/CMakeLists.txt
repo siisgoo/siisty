@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(PagesManager LANGUAGES CXX VERSION 0.4.0 DESCRIPTION "siisty GUI pages manager")
+project(PagesManager LANGUAGES CXX VERSION 0.6.0 DESCRIPTION "siisty GUI pages manager")
 
 #####################
 #  finding sources  #
@@ -42,6 +42,8 @@ target_link_libraries(
     PRIVATE
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Widgets
+        Widgets
+        Crypto
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
