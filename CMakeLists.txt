@@ -1,6 +1,5 @@
-cmake_minimum_required(VERSION 3.5)
-
-project(siisty VERSION 0.2 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.21)
+project(siisty)
 
 # set(default_build_type "Release")
 # if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
@@ -13,16 +12,14 @@ set(CMAKE_BUILD_TYPE "Debug")
 #########################
 
 SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-IF( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json"  )
-    EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
-    ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
-    )
+IF(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json")
+    EXECUTE_PROCESS(COMMAND
+        ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
+        ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json)
 ENDIF()
 
 include(PocoMacros.cmake)
-
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -39,16 +36,11 @@ find_package(Qt${QT_VERSION_MAJOR}
 
 set(GLOBAL_RESOURCES ${CMAKE_SOURCE_DIR}/resources.qrc)
 
+set(BUILD_SHARED_LIBS ON)
 set(BINARY_DIR ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
+set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib)
 
-add_subdirectory(Widgets)
-add_subdirectory(Logger)
-add_subdirectory(Math)
-add_subdirectory(Crypto)
-add_subdirectory(PagesManager)
-add_subdirectory(Database)
-add_subdirectory(Network)
-add_subdirectory(iiServer)
+add_subdirectory(libs)
 
-add_subdirectory(UserInterface/Server)
-# add_subdirectory(UserInterface/Client)
+add_subdirectory(Client)
+add_subdirectory(Server)
