@@ -21,7 +21,7 @@
 #include "Widgets/Notifier/NotifyMsgItem.hpp"
 #include "Widgets/Notifier/NotifyMsgItemFactory.hpp"
 
-#include "Pages/Login.hpp"
+#include "Login.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Controller; }
@@ -66,9 +66,8 @@ class userInterface : public QMainWindow {
         void showLogin();
 
         void on_conneted();
-        void on_disconnetWhenLogin();
         void on_logined(QString name, int role, int id);
-        void on_login_failed(int, QString);
+        void on_loginFailed(int, QString);
         void on_logouted();
 
         void logMessage(QString _message, int);

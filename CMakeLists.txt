@@ -40,7 +40,14 @@ set(BUILD_SHARED_LIBS ON)
 set(BINARY_DIR ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib)
 
-add_subdirectory(libs)
+FILE(GLOB libMakeFiles RELATIVE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/*/CMakeLists.txt
+)
+foreach (f ${libMakeFiles})
+    get_filename_component(dir ${f} DIRECTORY)
+    add_subdirectory(${dir})
+endforeach()
 
 add_subdirectory(Client)
 add_subdirectory(Server)

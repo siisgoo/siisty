@@ -83,10 +83,10 @@ qint64  SslClientBase::bytesAvailable() const { return _control->bytesAvailable(
 qint64  SslClientBase::bytesToWrite() const   { return _control->bytesToWrite(); }
 
 bool SslClientBase::waitForBytesWritten(int msecs) { return _control->waitForBytesWritten(msecs); }
-/* bool SslClientBase::waitForConnected(int msecs = 30000) */
+bool SslClientBase::waitForConnected(int msecs) { return _control->waitForConnected(msecs); }
 /* bool SslClientBase::waitForDisconnected(int msecs = 30000) */
 /* bool SslClientBase::waitForReadyRead(int msecs = 30000) */
-/* bool SslClientBase::waitForEncrypted(int msecs = 30000) */
+bool SslClientBase::waitForEncrypted(int msecs) { return _control->waitForEncrypted(msecs); }
 
 bool SslClientBase::isEncrypted() const { return _control->isEncrypted(); }
 

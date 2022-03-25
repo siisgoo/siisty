@@ -1,7 +1,6 @@
 #ifndef SERVICE_HPP_CBPTLJJQ
 #define SERVICE_HPP_CBPTLJJQ
 
-#include <QObject>
 #include <QString>
 #include <QHostAddress>
 

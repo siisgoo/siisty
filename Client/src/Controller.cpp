@@ -3,6 +3,8 @@
 
 #include "PagerPresets.hpp"
 
+#include <QMessageBox>
+
 #include <QTimer>
 #include <qnamespace.h>
 #include <qssl.h>
@@ -16,7 +18,7 @@ userInterface::userInterface(const Settings& settings, QWidget* _parent)
 {
     ui->setupUi(this);
 
-    connect(ui->actionLogin,  SIGNAL(triggered()), this, SLOT(showLogin()));
+    /* connect(ui->actionLogin,  SIGNAL(triggered()), this, SLOT(showLogin())); */
     connect(ui->actionLogout, SIGNAL(triggered()), this, SLOT(on_actionLogoutTriggered()));
 
     {
@@ -67,10 +69,10 @@ userInterface::userInterface(const Settings& settings, QWidget* _parent)
         this->centralWidget()->layout()->addWidget(_pageman);
     }
 
-    // add check if saved auth data
-    QTimer::singleShot(100, [this](){ showLogin(); });
-
     _loggingThread.start();
+
+    // add check if saved auth data
+    pagerPresets[MAIN_PAGE_ID](this, _pageman, &_service);
 }
 
 userInterface::~userInterface()
@@ -102,6 +104,102 @@ userInterface::showLogin()
 
     }
     delete login;
+}
+
+void
+userInterface::tryLogin(ConnectSettings cs)
+{
+    NotifyProgressItemFactory npf;
+    npf.setTitle("Connecting to host");
+    npf.setExitOnCompleted(false);
+    npf.setMaximum(0);
+    _notifier->createNotifyItem(&npf, _login_puid);
+    _notifier->setItemPropery(_login_puid, "progress", 0);
+
+    _conn_s = cs;
+    saveAuth();
+
+    connect(&_service, SIGNAL(loginFailed(int, QString)),
+            this, SLOT(on_loginFailed(int, QString)),
+            Qt::SingleShotConnection);
+    connect(&_service, SIGNAL(disconnected()), this, SLOT());
+
+    if (cs.protocol > 0) { // QSsl::Protocol::NoProtocol
+        connect(&_service, SIGNAL(encrypted()), this, SLOT(on_conneted()), Qt::SingleShotConnection);
+        _service.connectToHostEncrypted(cs.host.toString(), cs.port);
+    } else {
+        connect(&_service, SIGNAL(connected()), this, SLOT(on_conneted()), Qt::SingleShotConnection);
+        _service.connectToHost(cs.host, cs.port);
+    }
+    if (!_service.waitForConnected()) {
+        on_loginFailed(-1, "Connection Timeout");
+    }
+}
+
+void
+userInterface::on_conneted()
+{
+    _notifier->setItemPropery(_login_puid, "title", "Trying sing up");
+    connect(&_service, SIGNAL(loginSuccess(QString, int, int)), this,
+            SLOT(on_logined(QString, int, int)), Qt::SingleShotConnection);
+    _service.login(_conn_s.login, _conn_s.password);
+}
+
+void
+userInterface::on_logined(QString name, int role, int id)
+{
+    _notifier->setItemPropery(_login_puid, "title", "Logined");
+    QTimer::singleShot(2000, [this]() {
+        _notifier->setItemPropery(_login_puid, "forseComplete", NotifyItem::NotifySuccess);
+    });
+    ui->actionLogin->setEnabled(false);
+    ui->actionLogout->setEnabled(true);
+
+    qDebug() << role;
+    qDebug() << name;
+    pagerPresets[role](this, _pageman, &_service);
+}
+
+void
+userInterface::on_loginFailed(int err, QString str)
+{
+    Q_EMIT logMessage(
+        "Login failed. Error code: " + QString::number(err) + " Reason: " + str, Error);
+    _notifier->setItemPropery(_login_puid, "title", "Login failed");
+    _notifier->setItemPropery(_login_puid, "maxProgress", 1);
+    _notifier->setItemPropery(_login_puid, "progress", 1);
+    QTimer::singleShot(7000, [this]() {
+        _notifier->setItemPropery(_login_puid, "forseComplete", NotifyItem::NotifySuccess);
+    });
+    ui->actionLogin->setEnabled(true);
+    ui->actionLogout->setEnabled(false);
+
+    qDebug() << "error";
+}
+
+void
+userInterface::on_logouted()
+{
+    ui->actionLogin->setEnabled(true);
+    ui->actionLogout->setEnabled(false);
+
+    pagerPresets[MAIN_PAGE_ID](this, _pageman, &_service);
+}
+
+void
+userInterface::on_actionLogoutTriggered()
+{
+    _service.disconnectFromHost();
+    // update ui
+    pagerPresets[MAIN_PAGE_ID](this, _pageman, &_service);
+}
+
+void
+userInterface::logMessage(QString _message, int level)
+{
+    qDebug() << _message;
+
+    Q_EMIT send_to_log(_message, level);
 }
 
 void
@@ -166,107 +264,4 @@ userInterface::readAuth()
     _conn_s.password = obj["password"].toString();
     _conn_s.rememberLogin = obj["rememberLogin"].toBool();
     _conn_s.rememberPassword = obj["rememberPassword"].toBool();
-}
-
-void
-userInterface::tryLogin(ConnectSettings cs)
-{
-    NotifyProgressItemFactory npf;
-    npf.setTitle("Connecting to host");
-    npf.setCompleteTimeout(2000);
-    npf.setExitOnCompleted(false);
-    npf.setMaximum(0);
-    _notifier->createNotifyItem(&npf, _login_puid);
-    _notifier->setItemPropery(_login_puid, "progress", 0);
-
-    _conn_s = cs;
-    saveAuth();
-
-    connect(&_service, SIGNAL(loginFailed(int, QString)),
-            this, SLOT(on_login_failed(int, QString)),
-            Qt::SingleShotConnection);
-
-    connect(&_service, SIGNAL(disconnected()),
-            this, SLOT(on_disconnetWhenLogin()),
-            Qt::SingleShotConnection);
-
-    if (cs.protocol > 0) { // QSsl::Protocol::NoProtocol
-        connect(&_service, SIGNAL(encrypted()), this, SLOT(on_conneted()), Qt::SingleShotConnection);
-        _service.connectToHostEncrypted(cs.host.toString(), cs.port);
-    } else {
-        connect(&_service, SIGNAL(connected()), this, SLOT(on_conneted()), Qt::SingleShotConnection);
-        _service.connectToHost(cs.host, cs.port);
-    }
-}
-
-void
-userInterface::on_conneted()
-{
-    _notifier->setItemPropery(_login_puid, "title", "Trying sing up");
-    connect(&_service, SIGNAL(loginSuccess(QString, int, int)), this,
-            SLOT(on_logined(QString, int, int)), Qt::SingleShotConnection);
-    _service.login(_conn_s.login, _conn_s.password);
-}
-
-void
-userInterface::on_disconnetWhenLogin()
-{
-    _notifier->setItemPropery(_login_puid, "title", "Host not avalible"); //TODO...
-    QTimer::singleShot(2000, [this]() {
-        _notifier->setItemPropery(_login_puid, "forseComplete", NotifyItem::NotifyError);
-    });
-}
-
-void
-userInterface::on_logined(QString name, int role, int id)
-{
-    _notifier->setItemPropery(_login_puid, "title", "Logined");
-    QTimer::singleShot(2000, [this]() {
-        _notifier->setItemPropery(_login_puid, "forseComplete", NotifyItem::NotifySuccess);
-    });
-    ui->actionLogin->setEnabled(false);
-    ui->actionLogout->setEnabled(true);
-
-    qDebug() << role;
-    qDebug() << name;
-    pagerPresets[role](_pageman);
-}
-
-void
-userInterface::on_login_failed(int err, QString str)
-{
-    Q_EMIT logMessage(
-        "Login failed. Error code: " + QString::number(err) + " Reason: " + str, Error);
-    _notifier->setItemPropery(_login_puid, "title", "Login failed");
-    _notifier->setItemPropery(_login_puid, "maxProgress", 1);
-    _notifier->setItemPropery(_login_puid, "progress", 1);
-    QTimer::singleShot(2000, [this]() {
-        _notifier->setItemPropery(_login_puid, "forseComplete", NotifyItem::NotifySuccess);
-    });
-    ui->actionLogin->setEnabled(true);
-    ui->actionLogout->setEnabled(false);
-    showLogin();
-}
-
-void
-userInterface::on_logouted()
-{
-    ui->actionLogin->setEnabled(true);
-    ui->actionLogout->setEnabled(false);
-    showLogin();
-}
-
-void
-userInterface::on_actionLogoutTriggered()
-{
-    _service.disconnectFromHost();
-    // update ui
-}
-
-void
-userInterface::logMessage(QString _message, int level)
-{
-    qDebug() << _message;
-
-    Q_EMIT send_to_log(_message, level);
 }
