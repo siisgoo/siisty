@@ -4,7 +4,7 @@
 #include <QAction>
 #include <qnamespace.h>
 
-UsersList::UsersList(const QVector<Database::Driver::role_set>& roles, QWidget *parent)
+UsersList::UsersList(const QMap<Database::RoleId, Database::Driver::role_set>& roles, QWidget *parent)
     : QWidget(parent),
     ui(new Ui::UsersList),
         _usersWaiter(new Database::DriverAssistant),
@@ -72,7 +72,7 @@ UsersList::on_usersLoaded(QJsonObject obj)
 
         ui->users_table->setItem(row, ID,   new QTableWidgetItem(QString::number(cur["id"].toInt())));
         ui->users_table->setItem(row, NAME, new QTableWidgetItem(cur["name"].toString()));
-        ui->users_table->setItem(row, ROLE, new QTableWidgetItem(_roles[cur["role"].toInteger()+1].name));
+        ui->users_table->setItem(row, ROLE, new QTableWidgetItem(_roles[(Database::RoleId)cur["role"].toInteger()].name));
 
         /* ui->users_table->itemAt(row, ROLE)->setData(Qt::DisplayRole, _roles[cur["role"].toInteger()].id); // first is AUTO => skip */
         row++;

@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
 
     Settings settings;
 
-    userInterface theUserInterface(settings);
+    Controller theUserInterface(settings);
 
     theUserInterface.show();
     return app.exec();

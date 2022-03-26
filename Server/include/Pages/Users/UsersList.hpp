@@ -22,7 +22,7 @@ class UsersList : public QWidget {
         };
 
     public:
-     explicit UsersList(const QVector<Database::Driver::role_set>& roles,
+     explicit UsersList(const QMap<Database::RoleId, Database::Driver::role_set>& roles,
                         QWidget *parent = nullptr);
      ~UsersList();
 
@@ -46,7 +46,7 @@ class UsersList : public QWidget {
     private:
         Database::DriverAssistant * _usersWaiter;
 
-        const QVector<Database::Driver::role_set>& _roles;
+        const QMap<Database::RoleId, Database::Driver::role_set>& _roles;
 
         Ui::UsersList *ui;
 };

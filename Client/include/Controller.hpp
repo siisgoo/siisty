@@ -40,21 +40,21 @@ struct Settings {
     int maxThreads = QThread::idealThreadCount();
 };
 
-class userInterface : public QMainWindow {
+class Controller : public QMainWindow {
     Q_OBJECT
 
     public:
-        userInterface(const Settings&, QWidget *parent = NULL);
+        Controller(const Settings&, QWidget *parent = NULL);
 
-        virtual ~userInterface();
+        int userId() const;
+
+        virtual ~Controller();
 
     Q_SIGNALS:
         void send_to_log(QString message, int level);
         void createNotifyItem(NotifyItemFactory*, int&);
         void setNotifyItemPropery(int, const QByteArray&, const QVariant&);
         void resized(QResizeEvent*);
-
-        int userID() const;
 
     public Q_SLOTS:
         void on_actionLogoutTriggered();

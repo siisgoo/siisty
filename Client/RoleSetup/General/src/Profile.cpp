@@ -4,6 +4,8 @@
 
 #include "Database/Database.hpp"
 
+#include <QMessageBox>
+
 Profile::Profile(int userID, bool HideWapon, QWidget *parent) :
     QWidget(parent),
         ui(new Ui::Profile)
@@ -18,19 +20,41 @@ Profile::Profile(int userID, bool HideWapon, QWidget *parent) :
     ui->personaImage->setPixmap(pi.scaled(218, 218,
                                           Qt::AspectRatioMode::KeepAspectRatio,
                                           Qt::FastTransformation));
-    Q_EMIT loadPersonInfo(QJsonObject{{"command", Database::CMD_GET_USER_INFO},
-                                      {"arg", QJsonObject{{"id", userID}}}},
-                          _waiter);
+    _waiter = new ResponseWaiter(this);
+    connect(_waiter, SIGNAL(success(QJsonObject)), this, SLOT(personInfoLoaded(QJsonObject)));
+    connect(_waiter, SIGNAL(failed(int, QString)), this, SLOT(personInfoLoadFailed(int, QString)));
+    QTimer::singleShot(100, [this, userID] {
+        Q_EMIT loadPersonInfo(
+            QJsonObject{{"command", Database::CMD_GET_USER_INFO},
+                        {"arg", QJsonObject{{"id", userID}, {"takeImage", true}}}},
+            _waiter);
+    });
 }
 
 Profile::~Profile()
 {
+    delete _waiter;
     delete ui;
+}
+
+void
+Profile::personInfoLoadFailed(int n, QString errstr)
+{
+    QMessageBox errmsg(this);
+    errmsg.setIcon(QMessageBox::Critical);
+    errmsg.setText( "Cannot load profile info");
+    errmsg.setInformativeText(
+            "Error code: " + QString::number(n) + "\n"
+            "Reason: " + errstr);
+    errmsg.setDefaultButton(QMessageBox::Ok);
+    errmsg.exec();
 }
 
 void
 Profile::personInfoLoaded(QJsonObject data)
 {
+    qDebug() << data;
+
     ui->entryDate->setDate(
         QDateTime::fromSecsSinceEpoch(data["entryDate"].toInteger()).date());
     ui->personaName->setText(data["name"].toString());

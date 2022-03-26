@@ -25,7 +25,7 @@ class FileSystemModel : public QFileSystemModel {
         }
 };
 
-RegisterUser::RegisterUser(const QVector<Database::Driver::role_set>& roles, QWidget *parent)
+RegisterUser::RegisterUser(const QMap<Database::RoleId, Database::Driver::role_set>& roles, QWidget *parent)
     : QWidget(parent),
     ui(new Ui::RegisterUser),
         _dbRWaiter(new Database::DriverAssistant()),
@@ -62,6 +62,22 @@ RegisterUser::RegisterUser(const QVector<Database::Driver::role_set>& roles, QWi
     ui->entryDate_edit->setDate(QDate::currentDate());
 
     connect(ui->update_wapons, SIGNAL(clicked()), this, SLOT(requestWaponDetails()));
+
+    auto name = ui->name_edit;
+    auto login = ui->login_edit;
+    auto pass = ui->password_edit;
+    auto date = ui->entryDate_edit;
+    auto wapon = ui->wapon_cb;
+    auto role = ui->role_cb;
+    auto email = ui->email_edit;
+    auto image = ui->image_path_edit;
+    auto imagebtn = ui->openImageFile_btn;
+    auto accept = ui->register_buttons;
+
+    QVector<QWidget *> widgets{ name, login, pass, date, wapon, role, email, image, imagebtn, accept };
+    for (int i = 0; i < widgets.length()-1; ++i) {
+        ui->frame_2->setTabOrder(widgets[i], widgets[i+1]);
+    }
 
     /* requestWaponDetails(); */
     QTimer::singleShot(1000, [this](){ requestWaponDetails(); });

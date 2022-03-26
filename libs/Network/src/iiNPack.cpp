@@ -3,9 +3,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 
-const qsizetype iiNPack::HeaderSize =
-    sizeof(quint32) + sizeof(qint64)*2 + sizeof(quint8) + sizeof(quint8);
-
+const qsizetype iiNPack::HeaderSize = sizeof(quint32) + sizeof(qint64)*2 + sizeof(quint8)*2;
 //todo add conversion little-endian
 
 QByteArray

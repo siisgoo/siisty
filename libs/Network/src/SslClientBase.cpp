@@ -155,19 +155,11 @@ SslClientBase::dataAvailable()
             header.ClientStamp >>
             header.PacketType >>
             header.PacketLoadType;
-        if ((quint32)this->bytesAvailable() >= header.Size-iiNPack::HeaderSize)
-        {
-            QByteArray message(header.Size-iiNPack::HeaderSize, 0);
-            io.readRawData(message.data(), message.size());
+        QByteArray message(header.Size-iiNPack::HeaderSize, 0);
+        io.readRawData(message.data(), message.size());
 
-            Q_EMIT logMessage(tr("DEBUG: Recived Message"), Debug);
-            Q_EMIT recivedMessage(header, message);
-        }
-        else
-        {
-            Q_EMIT logMessage(tr("DEBUG: Failed to read message "
-                         "header. Only read %1 bytes").arg(header.Size-iiNPack::HeaderSize), Debug);
-        }
+        Q_EMIT logMessage(tr("DEBUG: Recived Message"), Debug);
+        Q_EMIT recivedMessage(header, message);
     }
     else
     {

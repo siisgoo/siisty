@@ -23,6 +23,7 @@ class Profile : public QWidget
 
     public Q_SLOTS:
         void personInfoLoaded(QJsonObject);
+        void personInfoLoadFailed(int, QString);
 
     private:
         Ui::Profile *ui;

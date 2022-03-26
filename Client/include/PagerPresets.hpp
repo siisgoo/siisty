@@ -27,9 +27,11 @@
 #include "RoleSetup/General/DutySchedule.hpp"
 #include "RoleSetup/General/PersonalAccounting.hpp"
 
-using pagemanSetuper = std::function<void(QMainWindow *, PagesManager *, Service *)>;
+#include "Controller.hpp"
 
-inline pagemanSetuper mainPage = [](QMainWindow * w, PagesManager * pm, Service *) {
+using pagemanSetuper = std::function<void(Controller *, PagesManager *, Service *)>;
+
+inline pagemanSetuper mainPage = [](Controller * w, PagesManager * pm, Service *) {
     pm->reset();
     QWidget * ml = new MainPage;
     pm->addRoot("Main", ml);
@@ -40,10 +42,14 @@ inline pagemanSetuper mainPage = [](QMainWindow * w, PagesManager * pm, Service 
     pm->finalize();
 };
 
-inline pagemanSetuper admin = [](QMainWindow * w, PagesManager * pm , Service * serv) {
+inline pagemanSetuper admin = [](Controller * w, PagesManager * pm , Service * serv) {
     pm->reset();
 
-    QWidget * profile = new Profile();
+    QWidget * profile = new Profile(w->userId());
+
+    w->connect(
+            profile, SIGNAL(loadPersonInfo(QJsonObject, ResponseWaiter *)),
+            serv, SLOT(sendCommand(QJsonObject, ResponseWaiter *)));
 
     pm->addRoot("Admin", new AdminMain, { "Profile", "Accidents", "Object types", "PSC Roles", "Users list", "Help" });
     pm->addPage("Profile", profile, { "Accounting", "Schedule" });
@@ -54,24 +60,22 @@ inline pagemanSetuper admin = [](QMainWindow * w, PagesManager * pm , Service * 
     pm->addPage("PSC Roles", new RoleManagment);
     pm->addPage("Users list", new UsersList);
 
-    profile->connect(profile, SIGNAL(loadPersonInfo(QJsonObject, ResponseWaiter*)), serv, SLOT(sendCommand(QJsonObject, ResponseWaiter *)));
-
     pm->finalize();
 };
 
-inline pagemanSetuper security = [](QMainWindow *, PagesManager * , Service *) {
+inline pagemanSetuper security = [](Controller *, PagesManager * , Service *) {
 };
 
-inline pagemanSetuper recruter = [](QMainWindow *, PagesManager * , Service *) {
+inline pagemanSetuper recruter = [](Controller *, PagesManager * , Service *) {
 };
 
-inline pagemanSetuper incosor = [](QMainWindow *, PagesManager * , Service *) {
+inline pagemanSetuper incosor = [](Controller *, PagesManager * , Service *) {
 };
 
-inline pagemanSetuper waponManager = [](QMainWindow *, PagesManager * , Service *) {
+inline pagemanSetuper waponManager = [](Controller *, PagesManager * , Service *) {
 };
 
-inline pagemanSetuper customer = [](QMainWindow *, PagesManager * , Service *) {
+inline pagemanSetuper customer = [](Controller *, PagesManager * , Service *) {
 };
 
 inline QMap<int, pagemanSetuper> pagerPresets{

@@ -25,7 +25,7 @@ Driver::Driver(const QString& path, QObject * p)
     #define XX(num, name, query) { TABLE_ ##name, QUOTE(name), query },
     _tables = { TABLES_MAP(XX) };
     #undef XX
-    #define XX(id, val, cmds) { ROLE_ ##val, QUOTE(val), cmds },
+    #define XX(id, val, cmds) { ROLE_ ##val, { ROLE_ ##val, QUOTE(val), cmds } },
     _roles = { ROLE_MAP(XX) };
     #undef XX
     #define XX(id, n, exe) { CMD_ ##n, QUOTE(n), exe },
@@ -100,11 +100,11 @@ Driver::insertDefaultsRoles()
 
     QSqlQuery q;
     bool deleted = false;
-    for (int i = 0; i < (int)RoleId::ROLES_COUNT; i++) {
-        if (_roles[i].id == ROLE_AUTO) {
+    for (int i = 0; i < ROLES_COUNT; i++) {
+        if (_roles[(RoleId)i].id == ROLE_AUTO) {
             continue;
         }
-        auto role = _roles[i];
+        auto role = _roles[(RoleId)i];
         q.prepare("SELECT * FROM Roles WHERE id = :id and name = :name");
         q.bindValue(":id", role.id);
         q.bindValue(":name", role.name);
@@ -196,7 +196,7 @@ Driver::worker()
     }
 }
 
-const QVector<Driver::role_set>& Driver::avalibleRoles() const { return _roles; }
+const QMap<RoleId, Driver::role_set>& Driver::avalibleRoles() const { return _roles; }
 
 void Driver::addCommand(Database::DatabaseCmd cmd) {
     QMutexLocker lock(&_queueMtx);
@@ -235,10 +235,7 @@ Driver::executeCommand(Database::RoleId role, QJsonObject obj, DriverAssistant* 
 
     if (role != ROLE_AUTO) {
         // check permission for execute command
-        auto it = std::find(_roles[role].commands.begin(), _roles[role].commands.end(),
-                static_cast<CommandId>(command_n));
-
-        if (it == _roles[role].commands.end()) {
+        if (!_roles[role].commands.contains(command_n)) {
             waiter->Failed(CmdError(AccessDenied, "You not have access to execute this command"));
             return;
         }
@@ -246,11 +243,6 @@ Driver::executeCommand(Database::RoleId role, QJsonObject obj, DriverAssistant* 
 
     if (auto val = obj["arg"]; val.isObject()) {
         QJsonObject target = val.toObject();
-        if (role != ROLE_AUTO) {
-            target.take("acceptJoin"); //remove
-        } else {
-            target["acceptJoin"] = true;
-        }
         auto cmd = _commands[command_n];
         CmdError rc = cmd.executor(target);
         if (rc.Ok()) {

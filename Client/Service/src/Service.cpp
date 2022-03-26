@@ -36,9 +36,10 @@ Service::~Service()
 void
 Service::sendCommand(QJsonObject load, ResponseWaiter * waiter)
 {
-    // TODO add remove() somewhere
     qint64 stamp = QDateTime::currentSecsSinceEpoch();
     _waiters[stamp] = waiter;
+
+    qDebug() << "sending request to server " << load;
 
     // TODO add check
     QJsonDocument d;
@@ -64,6 +65,7 @@ Service::parseResonce(iiNPack::Header header, QByteArray load)
                     if (err.error == QJsonParseError::NoError) {
 
                     } else {
+                        qDebug() << load;
                         _waiters[header.ClientStamp]->set_failed(
                             iiNPack::PARSE_ERROR,
                             "Parse responce error: " + err.errorString());
@@ -104,13 +106,14 @@ Service::parseResonce(iiNPack::Header header, QByteArray load)
                 }
                 break;
             default:
-                _waiters[header.ClientStamp]->set_failed(
-                    iiNPack::UNSUPPORTED_TYPE,
-                    "Recived unsupported packet type");
+                qDebug() << "Something wrong " << load;
+                /* _waiters[header.ClientStamp]->set_failed( */
+                /*     iiNPack::UNSUPPORTED_TYPE, */
+                /*     "Recived unsupported packet type"); */
                 break;
         }
     }
-
+    _waiters.remove(header.ClientStamp);
 }
 
 void
@@ -171,7 +174,7 @@ Service::parseLoginResponce(iiNPack::Header header, QByteArray load)
                 connect(this, SIGNAL(recivedMessage(iiNPack::Header, QByteArray)),
                         this, SLOT(parseResonce(iiNPack::Header, QByteArray)));
 
-                Q_EMIT loginSuccess(obj["name"].toString(), obj["role"].toInt(), obj["id"].toInt());
+                Q_EMIT loginSuccess(obj["name"].toString(), obj["role"].toInt(), obj["id"].toString().toInt());
             } else {
                 qDebug() << "Something wrong...... TODO";
             }

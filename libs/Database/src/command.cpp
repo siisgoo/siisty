@@ -488,12 +488,14 @@ exec_get_user_info(QJsonObject& obj)
 
         while (q.next()) {
             empls.append(QJsonObject{
-                { "id", q.value("id").toInt() },
-                { "name", q.value("name").toString() },
-                { "role", q.value("role_id").toInt() },
-                { "entryDate", q.value("entryDate").toInt() },
-                { "wapon_id", q.value("wapon_id").toInt() },
-                { "image", (takeImage ? extractImg(q.value("image")) : "") } // remove to another? use a model?
+                { "id", q.record().value("id").toInt() },
+                { "name", q.record().value("name").toString() },
+                { "role", q.record().value("role_id").toInt() },
+                { "email", q.record().value("email").toString() },
+                { "login", q.record().value("login").toString() },
+                { "entryDate", q.record().value("entryDate").toInt() },
+                { "wapon", q.record().value("wapon_id").toInt() },
+                { "image", (takeImage ? extractImg(q.record().value("image")) : "") } // remove to another? use a model?
             });
         }
 
@@ -501,20 +503,22 @@ exec_get_user_info(QJsonObject& obj)
     }
     else if ((id = buf.toInteger(-1)) != -1) // Single selection
     {
-        q.prepare("SELECT id, name, entryDate, role_id, wapon_id, email, login" +
+        q.prepare("SELECT name, entryDate, role_id, wapon_id, email, login" +
                   QString(takeImage ? ", image" : "") +
                   " FROM EmployeesAndCustomers WHERE id = :id");
-        q.bindValue("id", id);
+        q.bindValue(":id", id);
         if (!q.exec()) {
             return CmdError(SQLError, q.lastQuery() + " " + q.lastError().text());
         }
+        q.last();
         obj = {
-            { "id", q.value("id").toInt() },
-            { "name", q.value("name").toString() },
-            { "role", q.value("role_id").toInt() },
-            { "entryDate", q.value("entryDate").toInt() },
-            { "wapon_id", q.value("wapon_id").toInt() },
-            { "image", (takeImage ? extractImg(q.value("image")) : "") } // remove to another? use a model?
+            { "name", q.record().value(0).toString() },
+            { "role", q.record().value(2).toInt() },
+            { "entryDate", q.record().value(1).toInt() },
+            { "wapon", q.record().value(3).toInt() },
+            { "email", q.record().value(4).toString() },
+            { "login", q.record().value(5).toString() },
+            { "image", (takeImage ? extractImg(q.record().value(6)) : "") } // remove to another? use a model?
         };
     }
     else

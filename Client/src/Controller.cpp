@@ -10,7 +10,7 @@
 #include <qnamespace.h>
 #include <qssl.h>
 
-userInterface::userInterface(const Settings& settings, QWidget* _parent)
+Controller::Controller(const Settings& settings, QWidget* _parent)
     : QMainWindow(_parent),
     ui(new Ui::Controller),
         _settings(settings),
@@ -76,7 +76,7 @@ userInterface::userInterface(const Settings& settings, QWidget* _parent)
     pagerPresets[MAIN_PAGE_ID](this, _pageman, &_service);
 }
 
-userInterface::~userInterface()
+Controller::~Controller()
 {
     _serviceThread.quit();
     _loggingThread.quit();
@@ -85,17 +85,17 @@ userInterface::~userInterface()
     _loggingThread.wait();
 }
 
-int userInterface::userID() const { return _user_id; }
+int Controller::userId() const { return _user_id; }
 
 void
-userInterface::resizeEvent(QResizeEvent * e)
+Controller::resizeEvent(QResizeEvent * e)
 {
     e->accept();
     Q_EMIT resized(e);
 }
 
 void
-userInterface::showLogin()
+Controller::showLogin()
 {
     readAuth();
     Login * login = new Login(_conn_s, this);
@@ -110,7 +110,7 @@ userInterface::showLogin()
 }
 
 void
-userInterface::tryLogin(ConnectSettings cs)
+Controller::tryLogin(ConnectSettings cs)
 {
     NotifyProgressItemFactory npf;
     npf.setTitle("Connecting to host");
@@ -139,7 +139,7 @@ userInterface::tryLogin(ConnectSettings cs)
 }
 
 void
-userInterface::on_conneted()
+Controller::on_conneted()
 {
     _notifier->setItemPropery(_login_puid, "title", "Trying sing up");
     connect(&_service, SIGNAL(loginSuccess(QString, int, int)), this,
@@ -148,11 +148,11 @@ userInterface::on_conneted()
 }
 
 void
-userInterface::on_logined(QString name, int role, int id)
+Controller::on_logined(QString name, int role, int id)
 {
     _notifier->setItemPropery(_login_puid, "title", "Logined");
     QTimer::singleShot(2000, [this]() {
-        _notifier->setItemPropery(_login_puid, "forseComplete", NotifyItem::NotifySuccess);
+        _notifier->setItemPropery(_login_puid, "forceComplete", NotifyItem::NotifySuccess);
     });
     ui->actionLogin->setEnabled(false);
     ui->actionLogout->setEnabled(true);
@@ -163,7 +163,7 @@ userInterface::on_logined(QString name, int role, int id)
 }
 
 void
-userInterface::on_loginFailed(int err, QString str)
+Controller::on_loginFailed(int err, QString str)
 {
     Q_EMIT logMessage(
         "Login failed. Error code: " + QString::number(err) + " Reason: " + str, Error);
@@ -187,7 +187,7 @@ userInterface::on_loginFailed(int err, QString str)
 }
 
 void
-userInterface::on_logouted()
+Controller::on_logouted()
 {
     ui->actionLogin->setEnabled(true);
     ui->actionLogout->setEnabled(false);
@@ -196,7 +196,7 @@ userInterface::on_logouted()
 }
 
 void
-userInterface::on_actionLogoutTriggered()
+Controller::on_actionLogoutTriggered()
 {
     _service.disconnectFromHost();
     // update ui
@@ -204,7 +204,7 @@ userInterface::on_actionLogoutTriggered()
 }
 
 void
-userInterface::logMessage(QString _message, int level)
+Controller::logMessage(QString _message, int level)
 {
     qDebug() << _message;
 
@@ -212,7 +212,7 @@ userInterface::logMessage(QString _message, int level)
 }
 
 void
-userInterface::saveAuth()
+Controller::saveAuth()
 {
     // TODO add optional save pass
     QFile authf(_settings.authFile);
@@ -239,7 +239,7 @@ userInterface::saveAuth()
 }
 
 void
-userInterface::readAuth()
+Controller::readAuth()
 {
     QFile authf(_settings.authFile);
     if (!authf.open(QIODevice::ReadOnly)) {

@@ -71,7 +71,7 @@ class Driver : public QObject {
         Driver(const QString& path, QObject * p = nullptr);
         virtual ~Driver();
 
-        const QVector<role_set>& avalibleRoles() const;
+        const QMap<RoleId, role_set>& avalibleRoles() const;
 
     Q_SIGNALS:
         void Inited();
@@ -104,9 +104,9 @@ class Driver : public QObject {
         void checkTables();
         void insertDefaultsRoles();
 
-        QVector<role_set>       _roles;
-        QVector<table_def>      _tables;
-        QVector<command_set>    _commands;
+        QMap<RoleId, role_set> _roles;
+        QVector<table_def>     _tables;
+        QVector<command_set>   _commands;
 
         QMutex _queueMtx;
         QQueue<DatabaseCmd> _cmdQueue;

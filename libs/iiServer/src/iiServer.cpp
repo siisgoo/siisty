@@ -155,11 +155,6 @@ iiServer::recivedMessage(iiNPack::Header header, QByteArray msg)
 
     Q_EMIT logMessage("Recived message " + msg, Debug);
 
-    if (header.Size <= iiNPack::HeaderSize) {
-        Q_EMIT logMessage("Skipping header only package...", Debug);
-        return;
-    }
-
     //check send stamp?
     //add experation time?
 
