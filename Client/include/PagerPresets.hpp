@@ -7,6 +7,8 @@
 #include <functional>
 #include <QMap>
 
+#include "Client/Service/Service.hpp"
+
 #include "PagesManager/PagesManager.hpp"
 #include "Database/Role.hpp"
 
@@ -25,8 +27,6 @@
 #include "RoleSetup/General/DutySchedule.hpp"
 #include "RoleSetup/General/PersonalAccounting.hpp"
 
-#include "Service.hpp"
-
 using pagemanSetuper = std::function<void(QMainWindow *, PagesManager *, Service *)>;
 
 inline pagemanSetuper mainPage = [](QMainWindow * w, PagesManager * pm, Service *) {
@@ -40,10 +40,10 @@ inline pagemanSetuper mainPage = [](QMainWindow * w, PagesManager * pm, Service 
     pm->finalize();
 };
 
-inline pagemanSetuper admin = [](QMainWindow *, PagesManager * pm , Service * serv) {
+inline pagemanSetuper admin = [](QMainWindow * w, PagesManager * pm , Service * serv) {
     pm->reset();
 
-    QWidget * profile = new Profile;
+    QWidget * profile = new Profile();
 
     pm->addRoot("Admin", new AdminMain, { "Profile", "Accidents", "Object types", "PSC Roles", "Users list", "Help" });
     pm->addPage("Profile", profile, { "Accounting", "Schedule" });
@@ -54,7 +54,7 @@ inline pagemanSetuper admin = [](QMainWindow *, PagesManager * pm , Service * se
     pm->addPage("PSC Roles", new RoleManagment);
     pm->addPage("Users list", new UsersList);
 
-    profile->connect(profile, SIGNAL(loadPersonInfo()), serv, SLOT());
+    profile->connect(profile, SIGNAL(loadPersonInfo(QJsonObject, ResponseWaiter*)), serv, SLOT(sendCommand(QJsonObject, ResponseWaiter *)));
 
     pm->finalize();
 };

@@ -4,7 +4,7 @@
 
 #include "Database/Database.hpp"
 
-Profile::Profile(bool HideWapon, QWidget *parent) :
+Profile::Profile(int userID, bool HideWapon, QWidget *parent) :
     QWidget(parent),
         ui(new Ui::Profile)
 {
@@ -18,7 +18,9 @@ Profile::Profile(bool HideWapon, QWidget *parent) :
     ui->personaImage->setPixmap(pi.scaled(218, 218,
                                           Qt::AspectRatioMode::KeepAspectRatio,
                                           Qt::FastTransformation));
-    Q_EMIT loadPersonInfo();
+    Q_EMIT loadPersonInfo(QJsonObject{{"command", Database::CMD_GET_USER_INFO},
+                                      {"arg", QJsonObject{{"id", userID}}}},
+                          _waiter);
 }
 
 Profile::~Profile()

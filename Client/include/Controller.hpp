@@ -8,7 +8,7 @@
 #include <QTextEdit>
 #include <QThread>
 
-#include "Service.hpp"
+#include "Client/Service/Service.hpp"
 
 #include "Widgets/Notifier/NotifyManager.hpp"
 #include "Widgets/ClickableLabel.hpp"
@@ -54,6 +54,8 @@ class userInterface : public QMainWindow {
         void setNotifyItemPropery(int, const QByteArray&, const QVariant&);
         void resized(QResizeEvent*);
 
+        int userID() const;
+
     public Q_SLOTS:
         void on_actionLogoutTriggered();
 
@@ -87,6 +89,8 @@ class userInterface : public QMainWindow {
 
         ConnectSettings _conn_s;
         int _login_puid;
+
+        int _user_id;
 
         Ui::Controller * ui;
 };

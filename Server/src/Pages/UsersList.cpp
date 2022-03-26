@@ -38,10 +38,10 @@ UsersList::requestUsers()
 {
     Q_EMIT requestedUsers({Database::ROLE_AUTO,
                           QJsonObject{
-                            { "command", Database::CMD_GET_EMPLOYEE_ENTRY },
+                            { "command", Database::CMD_GET_USER_INFO },
                             { "arg",
                                 QJsonObject{
-                                    { "employee", "*" }
+                                    { "id", "*" }
                                 }
                             }
                           },

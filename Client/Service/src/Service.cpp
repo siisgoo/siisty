@@ -1,4 +1,4 @@
-#include "Service.hpp"
+#include "Client/Service/Service.hpp"
 
 #include <QJsonDocument>
 #include <QJsonParseError>
@@ -34,7 +34,7 @@ Service::~Service()
 }
 
 void
-Service::sendCommand(QJsonObject& load, ResponseWaiter * waiter)
+Service::sendCommand(QJsonObject load, ResponseWaiter * waiter)
 {
     // TODO add remove() somewhere
     qint64 stamp = QDateTime::currentSecsSinceEpoch();

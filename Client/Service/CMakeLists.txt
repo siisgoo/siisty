@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(GeneralUi LANGUAGES CXX VERSION 0.0.1 DESCRIPTION "siisty Client General Ui setups")
-
-set(CMAKE_AUTOUIC_SEARCH_PATHS
-    ${CMAKE_CURRENT_SOURCE_DIR}/Ui)
+project(iiService LANGUAGES CXX VERSION 0.0.1 DESCRIPTION "siisty ii Client Connectivity Service")
 
 #####################
 #  finding sources  #
@@ -43,10 +40,11 @@ endif()
 
 target_link_libraries(
     ${PROJECT_NAME}
+    PUBLIC
+        Qt${QT_VERSION_MAJOR}::Network
     PRIVATE
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Core
-        iiService
         Network
         Logger
         Widgets
@@ -54,7 +52,7 @@ target_link_libraries(
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    # qt_finalize_executable(${PROJECT_NAME})
+    qt_finalize_target(${PROJECT_NAME})
 endif()
 
 ################################

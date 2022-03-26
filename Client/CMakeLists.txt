@@ -7,6 +7,7 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS
 
 set(CMAKE_INSTALL_RPATH "${BINARY_DIR}/Server/lib")
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Service)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/RoleSetup/Admin)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/RoleSetup/General)
 
@@ -53,6 +54,7 @@ target_link_libraries(
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Network
+        iiService
         PagesManager
         Network
         Logger

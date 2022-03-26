@@ -462,23 +462,25 @@ exec_update_role(QJsonObject& obj)
 }
 
 /*
- * employee: int OR employee: "*" (for all)
- *                  where: string <- optional
+ * id: int OR id: "*" (for all)
+ *            where: string <- optional
  * takeImage: boolean <- optional (default false)
  */
 CmdError
-exec_get_employee_entry(QJsonObject& obj)
+exec_get_user_info(QJsonObject& obj)
 {
     QSqlQuery q;
 
     int id;
     bool takeImage = obj.take("takeImage").toBool(false);
-    QJsonValue buf = obj.take("employee");
+    QJsonValue buf = obj.take("id");
     if (buf.toString() == "*") // Multi select
     {
         QJsonArray empls;
         QString where = obj.take("where").toString();
-        q.prepare("SELECT * FROM EmployeesAndCustomers " + where);
+        q.prepare("SELECT id, name, entryDate, role_id, wapon_id, email, login" +
+                  QString(takeImage ? ", image" : "") +
+                  " FROM EmployeesAndCustomers " + where);
 
         if (!q.exec()) {
             return CmdError(SQLError, q.lastQuery() + " " + q.lastError().text());
@@ -499,7 +501,9 @@ exec_get_employee_entry(QJsonObject& obj)
     }
     else if ((id = buf.toInteger(-1)) != -1) // Single selection
     {
-        q.prepare("SELECT * FROM EmployeesAndCustomers WHERE id = :id");
+        q.prepare("SELECT id, name, entryDate, role_id, wapon_id, email, login" +
+                  QString(takeImage ? ", image" : "") +
+                  " FROM EmployeesAndCustomers WHERE id = :id");
         q.bindValue("id", id);
         if (!q.exec()) {
             return CmdError(SQLError, q.lastQuery() + " " + q.lastError().text());
@@ -519,15 +523,6 @@ exec_get_employee_entry(QJsonObject& obj)
     }
 
     return CmdError();
-}
-
-/*
- * customer: int OR customer: "*" (for all)
- */
-CmdError
-exec_get_customer_entry(QJsonObject& obj)
-{
-    return exec_get_employee_entry(obj); //TODO
 }
 
 /*

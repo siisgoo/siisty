@@ -13,6 +13,7 @@ namespace Database {
     CMD_MAKE_DUTY_SCHEDULE,   \
     CMD_REGISTER_ACCIDENT,    \
     CMD_REGISTER_EMPLOYEE,    \
+    CMD_GET_USER_INFO,   \
     CMD_REGISTER_OBJECT_TYPE, \
     CMD_UPDATE_ROLE,          \
     CMD_GET_ROLE_DETAILS,     \
@@ -24,8 +25,7 @@ namespace Database {
     CMD_PAY_ACCIDENT,         \
     CMD_GET_ROLE_DETAILS,     \
     CMD_GET_OBJECT_DETAILS,   \
-    CMD_GET_EMPLOYEE_ENTRY,   \
-    CMD_GET_CUSTOMER_ENTRY,   \
+    CMD_GET_USER_INFO,   \
     CMD_GET_ACCIDENT_DETAILS, \
     CMD_GET_WAPON_DETAILS,    \
     CMD_GET_DUTY_SCHEDULE,    \
@@ -35,8 +35,7 @@ namespace Database {
     CMD_PAY_ACCIDENT,         \
     CMD_GET_ROLE_DETAILS,     \
     CMD_GET_OBJECT_DETAILS,   \
-    CMD_GET_EMPLOYEE_ENTRY,   \
-    CMD_GET_CUSTOMER_ENTRY,   \
+    CMD_GET_USER_INFO,   \
     CMD_GET_ACCIDENT_DETAILS, \
     CMD_GET_WAPON_DETAILS,    \
     CMD_GET_DUTY_SCHEDULE,    \
@@ -46,8 +45,7 @@ namespace Database {
     CMD_REGISTER_EMPLOYEE,  \
     CMD_GET_ROLE_DETAILS,   \
     CMD_GET_OBJECT_DETAILS, \
-    CMD_GET_EMPLOYEE_ENTRY, \
-    CMD_GET_CUSTOMER_ENTRY, \
+    CMD_GET_USER_INFO,   \
     CMD_GET_DUTY_SCHEDULE,  \
 }
 
@@ -55,6 +53,7 @@ namespace Database {
     CMD_REGISTER_WAPON,     \
     CMD_ASSIGN_WAPON,       \
     CMD_GET_ROLE_DETAILS,   \
+    CMD_GET_USER_INFO,   \
     CMD_GET_OBJECT_DETAILS, \
     CMD_GET_WAPON_DETAILS,  \
     CMD_GET_DUTY_SCHEDULE,  \
@@ -62,6 +61,7 @@ namespace Database {
 
 #define CusomerCommands { \
     CMD_GET_DUTY_SCHEDULE,\
+    CMD_GET_USER_INFO,   \
 }
 
 // id, name, commands, privilegyID, payMult, payPeriod

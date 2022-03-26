@@ -36,7 +36,7 @@ class Service : public SslClientBase {
     public Q_SLOTS:
         void login(const QString& login, const QString& password);
 
-        void sendCommand(QJsonObject&, ResponseWaiter *);
+        void sendCommand(QJsonObject, ResponseWaiter *);
 
     private Q_SLOTS:
         void parseResonce(iiNPack::Header, QByteArray);

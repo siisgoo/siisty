@@ -46,6 +46,7 @@ target_link_libraries(
     PRIVATE
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Core
+        iiService
         Network
         Logger
         Widgets

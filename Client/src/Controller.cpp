@@ -85,6 +85,8 @@ userInterface::~userInterface()
     _loggingThread.wait();
 }
 
+int userInterface::userID() const { return _user_id; }
+
 void
 userInterface::resizeEvent(QResizeEvent * e)
 {
@@ -154,6 +156,8 @@ userInterface::on_logined(QString name, int role, int id)
     });
     ui->actionLogin->setEnabled(false);
     ui->actionLogout->setEnabled(true);
+
+    _user_id = id;
 
     pagerPresets[role](this, _pageman, &_service);
 }
