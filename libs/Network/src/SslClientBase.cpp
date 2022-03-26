@@ -30,6 +30,8 @@ SslClientBase::SslClientBase(QSslSocket * socket, QObject * parent)
     connect(_control, SIGNAL(peerVerifyError(const QSslError &)), this, SIGNAL(peerVerifyError(const QSslError&)));
     connect(_control, SIGNAL(proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *)),
             this, SIGNAL(proxyAuthenticationRequired(const QNetworkProxy &, QAuthenticator *)));
+
+    _unfinishedMessageHeader.Size = 0;
 }
 
 SslClientBase::~SslClientBase()
@@ -143,27 +145,30 @@ SslClientBase::sendData(const QByteArray& _messageHeader, const QByteArray& _dat
 void
 SslClientBase::dataAvailable()
 {
-    const size_t header_size = iiNPack::HeaderSize;
-    QDataStream io(_control);
-
     Q_EMIT logMessage("Recived some data...", Debug);
-    if (this->bytesAvailable() > header_size)
-    {
-        iiNPack::Header header;
-        io >> header.Size >>
-            header.ServerStamp >>
-            header.ClientStamp >>
-            header.PacketType >>
-            header.PacketLoadType;
-        QByteArray message(header.Size-iiNPack::HeaderSize, 0);
-        io.readRawData(message.data(), message.size());
 
-        Q_EMIT logMessage(tr("DEBUG: Recived Message"), Debug);
-        Q_EMIT recivedMessage(header, message);
-    }
-    else
-    {
-        Q_EMIT logMessage(tr("DEBUG: Recived unhendled data packet"), Debug);
+    while (this->bytesAvailable() > 0) {
+        _buffer.append(_control->readAll());
+
+        if (_unfinishedMessageHeader.Size == 0) {
+            QDataStream io(&_buffer, QIODevice::ReadOnly);
+            io >>
+                _unfinishedMessageHeader.Size >>
+                _unfinishedMessageHeader.ServerStamp >>
+                _unfinishedMessageHeader.ClientStamp >>
+                _unfinishedMessageHeader.PacketType >>
+                _unfinishedMessageHeader.PacketLoadType;
+        }
+
+        if (_buffer.length() >= _unfinishedMessageHeader.Size) {
+            Q_EMIT logMessage(tr("DEBUG: Recived Message"), Debug);
+            Q_EMIT recivedMessage(
+                _unfinishedMessageHeader,
+                _buffer.mid(iiNPack::HeaderSize, _unfinishedMessageHeader.Size -
+                                                     iiNPack::HeaderSize));
+            _unfinishedMessageHeader.Size = 0;
+            _buffer.clear();
+        }
     }
 }
 

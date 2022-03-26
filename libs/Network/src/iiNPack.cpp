@@ -18,10 +18,10 @@ iiNPack::pack(const QByteArray& load, const PacketType type, qint64 dts, qint64 
         (quint8)type <<
         (quint8)PacketLoadType::JSON;
 
-    out.writeRawData(load.data(), load.size());
+    out.writeRawData(load.data(), load.length());
 
     out.device()->seek(0);
-    out << (quint32)(packet.size());
+    out << (quint32)(packet.length());
 
     return packet;
 }

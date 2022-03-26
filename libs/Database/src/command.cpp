@@ -234,7 +234,8 @@ exec_register_employee(QJsonObject& obj)
     QString email;
     QString login;
     QByteArray password;
-    QString image;
+    QString imagestr;
+    QByteArray image;
 
     QJsonValue buf;
 
@@ -251,7 +252,10 @@ exec_register_employee(QJsonObject& obj)
     email = obj.take("email").toString();
     login = obj.take("login").toString();
     password = obj.take("password").toString().toLatin1();
-    image = obj.take("image").toString();
+    imagestr= obj.take("image").toString();
+    if (imagestr.length()) {
+        image = QByteArray::fromBase64(imagestr.toLatin1());
+    }
 
     // check values
     if (!name.length() ||
@@ -283,7 +287,7 @@ exec_register_employee(QJsonObject& obj)
     q.bindValue(":login", login);
     q.bindValue(":password", passHash);
     q.bindValue(":salt", salt);
-    q.bindValue(":image", (image.length() == 0 ? QVariant() : image));
+    q.bindValue(":image", (image.length() > 0 ? image: QVariant() ));
 
     if (!q.exec()) {
         return CmdError(SQLError, q.lastQuery() + " " + q.lastError().text());
@@ -499,7 +503,7 @@ exec_get_user_info(QJsonObject& obj)
             });
         }
 
-        obj["employees"] = empls;
+        obj["users"] = empls;
     }
     else if ((id = buf.toInteger(-1)) != -1) // Single selection
     {
@@ -615,7 +619,7 @@ exec_get_wapon_details(QJsonObject& obj)
         if (!q.exec()) {
             return CmdError(SQLError, q.lastQuery() + " " + q.lastError().text());
         }
-
+        q.last();
         obj = post(q);
     }
     else
@@ -627,7 +631,7 @@ exec_get_wapon_details(QJsonObject& obj)
 }
 
 /*
- * employee: int OR employee: string
+ * user: int OR user: string
  * dateStart: int <- optional
  * dateEnd: int <- optional
  */

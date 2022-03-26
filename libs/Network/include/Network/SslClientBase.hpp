@@ -105,6 +105,9 @@ class SslClientBase : public QObject {
     protected:
         virtual void sendData(const QByteArray& header, const QByteArray& load);
 
+        iiNPack::Header _unfinishedMessageHeader;
+        QByteArray _buffer;
+
         QSslSocket * _control;
 };
 

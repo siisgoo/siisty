@@ -63,7 +63,7 @@ void
 UsersList::on_usersLoaded(QJsonObject obj)
 {
     clearTable();
-    QJsonArray users = obj.take("employees").toArray();
+    QJsonArray users = obj.take("users").toArray();
 
     int row = 0;
     for (const auto& user : users) {

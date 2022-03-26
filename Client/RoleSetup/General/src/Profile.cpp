@@ -53,8 +53,6 @@ Profile::personInfoLoadFailed(int n, QString errstr)
 void
 Profile::personInfoLoaded(QJsonObject data)
 {
-    qDebug() << data;
-
     ui->entryDate->setDate(
         QDateTime::fromSecsSinceEpoch(data["entryDate"].toInteger()).date());
     ui->personaName->setText(data["name"].toString());

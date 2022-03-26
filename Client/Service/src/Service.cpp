@@ -39,7 +39,7 @@ Service::sendCommand(QJsonObject load, ResponseWaiter * waiter)
     qint64 stamp = QDateTime::currentSecsSinceEpoch();
     _waiters[stamp] = waiter;
 
-    qDebug() << "sending request to server " << load;
+    /* qDebug() << "sending request to server " << load; */
 
     // TODO add check
     QJsonDocument d;
@@ -56,6 +56,7 @@ Service::parseResonce(iiNPack::Header header, QByteArray load)
         _waiters[header.ClientStamp]->set_failed(
             iiNPack::UNSUPPORTED_FORMAT, "Resived unsupported load format");
     } else {
+        load.resize(header.Size-iiNPack::HeaderSize);
         // TODO move unpack json doc to function
         switch (header.PacketType) {
             case iiNPack::RESPONSE:
@@ -65,7 +66,6 @@ Service::parseResonce(iiNPack::Header header, QByteArray load)
                     if (err.error == QJsonParseError::NoError) {
 
                     } else {
-                        qDebug() << load;
                         _waiters[header.ClientStamp]->set_failed(
                             iiNPack::PARSE_ERROR,
                             "Parse responce error: " + err.errorString());
@@ -156,7 +156,6 @@ Service::login(const QString& login, const QString& password)
 void
 Service::parseLoginResponce(iiNPack::Header header, QByteArray load)
 {
-    qDebug() << "PARSING LOGIN";
     if (header.PacketLoadType != iiNPack::JSON) {
         Q_EMIT loginFailed(iiNPack::UNSUPPORTED_FORMAT, "Resived unsupported load format");
         return;
