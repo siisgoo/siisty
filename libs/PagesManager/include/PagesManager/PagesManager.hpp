@@ -103,6 +103,7 @@ class PagesManager : public QFrame {
         void changePage(QString);
 
     private:
+        void bindPages(const QString& parent, const QVector<QString>&);
         QVector<QString> pagePath(const QString& pageName);
 };
 

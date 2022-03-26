@@ -178,12 +178,27 @@ PagesManager::reset()
 {
     for (auto p : _pages) {
         if (p.widget) {
-        _pages.remove(p.widget->objectName());
-        delete p.widget;
+            QString name = p.widget->objectName();
+            _view->removeWidget(p.widget);
+            delete p.widget;
+            _pages.remove(name);
         }
     }
     _nav->reset();
     _pagePath->reset();
+}
+
+void PagesManager::bindPages(const QString& parent, const QVector<QString>& childs)
+{
+    int nid = _nav->addNav(childs, parent != _root);
+    _pages[parent].navId = nid;
+    for (auto child : childs) {
+        if (_pages[child].edges.length() > 0) {
+            bindPages(child, _pages[child].edges);
+        } else {
+            _pages[child].navId = nid;
+        }
+    }
 }
 
 void
@@ -192,30 +207,7 @@ PagesManager::finalize()
     if (_root == QString()) {
         throw "Cannot finalize PagesManager without root page";
     }
-    QList<QString> lateBind;
-    lateBind.append(_root);
-    for (auto page : _pages) {
-        if (page.edges.length() > 0) {
-            int nid = _nav->addNav(page.edges, page.widget->objectName() != _root); //do not create back button for root
-            page.navId = nid;
-            for (auto p : page.edges) {
-                if (_pages[p].edges.length() > 0) {
-                    lateBind.append(p);
-                } else {
-                    _pages[p].navId = nid;
-                }
-            }
-        }
-    }
-
-    // accociate with childrens
-    for (auto page : lateBind) {
-        if (_pages[page].edges.length() > 0) {
-            _pages[page].navId = _pages[_pages[page].edges[0]].navId;
-        } else {
-            qDebug() << "PagesManager" << __func__ << " Warning! finalizing with unaccessible page: " << page;
-        }
-    }
+    bindPages(_root, _pages[_root].edges);
 
     changePage(_root);
 }

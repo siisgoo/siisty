@@ -34,22 +34,27 @@ inline pagemanSetuper mainPage = [](QMainWindow * w, PagesManager * pm, Service 
     QWidget * ml = new MainPage;
     pm->addRoot("Main", ml);
 
-    ml->connect(ml, SIGNAL(employeeLoginClicked()), w, SLOT(showLogin()));
+    ml->connect(ml, SIGNAL(loginClicked()), w, SLOT(showLogin()));
     /* ml->connect(ml, SIGNAL(cusomerLoginClicked()), w, SLOT(showLogin())); */
 
     pm->finalize();
 };
 
-inline pagemanSetuper admin = [](QMainWindow *, PagesManager * pm , Service *) {
+inline pagemanSetuper admin = [](QMainWindow *, PagesManager * pm , Service * serv) {
     pm->reset();
+
+    QWidget * profile = new Profile;
+
     pm->addRoot("Admin", new AdminMain, { "Profile", "Accidents", "Object types", "PSC Roles", "Users list", "Help" });
-    pm->addPage("Profile", new Profile, { "Accounting", "Schedule" });
+    pm->addPage("Profile", profile, { "Accounting", "Schedule" });
     pm->addPage("Accounting", new PersonalAccounting);
     pm->addPage("Schedule", new DutySchedule);
     pm->addPage("Accidents", new AccidentList);
     pm->addPage("Object types", new ObjectTypeAdministration);
     pm->addPage("PSC Roles", new RoleManagment);
     pm->addPage("Users list", new UsersList);
+
+    profile->connect(profile, SIGNAL(loadPersonInfo()), serv, SLOT());
 
     pm->finalize();
 };

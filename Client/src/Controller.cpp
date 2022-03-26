@@ -4,6 +4,7 @@
 #include "PagerPresets.hpp"
 
 #include <QMessageBox>
+#include <QErrorMessage>
 
 #include <QTimer>
 #include <qnamespace.h>
@@ -122,7 +123,6 @@ userInterface::tryLogin(ConnectSettings cs)
     connect(&_service, SIGNAL(loginFailed(int, QString)),
             this, SLOT(on_loginFailed(int, QString)),
             Qt::SingleShotConnection);
-    connect(&_service, SIGNAL(disconnected()), this, SLOT());
 
     if (cs.protocol > 0) { // QSsl::Protocol::NoProtocol
         connect(&_service, SIGNAL(encrypted()), this, SLOT(on_conneted()), Qt::SingleShotConnection);
@@ -155,8 +155,6 @@ userInterface::on_logined(QString name, int role, int id)
     ui->actionLogin->setEnabled(false);
     ui->actionLogout->setEnabled(true);
 
-    qDebug() << role;
-    qDebug() << name;
     pagerPresets[role](this, _pageman, &_service);
 }
 
@@ -174,7 +172,14 @@ userInterface::on_loginFailed(int err, QString str)
     ui->actionLogin->setEnabled(true);
     ui->actionLogout->setEnabled(false);
 
-    qDebug() << "error";
+    QMessageBox errmsg(this);
+    errmsg.setIcon(QMessageBox::Critical);
+    errmsg.setText( "Cannot Loging");
+    errmsg.setInformativeText(
+            "Error code: " + QString::number(err) + "\n"
+            "Reason: " + str);
+    errmsg.setDefaultButton(QMessageBox::Ok);
+    errmsg.exec();
 }
 
 void

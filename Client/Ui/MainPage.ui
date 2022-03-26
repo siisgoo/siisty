@@ -36,7 +36,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QPushButton" name="customerLogin">
+       <widget class="QPushButton" name="userLogin">
         <property name="font">
          <font>
           <family>Monaco</family>
@@ -59,7 +59,7 @@
        </widget>
       </item>
       <item alignment="Qt::AlignHCenter">
-       <widget class="QPushButton" name="employeeLogin">
+       <widget class="QPushButton" name="singup">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -67,7 +67,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>for employees</string>
+         <string>sing up</string>
         </property>
        </widget>
       </item>

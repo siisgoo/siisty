@@ -1,4 +1,5 @@
 #include "iiServer/iiClient.hpp"
+#include <qnamespace.h>
 
 iiClient::iiClient(QSslSocket * socket, QObject * parent)
     : SslClientBase(socket, parent),
@@ -29,16 +30,14 @@ iiClient::identify(QString login, QString password)
     _password = password;
     Q_EMIT logMessage("Trying identify user", Debug);
     Q_EMIT addCommand({Database::ROLE_AUTO,
-            QJsonObject{
-                { "command", Database::CMD_IDENTIFY },
-                { "arg",
-                    QJsonObject{
-                        { "login", _login, },
-                        { "password", _password },
-                    }
-                }
-            },
-            _dbAssistant});
+                       QJsonObject{
+                                   {"command", Database::CMD_IDENTIFY},
+                                   {"arg",
+                                    QJsonObject{
+                                        {"login", _login},
+                                        {"password", _password},
+                                    }}},
+                       _dbAssistant});
 }
 
 void
@@ -52,13 +51,16 @@ iiClient::on_identified(QJsonObject obj)
     disconnect(this, SIGNAL(identificationFailed(Database::CmdError)),
                this, SLOT(on_identificationFailed(Database::CmdError)));
 
-    connect(_dbAssistant, SIGNAL(success(QJsonObject)), this, SIGNAL(requestSuccess(QJsonObject)));
-    connect(_dbAssistant, SIGNAL(failed(Database::CmdError)),  this, SIGNAL(requestFailed(Database::CmdError)));
+    connect(_dbAssistant, SIGNAL(success(QJsonObject)), this, SLOT(on_requestSuccess(QJsonObject)));
+    connect(_dbAssistant, SIGNAL(failed(Database::CmdError)),  this, SLOT(on_requestFailed(Database::CmdError)));
 
     _identified = true;
 
     QJsonDocument doc(obj); // must contain role and basic user information
-    QByteArray res = iiNPack::pack(doc.toJson(QJsonDocument::Compact), iiNPack::RESPONSE);
+    _role = obj["role"].toInt();
+    QByteArray res =
+        iiNPack::pack(doc.toJson(QJsonDocument::Compact), iiNPack::RESPONSE,
+                0, 0);  // login mechanism dont need a stamps
 
     Q_EMIT logMessage("Identified user: " + obj["name"].toString(), Trace);
 
@@ -79,20 +81,37 @@ iiClient::on_identificationFailed(Database::CmdError err)
 
     Q_EMIT logMessage("User identification error: " + err.String(), Debug);
 
-    QByteArray res = iiNPack::packError(err.String(), iiNPack::ACCESS_DENIED);
+    QByteArray res = iiNPack::packError(err.String(), iiNPack::ACCESS_DENIED, 0, 0);
     this->sendMessage(res);
-    /* this->waitForBytesWritten(); */
-    this->disconnectFromHost();
+    QTimer::singleShot(5000, [this] { this->disconnectFromHost(); });
 }
 
 void
-iiClient::processRequest(QJsonObject obj)
+iiClient::processRequest(QJsonObject obj, qint64 stamp)
 {
-
+    _mtx.lock();
+    _curStamp = stamp;
+    Q_EMIT addCommand({_role, obj, _dbAssistant});
 }
 
 void
-iiClient::processResponce(QJsonObject obj)
+iiClient::on_requestSuccess(QJsonObject obj)
 {
+    qint64 stamp = _curStamp;
+    _mtx.unlock();
 
+    QJsonDocument doc(obj); // must contain role and basic user information
+    this->sendMessage(iiNPack::pack(doc.toJson(QJsonDocument::Compact),
+                                    iiNPack::RESPONSE,
+                                    QDateTime::currentSecsSinceEpoch(), stamp));
+}
+
+void
+iiClient::on_requestFailed(Database::CmdError err)
+{
+    qint64 stamp = _curStamp;
+    _mtx.unlock();
+    this->sendMessage(
+        iiNPack::packError(err.String(), iiNPack::ResponseError::REQUEST_ERROR,
+                           QDateTime::currentSecsSinceEpoch(), stamp));
 }

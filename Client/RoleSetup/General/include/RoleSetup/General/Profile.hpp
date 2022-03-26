@@ -2,8 +2,9 @@
 #define PROFILE_HPP
 
 #include <QWidget>
-
 #include <QJsonObject>
+
+#include "Service.hpp"
 
 namespace Ui {
 class Profile;
@@ -18,10 +19,10 @@ class Profile : public QWidget
         ~Profile();
 
     Q_SIGNALS:
-        void loadData(QJsonObject);
+        void loadPersonInfo(QJsonObject&, ResponseWaiter *);
 
     public Q_SLOTS:
-        void dataLoaded(QJsonObject);
+        void personInfoLoaded(QJsonObject);
 
     private:
         Ui::Profile *ui;

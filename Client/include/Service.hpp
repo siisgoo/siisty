@@ -7,11 +7,20 @@
 #include "Network/SslClientBase.hpp"
 #include "Database/Database.hpp"
 
-/* class ResponseWaiter : public QObject { */
-/*     public: */
-/*         ResponseWaiter(); */
-/*         virtual ~ResponseWaiter(); */
-/* }; */
+class ResponseWaiter : public QObject {
+    Q_OBJECT
+
+    public:
+        ResponseWaiter(QObject * p = nullptr);
+        virtual ~ResponseWaiter();
+
+        void set_success(QJsonObject);
+        void set_failed(int, QString);
+
+    Q_SIGNALS:
+        void success(QJsonObject);
+        void failed(int, QString);
+};
 
 class Service : public SslClientBase {
     Q_OBJECT
@@ -24,23 +33,20 @@ class Service : public SslClientBase {
         void loginSuccess(QString, int, int); // name, role, id
         void loginFailed(int, QString);
 
-        void commandSuccess(QJsonObject);
-        void commandFailed(int, QString details);
-
     public Q_SLOTS:
         void login(const QString& login, const QString& password);
 
-        void sendCommand(QJsonObject&);
+        void sendCommand(QJsonObject&, ResponseWaiter *);
 
     private Q_SLOTS:
         void parseResonce(iiNPack::Header, QByteArray);
-
-        void parseLoginResponce(QJsonObject);
+        void parseLoginResponce(iiNPack::Header, QByteArray);
 
         void on_sslError(const QList<QSslError>&);
         void on_networkError(QAbstractSocket::SocketError);
 
     private:
+        QMap<quint64, ResponseWaiter*> _waiters;
 };
 
 #endif /* end of include guard: SERVICE_HPP_CBPTLJJQ */

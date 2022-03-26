@@ -48,14 +48,15 @@ struct iiNPack {
     struct Header
     {
 /* 0x0  - 0x4  */ quint32 Size;           /* Overall packet load size in bytes */
-/* 0x4  - 0x12 */ qint64  SendStamp;      /* Send time; using QDateTime SecsSinceEpoch */
+/* 0x4  - 0x12 */ qint64  ServerStamp;    /* Send time on server; using QDateTime SecsSinceEpoch */
+/* 0x4  - 0x12 */ qint64  ClientStamp;    /* Send time on client; using QDateTime SecsSinceEpoch */
 /* 0x12 - 0x13 */ quint8  PacketType;     /* Type of packet; enum class PacketType */
 /* 0x13 - 0x14 */ quint8  PacketLoadType; /* Operation type, see enum class PacketLoadType */
     };
 
     static const qsizetype HeaderSize;
-    static QByteArray pack(const QByteArray& load, const PacketType);
-    static QByteArray packError(const QString& errDesc, const ResponseError err);
+    static QByteArray pack(const QByteArray& load, const PacketType, qint64 dts, qint64 dtc);
+    static QByteArray packError(const QString& errDesc, const ResponseError err, qint64 dts, qint64 dtc);
         // package creators
 
     static Header unpackHeader(QDataStream& input);

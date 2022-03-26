@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>477</width>
-    <height>453</height>
+    <height>463</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -395,7 +395,7 @@
          </font>
         </property>
         <property name="text">
-         <string>SING UP</string>
+         <string>SIGN IN</string>
         </property>
        </widget>
       </item>

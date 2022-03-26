@@ -15,8 +15,8 @@ class MainPage : public QWidget {
         ~MainPage();
 
     Q_SIGNALS:
-        void customerLoginClicked();
-        void employeeLoginClicked();
+        void loginClicked();
+        void registrationClicked();
 
     private:
         Ui::MainPage *ui;

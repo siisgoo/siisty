@@ -4,18 +4,19 @@
 #include <QJsonDocument>
 
 const qsizetype iiNPack::HeaderSize =
-    sizeof(quint32) + sizeof(qint64) + sizeof(quint8) + sizeof(quint8);
+    sizeof(quint32) + sizeof(qint64)*2 + sizeof(quint8) + sizeof(quint8);
 
 //todo add conversion little-endian
 
 QByteArray
-iiNPack::pack(const QByteArray& load, const PacketType type)
+iiNPack::pack(const QByteArray& load, const PacketType type, qint64 dts, qint64 dtc)
 {
     QByteArray packet(iiNPack::HeaderSize + load.size(), 0);
     QDataStream out(&packet, QIODevice::WriteOnly);
 
     out << (quint32)0 <<
-        (qint64)QDateTime::currentDateTimeUtc().toSecsSinceEpoch() <<
+        (qint64)dts <<
+        (qint64)dtc <<
         (quint8)type <<
         (quint8)PacketLoadType::JSON;
 
@@ -24,19 +25,17 @@ iiNPack::pack(const QByteArray& load, const PacketType type)
     out.device()->seek(0);
     out << (quint32)(packet.size());
 
-    qDebug() << QString::number((quint32)(packet.size()));
-
     return packet;
 }
 
 QByteArray
-iiNPack::packError(const QString& errDesc, const ResponseError err)
+iiNPack::packError(const QString& errDesc, const ResponseError err, qint64 dts, qint64 dtc)
 {
     QJsonDocument d(QJsonObject{
         { "errno", (int)err },
         { "details", errDesc }
     });
-    return iiNPack::pack(d.toJson(QJsonDocument::Compact), PacketType::ERROR_MESSAGE);
+    return iiNPack::pack(d.toJson(QJsonDocument::Compact), PacketType::ERROR_MESSAGE, dts, dtc);
 }
 
 iiNPack::Header
@@ -47,7 +46,8 @@ iiNPack::unpackHeader(QDataStream& io)
     std::memset(&header, 0, HeaderSize);
 
     io >> header.Size >>
-        header.SendStamp >>
+        header.ServerStamp >>
+        header.ClientStamp >>
         header.PacketType >>
         header.PacketLoadType;
 

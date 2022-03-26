@@ -180,7 +180,10 @@ iiServer::recivedMessage(iiNPack::Header header, QByteArray msg)
                 Q_EMIT logMessage("Recived an autorization request", Trace);
                 if (client->identified()) {
                     Q_EMIT logMessage("Resived double time identification request", Warning);
-                    responce = iiNPack::packError("Double time identification request", iiNPack::REQUEST_ERROR);
+                    responce = iiNPack::packError(
+                        "Double time identification request",
+                        iiNPack::REQUEST_ERROR,
+                        QDateTime::currentSecsSinceEpoch(), header.ClientStamp);
                     client->sendMessage(responce);
                     return;
                 }
@@ -197,11 +200,13 @@ iiServer::recivedMessage(iiNPack::Header header, QByteArray msg)
             {
                 Q_EMIT logMessage("Recived an request", Trace);
                 if (!client->identified()) {
-                    responce = iiNPack::packError("Access denied", iiNPack::REQUEST_ERROR);
+                    responce = iiNPack::packError(
+                        "Access denied", iiNPack::REQUEST_ERROR,
+                        QDateTime::currentSecsSinceEpoch(), header.ClientStamp);
                     client->sendMessage(responce);
                     return;
                 }
-                client->processRequest(load);
+                client->processRequest(load, header.ClientStamp);
             }
             break;
         /* case iiNPack::RESPONSE: // responce from remote */

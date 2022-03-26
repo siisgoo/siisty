@@ -72,9 +72,9 @@ UsersList::on_usersLoaded(QJsonObject obj)
 
         ui->users_table->setItem(row, ID,   new QTableWidgetItem(QString::number(cur["id"].toInt())));
         ui->users_table->setItem(row, NAME, new QTableWidgetItem(cur["name"].toString()));
-        ui->users_table->setItem(row, ROLE, new QTableWidgetItem(_roles[cur["role"].toInteger()].name));
+        ui->users_table->setItem(row, ROLE, new QTableWidgetItem(_roles[cur["role"].toInteger()+1].name));
 
-        ui->users_table->itemAt(row, ROLE)->setData(Qt::DisplayRole, _roles[cur["role"].toInteger()+1].id); // first is AUTO => skip
+        /* ui->users_table->itemAt(row, ROLE)->setData(Qt::DisplayRole, _roles[cur["role"].toInteger()].id); // first is AUTO => skip */
         row++;
     }
 }

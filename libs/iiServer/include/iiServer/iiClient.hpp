@@ -15,15 +15,11 @@ class iiClient : public SslClientBase {
 
     public Q_SLOTS:
         void identify(QString login, QString password);
-        void processRequest(QJsonObject);
-        void processResponce(QJsonObject);
+        void processRequest(QJsonObject, qint64);
 
     Q_SIGNALS:
         void identified(QJsonObject);
         void identificationFailed(Database::CmdError);
-
-        void requestSuccess(QJsonObject);
-        void requestFailed(Database::CmdError);
 
         void addCommand(Database::DatabaseCmd);
 
@@ -31,12 +27,20 @@ class iiClient : public SslClientBase {
         void on_identified(QJsonObject);
         void on_identificationFailed(Database::CmdError err);
 
+        void on_requestSuccess(QJsonObject);
+        void on_requestFailed(Database::CmdError);
+
     private:
         Database::DriverAssistant * _dbAssistant;
+
+        QMutex  _mtx;
+        qint64  _curStamp;
 
         int     _max_tries = 10;
         int     _ident_tries = 0;
         bool    _identified = false;
+
+        int _role = -1000; //invalid role
         QString _login;
         QString _password;
             // in advance to security managment

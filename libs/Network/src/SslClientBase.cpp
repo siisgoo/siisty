@@ -151,7 +151,8 @@ SslClientBase::dataAvailable()
     {
         iiNPack::Header header;
         io >> header.Size >>
-            header.SendStamp >>
+            header.ServerStamp >>
+            header.ClientStamp >>
             header.PacketType >>
             header.PacketLoadType;
         if ((quint32)this->bytesAvailable() >= header.Size-iiNPack::HeaderSize)
