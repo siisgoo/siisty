@@ -7,6 +7,12 @@
 #include "Network/SslClientBase.hpp"
 #include "Database/Database.hpp"
 
+/* class ResponseWaiter : public QObject { */
+/*     public: */
+/*         ResponseWaiter(); */
+/*         virtual ~ResponseWaiter(); */
+/* }; */
+
 class Service : public SslClientBase {
     Q_OBJECT
 

@@ -12,4 +12,7 @@
     <qresource prefix="/logo">
         <file alias="big-logo">assets/logo-512.png</file>
     </qresource>
+    <qresource prefix="/icons">
+        <file alias="noProfileImage">assets/cat.png</file>
+    </qresource>
 </RCC>

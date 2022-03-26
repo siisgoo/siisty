@@ -10,10 +10,30 @@
     <height>444</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <family>JetBrains Mono</family>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <property name="spacing">
+    <number>0</number>
+   </property>
    <item row="1" column="1">
     <widget class="QFrame" name="frame_2">
      <property name="frameShape">
@@ -56,6 +76,12 @@
         </item>
         <item>
          <widget class="QLabel" name="personaName">
+          <property name="font">
+           <font>
+            <family>Monaco</family>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
           <property name="text">
            <string>Name</string>
           </property>
@@ -82,7 +108,7 @@
          <item row="2" column="1">
           <widget class="QLabel" name="roleValue">
            <property name="text">
-            <string>TextLabel</string>
+            <string>-</string>
            </property>
           </widget>
          </item>
@@ -110,7 +136,7 @@
          <item row="5" column="1">
           <widget class="QLabel" name="loginValue">
            <property name="text">
-            <string>TextLabel</string>
+            <string>-</string>
            </property>
           </widget>
          </item>
@@ -143,7 +169,17 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QDateEdit" name="entryDate"/>
+          <widget class="QDateEdit" name="entryDate">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::NoButtons</enum>
+           </property>
+           <property name="keyboardTracking">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
