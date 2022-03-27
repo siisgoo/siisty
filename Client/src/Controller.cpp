@@ -19,7 +19,6 @@ Controller::Controller(const Settings& settings, QWidget* _parent)
 {
     ui->setupUi(this);
 
-    /* connect(ui->actionLogin,  SIGNAL(triggered()), this, SLOT(showLogin())); */
     connect(ui->actionLogout, SIGNAL(triggered()), this, SLOT(on_actionLogoutTriggered()));
 
     {
