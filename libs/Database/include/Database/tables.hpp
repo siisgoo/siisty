@@ -14,7 +14,7 @@
     XX(  3, AccountingType,        CREATE_ACCOUNTING_TYPE_TABLE )         \
     XX(  4, Contracts,             CREATE_CONTRACTS_TABLE )               \
     XX(  5, DutySchedule,          CREATE_DUTY_SCHEDULE_TABLE )           \
-    XX(  6, EmployeesAndCustomers, CREATE_EMPLOYEES_AND_CUSTOMERS_TABLE ) \
+    XX(  6, Users, CREATE_USERS_TABLE ) \
     XX(  7, RoleCommands,          CREATE_ROLE_COMMANDS_TABLE )           \
     XX(  8, Role,                  CREATE_ROLES_TABLE )                   \
     XX(  9, Wapons,                CREATE_WAPONS_TABLE )                  \

@@ -10,13 +10,12 @@
 #include <qnamespace.h>
 #include <qssl.h>
 
-Controller::Controller(const Settings& settings, QWidget* _parent)
+        Controller::Controller(const Settings &settings, QWidget *_parent)
     : QMainWindow(_parent),
-    ui(new Ui::Controller),
-        _settings(settings),
-        _log(settings.logginLeve, "siisty-Client", settings.logDir, nullptr),
-        _pageman(new PagesManager(this))
-{
+      ui(new Ui::Controller),
+      _settings(settings),
+      _log(settings.logginLeve, "siisty-Client", settings.logDir, nullptr),
+      _pageman(new PagesManager(this)) {
     ui->setupUi(this);
 
     connect(ui->actionLogout, SIGNAL(triggered()), this, SLOT(on_actionLogoutTriggered()));

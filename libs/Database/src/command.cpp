@@ -99,7 +99,7 @@ exec_identify(QJsonObject& obj)
         return CmdError(InvalidParam, "Passed empty parameters");
     }
 
-    q.prepare("SELECT id, name, role_id, password, salt FROM EmployeesAndCustomers "
+    q.prepare("SELECT id, name, role_id, password, salt FROM Users "
               "WHERE login = :login");
     q.bindValue(":login", login);
 
@@ -276,7 +276,7 @@ exec_register_employee(QJsonObject& obj)
         encryptPassword(password, salt);
 
     QSqlQuery q;
-    q.prepare("INSERT INTO EmployeesAndCustomers"
+    q.prepare("INSERT INTO Users"
                      "(name,   entryDate,  role_id,  wapon_id,  email,  login,  password,  salt,  image) "
               "VALUES (:name, :entryDate, :role_id, :wapon_id, :email, :login, :password, :salt, :image)");
     q.bindValue(":name", name);
@@ -484,7 +484,7 @@ exec_get_user_info(QJsonObject& obj)
         QString where = obj.take("where").toString();
         q.prepare("SELECT id, name, entryDate, role_id, wapon_id, email, login" +
                   QString(takeImage ? ", image" : "") +
-                  " FROM EmployeesAndCustomers " + where);
+                  " FROM Users " + where);
 
         if (!q.exec()) {
             return CmdError(SQLError, q.lastQuery() + " " + q.lastError().text());
@@ -509,7 +509,7 @@ exec_get_user_info(QJsonObject& obj)
     {
         q.prepare("SELECT name, entryDate, role_id, wapon_id, email, login" +
                   QString(takeImage ? ", image" : "") +
-                  " FROM EmployeesAndCustomers WHERE id = :id");
+                  " FROM Users WHERE id = :id");
         q.bindValue(":id", id);
         if (!q.exec()) {
             return CmdError(SQLError, q.lastQuery() + " " + q.lastError().text());
