@@ -10,7 +10,7 @@ i=(-1 1)
 prevLen=0
 while read -r line; do
     hash="$(md5sum <<< "$line" | cut -d ' ' -f 1)"
-    printf "<a id=\"%s\"></a>\n%s\n" "$hash" "$line" > tmp
+    printf "<a id=\"%s\"/>\n\n%s\n\n" "$hash" "$line" > tmp
     sed "/$line/ {
         x
         r tmp
