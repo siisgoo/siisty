@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>cursed.indexed</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="содержание">Содержание</h1>
+<ol type="1">
+<li><a href="#0069f25aafeaa88b5a5038c61e019a29">Введение</a></li>
+<li><a href="#58423f3301dee86e5a6dd4564805721f">Теоритическая часть</a> 1. <a href="#a66c7beef7ee05ce09ccd305758a4b34">Организация ЧОП</a> 2. <a href="#644c422e8bfdc2ee8d075ef63b6ab7de">Информационные потоки ЧОП</a> 3. <a href="#bd328bb371cabcf61a023dd89284d430">Процессы внутри ЧОП</a></li>
+<li><a href="#f61c3d8237771dae61110cd55542d40f">Описание средстд разработки</a> 1. <a href="#2211f9a30f64e3adc7a68fb612f8a384">Утилиты для разработки баз данных</a> 1. <a href="#15c7d3fb026a6b7191009b2aba592007">SQLite v3.35.5 stable</a> 2. <a href="#d9107f160c4cbd3769c9deef66bb16b0">SQLiteBrowser v3.12.2</a> 3. <a href="#c5cd767e2d7140d75b7479628ef2625d">DBVisualizer v12.1.8</a> 2. <a href="#5f7ed236cf861ab160476bb878a8e29d">Библиотеки</a> 1. <a href="#3724285fc23f07a780bf1b90d1b08737">Qt v6.2.4</a> 3. <a href="#c41121e7ff1f037c52c40f6800344b60">Системы сборки и компиляторы</a> 1. <a href="#d769a93d450808dd2699e4d277b38a96">CMake v3.22.3</a> 2. <a href="#072c9837bf4124a78e8d64761c791708">Ninja c1.10.2</a> 3. <a href="#066437d5c1c42dc540ef7b8b089593f5">clang v13.0.1</a> 4. <a href="#a9d5433c4ced0429602d686763b511c0">IDE</a> 1. <a href="#791bce00c1a5112cb0a8e83f8ea43dfd">QtCreator v6.0.2</a> 2. <a href="#be86898d7ac3847f7ca9aa4e09d807c7">VIM v8.2</a> 1. <a href="#678d92de681d726153a189bfe47a6ffe">Плагины</a> 5. <a href="#5336cc1e18a44fcbcdcaf76434a9dbc1">Разное</a> 1. <a href="#1260d8308ede6b806d35e4d84021378e">Plantuml v1.2021.16</a> 2. <a href="#a7809f369ead5a4aba1407bab398c327">BASH v5.1.16</a> 6. <a href="#99db6cf9ec16fd66532911909e4ea007">Отладка</a> 1. <a href="#3ecb9ddef9a2dddb3a2a67100b188eb6">Valgrind v3.18</a> 7. <a href="#b7249081aeaa3bc1b21f5a8f16eeb88e">VCS</a> 1. <a href="#be9c09aacbde6d23d67f89a3fca38c08">GIT v2.35.1</a></li>
+<li><a href="#eb1fa9a0c02763fe5749637a8d16ac3a">Разработы базы данных ЧОП</a> 1. <a href="#28439b214a63ddabf081fe52b79e17ad">Таблицы</a> 2. <a href="#851980d29e4e343f67c61f95cea40cfa">Визуализация базы данных</a></li>
+<li><a href="#142c5c1c8f822ab1538b7817a180b7ab">Разработка архитектуры приложения</a> 1. <a href="#721f411e2bde409ec1037acdea3d0f8c">Основа</a> 1. <a href="#29ab5dc5f90003f2ab99e9f7e97299ac">Информационные потоки ЧОП с учетом сервера</a> 2. <a href="#503aa110ff5e803702414f90c5c5ebd6">Обращение к базе данных</a> 1. <a href="#32bde6e6debc82c0610a99d90127ac67">Система безопасности</a> 1. <a href="#c6725059f1407364b5c9cae3833a0b92">Система идентификации и авторизации</a> 2. <a href="#86fb03765331149de407516aaeb0b09d">Система команд</a> 3. <a href="#2ee3341b6480f3fef26e52e6aa3642cd">Клиен-Сервер</a> 1. <a href="#047d272a34a43782c51918621461b8f2">Протокол</a> 2. <a href="#6a255c9653f902d73d96ad1b4fcc0d4e">Клиент</a> 3. <a href="#5b8e943bc4beaee5458ad082d6f1b630">Сервер</a> 4. <a href="#bfd028419917154b7a8120e6afe90bb3">Модель создания GUI</a></li>
+<li><a href="#ad12d5b6aeddf84d8c72205610cfaf39">Реализация приложения</a> 1. <a href="#86798bf223d43272c3136ba329fbf9b3">Пользовательский интерфейс</a> 1. <a href="#84643a8881036d8725be23faf5bfaccc">PagesManager</a> 2. <a href="#2c70e6e799cd133b94067ebe0f920217">NotifyManager</a></li>
+<li><a href="#e1c1d994d00e4e7a44fcd5d029d3548d">Заключение</a></li>
+<li><a href="#bc5e99ae74607750379b50c9e11d0695">Список литиратуры</a></li>
+</ol>
+<p><a id="0069f25aafeaa88b5a5038c61e019a29"></a> # Введение В наше временя оборот информации в бизнес сфере огромен, отцифрованно практически всё. Большая часть информации передаётся по средствам компьютерных сетей, в частности глобальнай – Интернет.</p>
+<p>Технология Интернет приспособленна для передачи любого вида закодированной информации, чем пользуется в преимуществе большая часть бизнес отраслей для получения своей прибыли. Но во время развития Интернет появилась такая ниша как Взломщики, люди посягающии на не санкционированное получения доступа к ресурсам подключенных к Интернет. Вследствии начали стремительно развиваться технологии Криптографии , которые существующие еще со времён древнего Рима, и других методов борьбы с Взломщиками и не только.</p>
+<p>Взломищакам могут быть интересны любые ресурсы: журналы Бухгалтерии, системы управления предприятеим и т.д.</p>
+<p>Подходя к теме о ведении бизнеса в сфере ЧОП многие подозрительные личности могут быть заинтересованн в получении запланированных маршрутов инкосации, адресса жительства сотрудников… Для пресечения перечисленных выше махинаций можно полностью отказаться от ведения своей деятельности в Интернет.</p>
+<p>Если это не выход – тогда необходимо развертывание системы защиты, чем мы и займемся в пределах данной работы. Также самым современным решением будет использование Blockchain – децентрализованный метод хранения данных, но данный вариант не будет рассматриваться, так как всё сильно усложняет и, скорее всего, по просту не приемлем.</p>
+<p>Решение будет выполненно в несколько шагов:</p>
+<ol type="1">
+<li>Анализ структуры ЧОП.</li>
+<li>Анализ проходимых процессов в ЧОП.</li>
+<li>Описание средств разработки.</li>
+<li>Составление базы данных ЧОП.</li>
+<li>Разработка архитектуры приложения для взаимодействия с ЧОП.</li>
+<li>Реализация архитектурных решений</li>
+<li>Написание исходных кодов.</li>
+<li>Тестирование.</li>
+</ol>
+<p><a id="58423f3301dee86e5a6dd4564805721f"></a> # Теоритическая часть</p>
+<p><a id="a66c7beef7ee05ce09ccd305758a4b34"></a> ## Организация ЧОП Охранное предприятие занимается охраной какой либо частной или государственной собственности.</p>
+<p>ЧОП, чаще всего состоит из трех подразделений:</p>
+<ul>
+<li>Бухгалтерия</li>
+</ul>
+<ol start="2" type="1">
+<li>Дирекция(она же администрация)</li>
+<li>Отдел кадров</li>
+<li>Отдел охраны</li>
+<li>Отдел инкосации</li>
+<li>Отдел вооружения</li>
+</ol>
+<p><img src="img/orgStruct.png" /></p>
+<p>Если говорить о предоствляемых услугах более конкретно, то ЧОП для потребителя предлогает:</p>
+<ul>
+<li>Охрана объекта</li>
+<li>Охрана ценных бумаг или металов(инкосация)</li>
+</ul>
+<p><a id="644c422e8bfdc2ee8d075ef63b6ab7de"></a> ## Информационные потоки ЧОП <img src="img/infoFlow.png" /></p>
+<p><a id="bd328bb371cabcf61a023dd89284d430"></a> ## Процессы внутри ЧОП <img src="img/insideProcess.png" /></p>
+<p><a id="f61c3d8237771dae61110cd55542d40f"></a> # Описание средстд разработки В данном разделе будут рассмотрены средства разработки, используемые мной при создании ПС для ЧОП.</p>
+<p><a id="2211f9a30f64e3adc7a68fb612f8a384"></a> ## Утилиты для разработки баз данных</p>
+<p><a id="15c7d3fb026a6b7191009b2aba592007"></a> ### SQLite v3.35.5 stable <img src="" alt="SQLite logo" /> SQLite — компактная встраиваемая СУБД. Исходный код библиотеки передан в общественное достояние. Данная СУБД работает в безсерверной конфигурации. Если сравнивать с другими СУБД, то в равных условиях запись SQLite осуществляет медленее на 20-30% чем другие СУБД, но чтение превосходит другие на 40-50%. SQLite не имеет привелегий, только систему авторизации, но это и не нужно в моем проекте, об этом будет сказано позже. &gt; Примичание: &gt; <em>Библиотека SQLite не будет использована в чистом виде, а в составе Qt v6.2.4</em></p>
+<p><a id="d9107f160c4cbd3769c9deef66bb16b0"></a> ### SQLiteBrowser v3.12.2 Удобный FOSS браузер баз данных SQLite, использованный для отладки.</p>
+<p><a id="c5cd767e2d7140d75b7479628ef2625d"></a> ### DBVisualizer v12.1.8 Проприетарная утилита для работы с разными СУБД, использован для генерации графа таблиц составленной базы данных ЧОП.</p>
+<p><a id="5f7ed236cf861ab160476bb878a8e29d"></a> ## Библиотеки</p>
+<p><a id="3724285fc23f07a780bf1b90d1b08737"></a> ### Qt v6.2.4 <img src="" alt="Qt logo" /> Qt - один из самых популярных и больших фреймворков c++ на рынке. Важная характеристика Qt - переносимость, т.к. я работаю на Linux.</p>
+<p><a id="c41121e7ff1f037c52c40f6800344b60"></a> ## Системы сборки и компиляторы</p>
+<p><a id="d769a93d450808dd2699e4d277b38a96"></a> ### CMake v3.22.3 <img src="" alt="CMake logo" /> Система сборки c++. Сборка проекта и передача более низкоуровневому средству.</p>
+<p><a id="072c9837bf4124a78e8d64761c791708"></a> ### Ninja c1.10.2 Еще одна система сборки, только уже более низкого уровня, чем CMake. Передача исходного кода на компиляцию.</p>
+<p><a id="066437d5c1c42dc540ef7b8b089593f5"></a> ### clang v13.0.1 Компилятор семейства C. Без коментариев.</p>
+<p><a id="a9d5433c4ced0429602d686763b511c0"></a> ## IDE</p>
+<p><a id="791bce00c1a5112cb0a8e83f8ea43dfd"></a> ### QtCreator v6.0.2 <img src="" alt="QtCreator logo" /> IDE от компинии The Qt Company, использованный только как средство отладки и создания скелетов форм пользовательского интерфейса.</p>
+<p><a id="be86898d7ac3847f7ca9aa4e09d807c7"></a> ### VIM v8.2 <img src="" alt="VIM logo" /> Моя любимая IDE, в своей основе так же прост как и каноничный “блокнот” в Windows, только с максимальной степенью кастомизации. Главное достоинство, по моему мнению, - это управление без использования мыши и возможность настройки управляющих комбинаций максимально удобно, что сокращает время на бесполезное перемещение рук по рабочему пространству.</p>
+<p><a id="678d92de681d726153a189bfe47a6ffe"></a> #### Плагины</p>
+<pre class="vim"><code>    Plug &#39;https://github.com/xolox/vim-misc&#39;                   &quot; auto load
+    Plug &#39;https://github.com/xolox/vim-session&#39;                &quot; session manager
+    Plug &#39;wakatime/vim-wakatime&#39;                               &quot; wakatime.com
+    Plug &#39;SirVer/ultisnips&#39;                                    &quot; snippets
+    Plug &#39;https://github.com/honza/vim-snippets&#39;               &quot; snippents files
+    Plug &#39;https://github.com/pangloss/vim-javascript.git&#39;      &quot; javascript extension
+    Plug &#39;vim-airline/vim-airline&#39;                             &quot; status line
+    Plug &#39;vim-airline/vim-airline-themes&#39;                      &quot; themes
+    Plug &#39;vim-scripts/AfterColors.vim&#39;                         &quot; themes
+    Plug &#39;rafi/awesome-vim-colorschemes&#39;                       &quot; themes
+    Plug &#39;sonph/onehalf&#39;, { &#39;rtp&#39;: &#39;vim&#39; }                     &quot; theme
+    Plug &#39;https://github.com/sjl/badwolf&#39;                      &quot; theme
+    Plug &#39;https://github.com/joshdick/onedark.vim&#39;             &quot; theme
+    Plug &#39;https://github.com/plasticboy/vim-markdown&#39;          &quot; markdown format support
+    Plug &#39;ryanoasis/vim-devicons&#39;                              &quot; icons support
+    Plug &#39;https://github.com/Yggdroot/indentLine&#39;
+    Plug &#39;ycm-core/YouCompleteMe&#39;                              &quot; code completer
+    Plug &#39;rdnetto/YCM-Generator&#39;, { &#39;branch&#39;: &#39;stable&#39;}
+    Plug &#39;tpope/vim-commentary&#39;                                &quot; commentary shortcuts
+    Plug &#39;m-pilia/vim-pkgbuild&#39;                                &quot; archlinux AUR PKGBUILD files support
+    Plug &#39;https://github.com/tpope/vim-surround&#39;               &quot; html-like tags handle utils
+    Plug &#39;https://github.com/octol/vim-cpp-enhanced-highlight&#39; &quot; cpp syntax hilightinght
+    Plug &#39;ctrlpvim/ctrlp.vim&#39;                                  &quot; file finder
+    Plug &#39;preservim/nerdtree&#39;                                  &quot; dir tree dock
+    Plug &#39;https://github.com/preservim/tagbar&#39;
+    Plug &#39;vim-scripts/bufkill.vim&#39;                             &quot; exit buffers without exiting vim
+    Plug &#39;jreybert/vimagit&#39;                                    &quot; git support
+    Plug &#39;https://github.com/ap/vim-css-color&#39;                 &quot; HEX-colors hilighting
+    Plug &#39;https://github.com/matze/vim-move&#39;                   &quot; code moving
+    Plug &#39;https://github.com/junegunn/vim-easy-align&#39;          &quot; fast text aligning
+    Plug &#39;https://github.com/ervandew/supertab&#39;
+    Plug &#39;https://github.com/jiangmiao/auto-pairs&#39;             &quot; completing pairs
+    Plug &#39;https://github.com/rhysd/vim-clang-format&#39;           &quot; auto formating
+    Plug &#39;honza/vim-snippets&#39;                                  &quot; set of snippets
+    Plug &#39;https://github.com/godlygeek/tabular&#39;                &quot; tab extender
+    Plug &#39;https://github.com/junegunn/vim-easy-align&#39;
+    Plug &#39;https://github.com/fadein/vim-FIGlet&#39;  &quot; figlet
+    Plug &#39;https://github.com/scrooloose/syntastic&#39;</code></pre>
+<p><a id="5336cc1e18a44fcbcdcaf76434a9dbc1"></a> ## Разное</p>
+<p><a id="1260d8308ede6b806d35e4d84021378e"></a> ### Plantuml v1.2021.16 Средство создания UML диаграм. Использовано для визуализации объектов и просецссов.</p>
+<p><a id="a7809f369ead5a4aba1407bab398c327"></a> ### BASH v5.1.16 Bourne Again Shell - интерпритатор, использован для автоматизации некотерых процессов. &gt; Примечание: &gt; Оглавления данной работы было автоматически сгенерерованно данным bash-скриптом:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="st">&quot;</span><span class="va">$1</span><span class="st">&quot;</span> <span class="op">&gt;</span> <span class="st">&quot;</span><span class="va">$1</span><span class="st">&quot;</span>.indexed</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span>index</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="va">i</span><span class="op">=</span><span class="va">(</span>-1 1<span class="va">)</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="va">prevLen</span><span class="op">=</span>0</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="bu">read</span> <span class="at">-r</span> <span class="va">line</span><span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="va">hash</span><span class="op">=</span><span class="st">&quot;</span><span class="va">$(</span><span class="ex">md5sum</span> <span class="op">&lt;&lt;&lt;</span> <span class="st">&quot;</span><span class="va">$line</span><span class="st">&quot;</span> <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-d</span> <span class="st">&#39; &#39;</span> <span class="at">-f</span> 1<span class="va">)</span><span class="st">&quot;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">printf</span> <span class="st">&quot;&lt;a id=</span><span class="dt">\&quot;</span><span class="st">%s</span><span class="dt">\&quot;</span><span class="st">&gt;&lt;/a&gt;\n%s\n&quot;</span> <span class="st">&quot;</span><span class="va">$hash</span><span class="st">&quot;</span> <span class="st">&quot;</span><span class="va">$line</span><span class="st">&quot;</span> <span class="op">&gt;</span> tmp</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sed</span> <span class="st">&quot;/</span><span class="va">$line</span><span class="st">/ {</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="st">        x</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="st">        r /home/xewii/Documents/TIT/ZXC/tmp</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="st">    }&quot;</span> <span class="st">&quot;</span><span class="va">$1</span><span class="st">&quot;</span>.indexed <span class="op">&gt;</span> <span class="st">&quot;</span><span class="va">$1</span><span class="st">&quot;</span>.indexed.tmp</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mv</span> <span class="st">&quot;</span><span class="va">$1</span><span class="st">&quot;</span>.indexed.tmp <span class="st">&quot;</span><span class="va">$1</span><span class="st">&quot;</span>.indexed</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="va">hdrLen</span><span class="op">=</span><span class="va">$(</span><span class="fu">awk</span> <span class="at">-F</span><span class="st">&#39;#&#39;</span> <span class="st">&#39;{print NF-1}&#39;</span> <span class="op">&lt;&lt;&lt;</span> <span class="st">&quot;</span><span class="va">$line</span><span class="st">&quot;</span><span class="va">)</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="va">hdrTxt</span><span class="op">=</span><span class="va">$(</span><span class="bu">echo</span> <span class="st">&quot;</span><span class="va">${line</span><span class="op">//</span><span class="ss">#</span><span class="op">/</span><span class="va">}</span><span class="st">&quot;</span><span class="va">)</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">((</span> <span class="va">$hdrLen</span> <span class="op">&gt;</span> <span class="dv">1</span> <span class="kw">))</span> <span class="kw">&amp;&amp;</span> <span class="cf">for</span> <span class="kw">((</span> <span class="va">j</span><span class="op">=</span><span class="dv">1</span><span class="kw">;</span> <span class="va">j</span><span class="op">&lt;</span><span class="va">$hdrLen</span><span class="op">*</span><span class="dv">4</span><span class="kw">;</span> <span class="va">j</span><span class="op">++</span> <span class="kw">));</span> <span class="cf">do</span> <span class="bu">printf</span> <span class="st">&#39; &#39;</span><span class="kw">;</span> <span class="cf">done</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">((</span> <span class="va">$prevLen</span> <span class="op">&lt;</span> <span class="va">$hdrLen</span> <span class="kw">))</span> <span class="kw">&amp;&amp;</span> <span class="va">i</span><span class="op">[</span><span class="va">$hdrLen</span><span class="op">]=</span>1</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="bu">printf</span> <span class="st">&quot;%d.[%s](#%s)\n&quot;</span> <span class="va">${i</span><span class="op">[</span><span class="va">$hdrLen</span><span class="op">]</span><span class="va">}</span> <span class="st">&quot;</span><span class="va">$hdrTxt</span><span class="st">&quot;</span> <span class="st">&quot;</span><span class="va">$hash</span><span class="st">&quot;</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="va">prevLen</span><span class="op">=</span><span class="va">$hdrLen</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="bu">let</span> <span class="va">i</span><span class="op">[</span><span class="va">$hdrLen</span><span class="op">]++</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span> <span class="op">&lt;&lt;&lt;</span> <span class="st">&quot;</span><span class="va">$(</span><span class="fu">grep</span> <span class="at">--color</span><span class="op">=</span>no <span class="at">-E</span> <span class="st">&quot;^#+&quot;</span> <span class="st">&quot;</span><span class="va">$1</span><span class="st">&quot;</span><span class="va">)</span><span class="st">&quot;</span> <span class="op">&gt;</span> index</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="fu">mv</span> <span class="st">&quot;</span><span class="va">$1</span><span class="st">&quot;</span>.indexed tmp</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">&quot;# Содержание\n&quot;</span> <span class="op">&gt;</span> <span class="st">&quot;</span><span class="va">$1</span><span class="st">&quot;</span>.indexed</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> index <span class="op">&gt;&gt;</span> <span class="st">&quot;</span><span class="va">$1</span><span class="st">&quot;</span>.indexed</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> tmp <span class="op">&gt;&gt;</span> <span class="st">&quot;</span><span class="va">$1</span><span class="st">&quot;</span>.indexed</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> tmp</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> index</span></code></pre></div>
+<p><a id="99db6cf9ec16fd66532911909e4ea007"></a> ## Отладка</p>
+<p><a id="3ecb9ddef9a2dddb3a2a67100b188eb6"></a> ### Valgrind v3.18 Утилита профилирования и отладки программы, использовано в основном для обнаружения утечек памяти.</p>
+<p><a id="b7249081aeaa3bc1b21f5a8f16eeb88e"></a> ## VCS</p>
+<p><a id="be9c09aacbde6d23d67f89a3fca38c08"></a> ### GIT v2.35.1 GIT - система контроля версий, сомо о себе говрит. Использовался в основном для перенесения кода между машинами и как средство дистрибъюции.</p>
+<p><a id="eb1fa9a0c02763fe5749637a8d16ac3a"></a> # Разработы базы данных ЧОП База данных ЧОП в пределах данной работы - головная сущность, вокрук которой будет строится весь функционал. База данных будет существовать под управлением SQLite.</p>
+<p><a id="28439b214a63ddabf081fe52b79e17ad"></a> ## Таблицы В компанию, как известно, входит некоторое количество сотрудников, по этому, я создаю таблицу Users. Название выбрано таковым, потому что она будет содержать данные учетных записей сотрудников и клиентов ЧОП.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;Users&quot;</span>(<span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>            <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>            <span class="ot">&quot;entryDate&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>            <span class="ot">&quot;role_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>            <span class="ot">&quot;wapon_id&quot;</span> <span class="dt">INTEGER</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>            <span class="ot">&quot;email&quot;</span> TEXT <span class="kw">UNIQUE</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>            <span class="ot">&quot;login&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>            <span class="ot">&quot;password&quot;</span> <span class="dt">BLOB</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>            <span class="ot">&quot;salt&quot;</span> <span class="dt">BLOB</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>            <span class="ot">&quot;image&quot;</span> <span class="dt">BLOB</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>            <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;wapon_id&quot;</span>) <span class="kw">REFERENCES</span> <span class="ot">&quot;Wapons&quot;</span>(<span class="ot">&quot;id&quot;</span>)<span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>            <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;role_id&quot;</span>) <span class="kw">REFERENCES</span> <span class="ot">&quot;Roles&quot;</span>(<span class="ot">&quot;id&quot;</span>)<span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>            <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span> AUTOINCREMENT))</span></code></pre></div>
+<p>Таблица содержит данные для идентификации:</p>
+<ul>
+<li>login</li>
+<li>password</li>
+<li>salt</li>
+</ul>
+<p>Пароль не храниться в открытов виде, а зашифорован с использованием динамической соли по алгоритму “Prefered salt algorithm”, более подробно будет расмотрен далее.</p>
+<p>Как видно, таблица Users зависит от таблиц Roles и Wapons, собственно вот они:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;Roles&quot;</span>(<span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;commands_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;payMultipler&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;payPeriod&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;commands_id&quot;</span>) <span class="kw">REFERENCES</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;roleCommands&quot;</span>(<span class="ot">&quot;role_id&quot;</span>)<span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>))</span></code></pre></div>
+<p>Роль определяет какие данные и соответственно команды можешь выполнять на сервере. Ссылается на таблицу roleComands - это SQL массив с ID команд, которые может выполнять пользователь с данной ролью, по поэтому я и отказался от других, более тяжелых СУБД, т.к. все необходимые действия делегируются на Сервер, что будет рассмотрено далее, от СУБД требуется только хранить данные и извлекать их. Связаная таблица roleCommands:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;roleCommands&quot;</span>(<span class="ot">&quot;role_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                   <span class="ot">&quot;command_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                   <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;role_id&quot;</span>) <span class="kw">REFERENCES</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                   <span class="ot">&quot;Roles&quot;</span>(<span class="ot">&quot;id&quot;</span>)<span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>)</span></code></pre></div>
+<p>Таблица Wapons:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;Wapons&quot;</span>(<span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;employee_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;ammo&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;price&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;ammoPrice&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;image&quot;</span> <span class="dt">BLOB</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;employee_id&quot;</span>) <span class="kw">REFERENCES</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;Users&quot;</span>(<span class="ot">&quot;id&quot;</span>)<span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>))</span></code></pre></div>
+<p>Каждая запись в таблице Wapons - это еденица зарегестрированного оружия, в полной мере описывающяя необходимые характеристики для ЧОП.</p>
+<p>Так как организация имеет свои расходы и доходы, нам нужно сохранять эти данные. Таблица Accounting:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;Accounting&quot;</span> (<span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>              <span class="ot">&quot;accountingType_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>              <span class="ot">&quot;pay&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>              <span class="ot">&quot;date&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>              <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;accountingType_id&quot;</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>              <span class="kw">REFERENCES</span> <span class="ot">&quot;AccountingType&quot;</span>(<span class="ot">&quot;id&quot;</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>              <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>) )</span></code></pre></div>
+<p>Зависит от таблицы AccountingType, описывающей какого рода транзакция была совершена.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;AccountingType&quot;</span> (<span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                  <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                  <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>,<span class="ot">&quot;name&quot;</span>) )</span></code></pre></div>
+<p>ЧОП получает доход от контрактов, по этому была составлена таблица Contracts:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;Contracts&quot;</span>(<span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;assignedEmployees_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;customer_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;objectType_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;objectAddress&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;objectWayPoint&quot;</span> TEXT, <span class="ot">&quot;date&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;expirationDate&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;weekends&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>                <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;customer_id&quot;</span>) <span class="kw">REFERENCES</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;Users&quot;</span>(<span class="ot">&quot;id&quot;</span>)<span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>                <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>),</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>                <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;assignedEmployees_id&quot;</span>) <span class="kw">REFERENCES</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;AssignedEmployees&quot;</span>(<span class="ot">&quot;employee_id&quot;</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>                <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;objectType_id&quot;</span>) <span class="kw">REFERENCES</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;objectType&quot;</span>(<span class="ot">&quot;id&quot;</span>)<span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>)</span></code></pre></div>
+<p>Запись в таблице Contracts это сделка вида, описанного в связаной таблице objetType. Таблица objetType:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;objectType&quot;</span> ( <span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>               <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                   <span class="ot">&quot;price&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                   <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>) )</span></code></pre></div>
+<p>Запись в данной таблице описывает объект контракта, где указывается базавая цена за период оплаты(payPeriod) исполнителя/исполнителей контракта(assignedEmployees_id). Для привязки нескольких сотрудников, была создана еще одна таблица AssignedEmployees, являющейся массивом.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> <span class="ot">&quot;AssignedEmployees&quot;</span> (</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;employee_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;guiltyPercent&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;usedAmmo&quot;</span> <span class="dt">INTEGER</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;employee_id&quot;</span>) <span class="kw">REFERENCES</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;Users&quot;</span>(<span class="ot">&quot;id&quot;</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>) )</span></code></pre></div>
+<p>Для создания контракта в данной таблице нужно только 2 поля - id, employee_id. Так так во время исполнения может произойти какой то ицедент, то была создана таблица Accidents:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;Accidents&quot;</span> (<span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;contract_id&quot;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;usedAmmoCount&quot;</span> <span class="dt">INTEGER</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;damagePrice&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>),</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;assignedEmployees_id&quot;</span> <span class="dt">INTEGER</span>,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;contract_id&quot;</span>) <span class="kw">REFERENCES</span> <span class="ot">&quot;Contracts&quot;</span>(<span class="ot">&quot;id&quot;</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;assignedEmployees_id&quot;</span>) <span class="kw">REFERENCES</span> <span class="ot">&quot;AssignedEmployees&quot;</span>(<span class="ot">&quot;id&quot;</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>) )</span></code></pre></div>
+<p>Описывает проишествия, произошедшие во время исполнения контракта. Если у нас есть контракты, описывающие некую деятельность с учетом выходных и рамок начала и окончания службы, то можно было бы ускорить вычисление рабочего времени по дням с помощью препроцессинга данных из записи Contracts. Таблицей, в которую сохраняются транслированные данные является - DutySchedule:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;DutySchedule&quot;</span> ( <span class="ot">&quot;emploee_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;day&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>             <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;emploee_id&quot;</span>) <span class="kw">REFERENCES</span> <span class="ot">&quot;Users&quot;</span>(<span class="ot">&quot;id&quot;</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span> )</span></code></pre></div>
+<p>day - это 64х битная цыфра со знаком в формате UNIX time(secs since epoch).</p>
+<p><a id="851980d29e4e343f67c61f95cea40cfa"></a> ## Визуализация базы данных <img src="/home/xewii/Documents/TIT/ZXC/databaseReferences.png" /></p>
+<p><a id="142c5c1c8f822ab1538b7817a180b7ab"></a> # Разработка архитектуры приложения Приложение для взаимодействия с моделью ЧОП, построенной ранее, должно предоставлять функционал для реализации всех описанных процессов взаимодействия с моделью ЧОП.</p>
+<p><a id="721f411e2bde409ec1037acdea3d0f8c"></a> ## Основа Основной функцией приложения, как понятно из темы курсовой работы, будет обеспечение безопасности данных. Исходя из этого в голову приходит идея организовать клиент-серверную архитектуру приложения, но это не главная причина почему выбрана такая архитектура. Основная причина - необходимость принимать заказы от клиентов, предоставить им функционал для удобного взаимодействия с персоналом ЧОП, но по большей части он будет взаимодействовать с клавиатурой. И для персонала ЧОП тоже будет намного удобнее и быстрее использовать унифицированные методы итерации с базой данных и самой организацией.</p>
+<h2 id="информационные-потоки-чоп">Информационные потоки ЧОП</h2>
+<p><a id="644c422e8bfdc2ee8d075ef63b6ab7de"></a> ## Информационные потоки ЧОП <img src="/home/xewii/Documents/TIT/ZXC/infoServiceFlow.png" /></p>
+<p><a id="503aa110ff5e803702414f90c5c5ebd6"></a> ## Обращение к базе данных Как было сказано ранее, СУБД не будет управлять системой привелегий, этим будет заниматься другой код. Система, которую я разработал основана на ролях, так же как и в обычных “умных” СУБД, к которым привязано некоторое количество возможных к исполнению команд. <img src="img/identificationSystem.png" /></p>
+<p><a id="32bde6e6debc82c0610a99d90127ac67"></a> ### Система безопасности Для обеспечения более высокого уровня защиты команды и роли будут вшиты в программу. При каждом старте будет проверятся валидность первоначальных данных и имеющихся на данный момент в базе данных. Также, как мера безопасности к ПС будут предложены хеш суммы исполняемых файлов.</p>
+<p><a id="c6725059f1407364b5c9cae3833a0b92"></a> #### Система идентификации и авторизации При регистрации нового пользователя создается новая запись в таблице Users, все поля, короме поля password сохраняются в неизменнов виде. password сохраняется в захешированном виде при использовании хэш функции sha512 с использование динамической соли.</p>
+<p>Алгоритм создания соли:</p>
+<ol type="1">
+<li>Подсчет количества символов разных типов в пароле.</li>
+<li>Выявление слабых сторон пароля.</li>
+<li>Формирование алфавита для создания соли.</li>
+<li>С помощью “strog random” функции выборка символов из составленого алфавита.</li>
+<li>Запись результата.</li>
+</ol>
+<p>Алгоритм хэширования пароля:</p>
+<ol type="1">
+<li>Генерация соли.</li>
+<li>Взятие первичного хеша с пароля.</li>
+<li>Итерационно выбрать по байтно методом XOR младших битов первичного хеша и переданного пароля места вставки соли.</li>
+<li>Хеширование получившейся строки.</li>
+<li>Запись результата.</li>
+</ol>
+<p>Данный алгорит и выбраная хэш функция ограничивают максимальную длину пароля до 64 символов. Длина соли была вабрана 32 байтная. Соль сохраняется вместе с паролем, чтобы обеспечить возможность идентификации.</p>
+<p>Для идентификации проводится сравнивание значение пароля из базы данных с переданным в функцию шифрования с солью данной записи пользователя пароля.</p>
+<p><a id="86fb03765331149de407516aaeb0b09d"></a> #### Система команд Проанализировав информационные потоки и требования ЧОП я составил 22 команды, в исходном коде объявление команд выглядит вот так:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">// id, name, executor</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#define COMMANDS_MAP(XX) \</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 0,  MAKE_CONTRACT,        exec_make_contract      ) \</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 1,  MAKE_DUTY_SCHEDULE,   exec_make_duty_schedule ) \</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 2,  REGISTER_ACCIDENT,    exec_register_accident  ) \</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 3,  REGISTER_EMPLOYEE,    exec_register_employee  ) \</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 4,  REGISTER_CUSTOMER,    exec_register_customer  ) \</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 5,  REGISTER_OBJECT_TYPE, exec_register_object_type) \</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 6,  REGISTER_WAPON,       exec_register_wapon     ) \</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 7,  ASSIGN_WAPON,         exec_assign_wapon       ) \</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 8,  PAY_AMMO,             exec_pay_ammo           ) \</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 9,  PAY_EMPLOYEE,         exec_pay_employee       ) \</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 10, PAY_ACCIDENT,         exec_pay_accident       ) \</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 11, EDIT_OBJECT_TYPE,     exec_edit_object_type   ) \</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 12, UPDATE_ROLE,          exec_update_role        ) \</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 13, GET_USER_INFO,        exec_get_user_info      ) \</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 14, GET_ACCIDENT_DETAILS, exec_get_accident_details) \</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 15, GET_ACCOUNTING_ENTRY, exec_get_accounting_entry) \</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 16, GET_OBJECT_DETAILS,   exec_get_object_detalils) \</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 17, GET_ROLE_DETAILS,     exec_get_role_details   ) \</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 18, GET_WAPON_DETAILS,    exec_get_wapon_details  ) \</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 19, GET_DUTY_SCHEDULE,    exec_get_duty_schedule  ) \</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 20, CREATE_TABLE,         exec_create_table       ) \</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 21, IDENTIFY,             exec_identify           ) \</span></span></code></pre></div>
+<p><a id="2ee3341b6480f3fef26e52e6aa3642cd"></a> ## Клиен-Сервер</p>
+<p><a id="047d272a34a43782c51918621461b8f2"></a> ### Протокол</p>
+<p><a id="6a255c9653f902d73d96ad1b4fcc0d4e"></a> ### Клиент</p>
+<p><a id="5b8e943bc4beaee5458ad082d6f1b630"></a> ### Сервер <img src="img/serverStruct.png" /></p>
+<p><a id="bfd028419917154b7a8120e6afe90bb3"></a> ## Модель создания GUI</p>
+<p><a id="ad12d5b6aeddf84d8c72205610cfaf39"></a> # Реализация приложения</p>
+<p><a id="86798bf223d43272c3136ba329fbf9b3"></a> ## Пользовательский интерфейс</p>
+<p><a id="84643a8881036d8725be23faf5bfaccc"></a> ### PagesManager</p>
+<p><a id="2c70e6e799cd133b94067ebe0f920217"></a> ### NotifyManager</p>
+<p><a id="e1c1d994d00e4e7a44fcd5d029d3548d"></a> # Заключение Вот и сказочки конец, кто дочитал - тот молодец.</p>
+<p><a id="bc5e99ae74607750379b50c9e11d0695"></a> # Список литиратуры 1. https://wiki.qt.io - документация Qt 2. https://www.sqlite.org/ - документация SQLite</p>
+</body>
+</html>
