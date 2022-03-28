@@ -1,8 +1,10 @@
 #!/bin/bash
 
-cat "$1" > "$1".indexed
+out="$1".indexed
 
->index
+cp "$1" "$out"
+
+> index
 
 i=(-1 1)
 prevLen=0
@@ -11,9 +13,9 @@ while read -r line; do
     printf "<a id=\"%s\"></a>\n%s\n" "$hash" "$line" > tmp
     sed "/$line/ {
         x
-        r /home/xewii/Documents/TIT/ZXC/tmp
-    }" "$1".indexed > "$1".indexed.tmp
-    mv "$1".indexed.tmp "$1".indexed
+        r tmp
+    }" "$out" > "${out}.tmp"
+    mv "${out}.tmp" "$out"
     hdrLen=$(awk -F'#' '{print NF-1}' <<< "$line")
     hdrTxt=$(echo "${line//#/}")
     (( $hdrLen > 1 )) && for (( j=1; j<$hdrLen*4; j++ )); do printf ' '; done
@@ -23,10 +25,11 @@ while read -r line; do
     let i[$hdrLen]++
 done <<< "$(grep --color=no -E "^#+ " "$1")" > index
 
-mv "$1".indexed tmp
-printf "# Содержание\n" > "$1".indexed
-cat index >> "$1".indexed
-cat tmp >> "$1".indexed
+cat "$out" > "$out".tmp
+printf "# Содержание\n" > "$out"
+cat index >> "$out"
+cat "$out".tmp >> "$out"
 
-# rm tmp
-# rm index
+rm index
+rm tmp
+rm "$out".tmp

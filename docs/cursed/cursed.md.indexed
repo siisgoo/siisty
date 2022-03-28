@@ -91,7 +91,7 @@
 5. Отдел инкосации
 6. Отдел вооружения
 
-![](/home/xewii/Documents/TIT/ZXC/orgStruct.png)
+![](img/orgStruct.png)
 
 Если говорить о предоствляемых услугах более конкретно, то ЧОП для потребителя предлогает:
 
@@ -101,12 +101,12 @@
 
 <a id="644c422e8bfdc2ee8d075ef63b6ab7de"></a>
 ## Информационные потоки ЧОП
-![](/home/xewii/Documents/TIT/ZXC/infoFlow.png)
+![](img/infoFlow.png)
 
 
 <a id="bd328bb371cabcf61a023dd89284d430"></a>
 ## Процессы внутри ЧОП
-![](/home/xewii/Documents/TIT/ZXC/insideProcess.png)
+![](img/insideProcess.png)
 
 
 <a id="f61c3d8237771dae61110cd55542d40f"></a>
@@ -466,7 +466,7 @@ day - это 64х битная цыфра со знаком в формате UN
 <a id="503aa110ff5e803702414f90c5c5ebd6"></a>
 ## Обращение к базе данных
 Как было сказано ранее, СУБД не будет управлять системой привелегий, этим будет заниматься другой код. Система, которую я разработал основана на ролях, так же как и в обычных "умных" СУБД, к которым привязано некоторое количество возможных к исполнению команд.
-![](/home/xewii/Documents/TIT/ZXC/identificationSystem.png)
+![](img/identificationSystem.png)
 
 
 <a id="32bde6e6debc82c0610a99d90127ac67"></a>
@@ -549,7 +549,7 @@ day - это 64х битная цыфра со знаком в формате UN
 
 <a id="5b8e943bc4beaee5458ad082d6f1b630"></a>
 ### Сервер
-![](/home/xewii/Documents/TIT/ZXC/serverStruct.png)
+![](img/serverStruct.png)
 
 
 <a id="bfd028419917154b7a8120e6afe90bb3"></a>
