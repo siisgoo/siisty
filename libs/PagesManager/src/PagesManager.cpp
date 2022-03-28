@@ -188,7 +188,8 @@ PagesManager::reset()
     _pagePath->reset();
 }
 
-void PagesManager::bindPages(const QString& parent, const QVector<QString>& childs)
+void
+PagesManager::bindPages(const QString& parent, const QVector<QString>& childs)
 {
     int nid = _nav->addNav(childs, parent != _root);
     _pages[parent].navId = nid;

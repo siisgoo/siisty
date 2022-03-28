@@ -40,11 +40,27 @@
 - Охрана объекта
 - Охрана ценных бумаг или металов(инкосация)
 
+![PSC structure](img/orgStruct.png)
+
 ## Информационные потоки ЧОП
 ![inside info flows](img/infoFlow.png)
 
-## Активности внутри ЧОП
+## Процессы внутри ЧОП
 ![PSC Activities](img/insideProcess.png)
+
+### Описание процессов
+
+#### Составление контракта
+
+#### Прием на работу
+
+#### Регистрация и выдача оружия
+
+#### Выплаты
+
+Выплаты работникам:
+
+Выплаты за нанесенный ущерб объекту охраны при не нулевом проценте вины сотрудника:
 
 # Описание средстд разработки
 В данном разделе будут рассмотрены средства разработки, используемые мной при создании ПС для ЧОП.
@@ -478,13 +494,171 @@ day - это 64х битная цыфра со знаком в формате UN
 
 ### PagesManager
 Данный класс отвечает за агрегацию "страниц" GUI и их переключение.
+> Страница - это отдельный виджет(QWidget) или объект-наследник.
+Сам класс PagesManager - это тоже виджет, наследуемый от QFrame(он тоже наследник QWidget).
+
+Содержит в себе именованный массив страниц:
+
+```c
+struct Page {
+    QWidget * widget = nullptr;
+    int navId = -1;
+    QVector<QString> edges = {};
+};
+
+QMap<QString, Page> _pages;
+```
+
+Как видно из данного участка кода, одна страница может быть связана с другими по имени(можно было бы связывать напрямую с другим объектом Page, но выбранный мной подход более прост в реализации).
+Страница добавляется в общий массив методом:
+```c
+void
+PagesManager::addPage(const QString& name, QWidget* wp,
+                      const QVector<QString>& edges)
+{
+    if (!wp) {
+        throw QString("empty widgt passed");
+    }
+
+    wp->setObjectName(name);
+    _pages[name] = {wp, -1, edges};
+    _view->addWidget(wp);
+}
+```
+
+view - это QStacketWidget - место размещения страниц и является основной сущностью пейджера.
+Также, класс содержит перегруженный метод добавления корневой страницы. Она необходима для построения путей к страницы.
+
+За построение пути отвечает агрегируемый класс PagePathFrame, наследуемый от QFrame, является второй основной сущность пейджера.
+Основным методом класса явяется методод:
+
+```c
+void
+PagePathFrame::changePath(const QVector<QString>& path)
+{
+    reset();
+    for (auto node : path) {
+        QWidget * lbl = new QLabel(_delemiter, this);
+        lbl->setFont(QFont("Jet Brains Mono", 9));
+        lbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+        _layout->addWidget(lbl);
+        ClickableLabel * clbl = new ClickableLabel(node, this);
+        clbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+        clbl->setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
+        clbl->setStyleSheet("color: #b78620");
+        connect(clbl, &ClickableLabel::clicked, [this, node] { Q_EMIT clicked(node);  });
+        _layout->addWidget(clbl);
+    }
+    adjustSize();
+}
+```
+
+Путь к страницы вычисляется в методе пейджера:
+```c
+QVector<QString>
+PagesManager::pagePath(const QString& page)
+{
+    QVector<QString> path { page  };
+    QString search = page;
+    bool done = false;
+    int tries = 0;
+
+    while (!done && tries < _pages.size() + 1) {
+        for (auto i : _pages) {
+            if (search == _root) {
+                done = true;
+                break;
+            }
+            for (auto node : i.edges) {
+                if (node == search) {
+                    search = i.widget->objectName();
+                    path.push_front(search);
+                    // exit outer?
+                    break;
+                }
+            }
+        }
+        tries++;
+    }
+    return path;
+}
+```
+
+Не самый эффективный метод, можно было бы хранить сразу все возможные пути в массиве.
+Метод основан на поиск в глубину в графе, если я не ошибаюсь.
+
+Как видно, каждый элемент фрейма, при нажатии генерирует сигнал о нажатии, для отправки PagesManager. При получении пейджер меняет страницу.
+
+Третьей сущностью явялется навигационная панель - NavWidget.
+Содержит связаные с данной страницей ссылки в виде кнопок.
+Гланый метод добавления навигационного меню:
+```c
+int
+NavWidget::addNav(const QVector<QString>& pages, bool createBack)
+{
+    NavFrame * fnav = new NavFrame(pages, createBack, this);
+    this->addWidget(fnav);
+    connect(fnav, SIGNAL(clicked(QString)), this, SIGNAL(clicked(QString)));
+    adjustSize();
+    return this->count()-1;
+}
+```
+
+Так же при нажатии меняет страницу.
+
+Для того, чтобы связать страницы и навигационное меню используется рекурсивный метод:
+```c
+void
+PagesManager::bindPages(const QString& parent, const QVector<QString>& childs)
+{
+    int nid = _nav->addNav(childs, parent != _root);
+    _pages[parent].navId = nid;
+    for (auto child : childs) {
+        if (_pages[child].edges.length() > 0) {
+            bindPages(child, _pages[child].edges);
+        } else {
+            _pages[child].navId = nid;
+        }
+    }
+}
+
+void
+PagesManager::finalize()
+{
+    if (_root == QString()) {
+        throw "Cannot finalize PagesManager without root page";
+    }
+    bindPages(_root, _pages[_root].edges);
+    changePage(_root);
+}
+```
+
 
 ### NotifyManager
 TODO
 
-## Драйвер базы данных
 
-## iiServer
+## Логгер
+
+## iiNPack
+
+## Сервер
+
+### Драйвер базы данных
+
+#### Криптография
+
+### iiServer
+
+#### ClientLink
+
+#### Процессор подключений
+
+## Клиент
+
+### Service
+
+...
 
 # Заключение
 TODO

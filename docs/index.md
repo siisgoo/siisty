@@ -3,7 +3,12 @@
 2. [ Теоритическая часть ](#58423f3301dee86e5a6dd4564805721f)
 	1. [ Организация ЧОП ](#a66c7beef7ee05ce09ccd305758a4b34)
 	2. [ Информационные потоки ЧОП ](#644c422e8bfdc2ee8d075ef63b6ab7de)
-	3. [ Активности внутри ЧОП ](#775b75a31b598fc3b42886fee36d0a27)
+	3. [ Процессы внутри ЧОП ](#bd328bb371cabcf61a023dd89284d430)
+		1. [ Описание процессов ](#55bb6be8b93e93b450e602b5d88f0744)
+			1. [ Составление контракта ](#a10e8e66a8fb12520c93c572664604c9)
+			2. [ Прием на работу ](#492dbf93213f4fdd2414b9e35224c200)
+			3. [ Регистрация и выдача оружия ](#a67dfdaec394ee405cbad740a91f9c25)
+			4. [ Выплаты ](#17b28a30349fce25cd658d2188eff4f3)
 3. [ Описание средстд разработки ](#f61c3d8237771dae61110cd55542d40f)
 	1. [ Утилиты для разработки баз данных ](#2211f9a30f64e3adc7a68fb612f8a384)
 		1. [ SQLite v3.35.5 stable ](#15c7d3fb026a6b7191009b2aba592007)
@@ -45,8 +50,16 @@
 	1. [ Пользовательский интерфейс ](#86798bf223d43272c3136ba329fbf9b3)
 		1. [ PagesManager ](#84643a8881036d8725be23faf5bfaccc)
 		2. [ NotifyManager ](#2c70e6e799cd133b94067ebe0f920217)
-	2. [ Драйвер базы данных ](#207b6901954c4595ea3d6b10eb547cec)
-	3. [ iiServer ](#d07691a7eec72143699a3dd8491a1af8)
+	2. [ Логгер ](#1273e0f44063343112756ce23b2d6f2b)
+	3. [ iiNPack ](#1801c85ec3a13ae99bc3fe8a25db50fb)
+	4. [ Сервер ](#1739f69cead8bb7ff41563dcc748a072)
+		1. [ Драйвер базы данных ](#2a334021979df79f54f0a8f48367c12c)
+			1. [ Криптография ](#99ed80269db632accc22cace769ff223)
+		2. [ iiServer ](#4a3506dd433b64a601e400e07b2a3b1c)
+			1. [ ClientLink ](#1f7f90d854564597157d657bc7c8968a)
+			2. [ Процессор подключений ](#e3d4a75ceaa1be8d285dacee2bfe4bf1)
+	5. [ Клиент ](#b99b6558c7cde67d398236bf888d33cb)
+		1. [ Service ](#7eef63514ed827f85a480746eea9b025)
 7. [ Заключение ](#e1c1d994d00e4e7a44fcd5d029d3548d)
 8. [ Список литиратуры ](#bc5e99ae74607750379b50c9e11d0695)
 
@@ -103,6 +116,8 @@
 - Охрана объекта
 - Охрана ценных бумаг или металов(инкосация)
 
+![PSC structure](img/orgStruct.png)
+
 
 <a id="644c422e8bfdc2ee8d075ef63b6ab7de"/>
 
@@ -111,11 +126,45 @@
 ![inside info flows](img/infoFlow.png)
 
 
-<a id="775b75a31b598fc3b42886fee36d0a27"/>
+<a id="bd328bb371cabcf61a023dd89284d430"/>
 
-## Активности внутри ЧОП
+## Процессы внутри ЧОП
 
 ![PSC Activities](img/insideProcess.png)
+
+
+<a id="55bb6be8b93e93b450e602b5d88f0744"/>
+
+### Описание процессов
+
+
+
+<a id="a10e8e66a8fb12520c93c572664604c9"/>
+
+#### Составление контракта
+
+
+
+<a id="492dbf93213f4fdd2414b9e35224c200"/>
+
+#### Прием на работу
+
+
+
+<a id="a67dfdaec394ee405cbad740a91f9c25"/>
+
+#### Регистрация и выдача оружия
+
+
+
+<a id="17b28a30349fce25cd658d2188eff4f3"/>
+
+#### Выплаты
+
+
+Выплаты работникам:
+
+Выплаты за нанесенный ущерб объекту охраны при не нулевом проценте вины сотрудника:
 
 
 <a id="f61c3d8237771dae61110cd55542d40f"/>
@@ -709,6 +758,145 @@ day - это 64х битная цыфра со знаком в формате UN
 ### PagesManager
 
 Данный класс отвечает за агрегацию "страниц" GUI и их переключение.
+> Страница - это отдельный виджет(QWidget) или объект-наследник.
+Сам класс PagesManager - это тоже виджет, наследуемый от QFrame(он тоже наследник QWidget).
+
+Содержит в себе именованный массив страниц:
+
+```c
+struct Page {
+    QWidget * widget = nullptr;
+    int navId = -1;
+    QVector<QString> edges = {};
+};
+
+QMap<QString, Page> _pages;
+```
+
+Как видно из данного участка кода, одна страница может быть связана с другими по имени(можно было бы связывать напрямую с другим объектом Page, но выбранный мной подход более прост в реализации).
+Страница добавляется в общий массив методом:
+```c
+void
+PagesManager::addPage(const QString& name, QWidget* wp,
+                      const QVector<QString>& edges)
+{
+    if (!wp) {
+        throw QString("empty widgt passed");
+    }
+
+    wp->setObjectName(name);
+    _pages[name] = {wp, -1, edges};
+    _view->addWidget(wp);
+}
+```
+
+view - это QStacketWidget - место размещения страниц и является основной сущностью пейджера.
+Также, класс содержит перегруженный метод добавления корневой страницы. Она необходима для построения путей к страницы.
+
+За построение пути отвечает агрегируемый класс PagePathFrame, наследуемый от QFrame, является второй основной сущность пейджера.
+Основным методом класса явяется методод:
+
+```c
+void
+PagePathFrame::changePath(const QVector<QString>& path)
+{
+    reset();
+    for (auto node : path) {
+        QWidget * lbl = new QLabel(_delemiter, this);
+        lbl->setFont(QFont("Jet Brains Mono", 9));
+        lbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+        _layout->addWidget(lbl);
+        ClickableLabel * clbl = new ClickableLabel(node, this);
+        clbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+        clbl->setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
+        clbl->setStyleSheet("color: #b78620");
+        connect(clbl, &ClickableLabel::clicked, [this, node] { Q_EMIT clicked(node);  });
+        _layout->addWidget(clbl);
+    }
+    adjustSize();
+}
+```
+
+Путь к страницы вычисляется в методе пейджера:
+```c
+QVector<QString>
+PagesManager::pagePath(const QString& page)
+{
+    QVector<QString> path { page  };
+    QString search = page;
+    bool done = false;
+    int tries = 0;
+
+    while (!done && tries < _pages.size() + 1) {
+        for (auto i : _pages) {
+            if (search == _root) {
+                done = true;
+                break;
+            }
+            for (auto node : i.edges) {
+                if (node == search) {
+                    search = i.widget->objectName();
+                    path.push_front(search);
+                    // exit outer?
+                    break;
+                }
+            }
+        }
+        tries++;
+    }
+    return path;
+}
+```
+
+Не самый эффективный метод, можно было бы хранить сразу все возможные пути в массиве.
+Метод основан на поиск в глубину в графе, если я не ошибаюсь.
+
+Как видно, каждый элемент фрейма, при нажатии генерирует сигнал о нажатии, для отправки PagesManager. При получении пейджер меняет страницу.
+
+Третьей сущностью явялется навигационная панель - NavWidget.
+Содержит связаные с данной страницей ссылки в виде кнопок.
+Гланый метод добавления навигационного меню:
+```c
+int
+NavWidget::addNav(const QVector<QString>& pages, bool createBack)
+{
+    NavFrame * fnav = new NavFrame(pages, createBack, this);
+    this->addWidget(fnav);
+    connect(fnav, SIGNAL(clicked(QString)), this, SIGNAL(clicked(QString)));
+    adjustSize();
+    return this->count()-1;
+}
+```
+
+Так же при нажатии меняет страницу.
+
+Для того, чтобы связать страницы и навигационное меню используется рекурсивный метод:
+```c
+void
+PagesManager::bindPages(const QString& parent, const QVector<QString>& childs)
+{
+    int nid = _nav->addNav(childs, parent != _root);
+    _pages[parent].navId = nid;
+    for (auto child : childs) {
+        if (_pages[child].edges.length() > 0) {
+            bindPages(child, _pages[child].edges);
+        } else {
+            _pages[child].navId = nid;
+        }
+    }
+}
+
+void
+PagesManager::finalize()
+{
+    if (_root == QString()) {
+        throw "Cannot finalize PagesManager without root page";
+    }
+    bindPages(_root, _pages[_root].edges);
+    changePage(_root);
+}
+```
+
 
 
 <a id="2c70e6e799cd133b94067ebe0f920217"/>
@@ -718,16 +906,67 @@ day - это 64х битная цыфра со знаком в формате UN
 TODO
 
 
-<a id="207b6901954c4595ea3d6b10eb547cec"/>
 
-## Драйвер базы данных
+<a id="1273e0f44063343112756ce23b2d6f2b"/>
+
+## Логгер
 
 
 
-<a id="d07691a7eec72143699a3dd8491a1af8"/>
+<a id="1801c85ec3a13ae99bc3fe8a25db50fb"/>
 
-## iiServer
+## iiNPack
 
+
+
+<a id="1739f69cead8bb7ff41563dcc748a072"/>
+
+## Сервер
+
+
+
+<a id="2a334021979df79f54f0a8f48367c12c"/>
+
+### Драйвер базы данных
+
+
+
+<a id="99ed80269db632accc22cace769ff223"/>
+
+#### Криптография
+
+
+
+<a id="4a3506dd433b64a601e400e07b2a3b1c"/>
+
+### iiServer
+
+
+
+<a id="1f7f90d854564597157d657bc7c8968a"/>
+
+#### ClientLink
+
+
+
+<a id="e3d4a75ceaa1be8d285dacee2bfe4bf1"/>
+
+#### Процессор подключений
+
+
+
+<a id="b99b6558c7cde67d398236bf888d33cb"/>
+
+## Клиент
+
+
+
+<a id="7eef63514ed827f85a480746eea9b025"/>
+
+### Service
+
+
+...
 
 
 <a id="e1c1d994d00e4e7a44fcd5d029d3548d"/>

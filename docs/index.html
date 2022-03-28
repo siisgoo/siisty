@@ -246,14 +246,24 @@
 <li>Охрана объекта</li>
 <li>Охрана ценных бумаг или металов(инкосация)</li>
 </ul>
+<figure>
+<img src="img/orgStruct.png" alt="PSC structure" /><figcaption aria-hidden="true">PSC structure</figcaption>
+</figure>
 <h2 id="информационные-потоки-чоп">Информационные потоки ЧОП</h2>
 <figure>
 <img src="img/infoFlow.png" alt="inside info flows" /><figcaption aria-hidden="true">inside info flows</figcaption>
 </figure>
-<h2 id="активности-внутри-чоп">Активности внутри ЧОП</h2>
+<h2 id="процессы-внутри-чоп">Процессы внутри ЧОП</h2>
 <figure>
 <img src="img/insideProcess.png" alt="PSC Activities" /><figcaption aria-hidden="true">PSC Activities</figcaption>
 </figure>
+<h3 id="описание-процессов">Описание процессов</h3>
+<h4 id="составление-контракта">Составление контракта</h4>
+<h4 id="прием-на-работу">Прием на работу</h4>
+<h4 id="регистрация-и-выдача-оружия">Регистрация и выдача оружия</h4>
+<h4 id="выплаты">Выплаты</h4>
+<p>Выплаты работникам:</p>
+<p>Выплаты за нанесенный ущерб объекту охраны при не нулевом проценте вины сотрудника:</p>
 <h1 id="описание-средстд-разработки">Описание средстд разработки</h1>
 <p>В данном разделе будут рассмотрены средства разработки, используемые мной при создании ПС для ЧОП.</p>
 <h2 id="утилиты-для-разработки-баз-данных">Утилиты для разработки баз данных</h2>
@@ -570,11 +580,126 @@
 <li>Менеджер уведомлений(NotifyManager)</li>
 </ul>
 <h3 id="pagesmanager">PagesManager</h3>
-<p>TODO</p>
+<p>Данный класс отвечает за агрегацию “страниц” GUI и их переключение. &gt; Страница - это отдельный виджет(QWidget) или объект-наследник. Сам класс PagesManager - это тоже виджет, наследуемый от QFrame(он тоже наследник QWidget).</p>
+<p>Содержит в себе именованный массив страниц:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> Page <span class="op">{</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    QWidget <span class="op">*</span> widget <span class="op">=</span> nullptr<span class="op">;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> navId <span class="op">=</span> <span class="op">-</span><span class="dv">1</span><span class="op">;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    QVector<span class="op">&lt;</span>QString<span class="op">&gt;</span> edges <span class="op">=</span> <span class="op">{};</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>QMap<span class="op">&lt;</span>QString<span class="op">,</span> Page<span class="op">&gt;</span> _pages<span class="op">;</span></span></code></pre></div>
+<p>Как видно из данного участка кода, одна страница может быть связана с другими по имени(можно было бы связывать напрямую с другим объектом Page, но выбранный мной подход более прост в реализации). Страница добавляется в общий массив методом:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>PagesManager<span class="op">::</span>addPage<span class="op">(</span><span class="dt">const</span> QString<span class="op">&amp;</span> name<span class="op">,</span> QWidget<span class="op">*</span> wp<span class="op">,</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                      <span class="dt">const</span> QVector<span class="op">&lt;</span>QString<span class="op">&gt;&amp;</span> edges<span class="op">)</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(!</span>wp<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>        throw QString<span class="op">(</span><span class="st">&quot;empty widgt passed&quot;</span><span class="op">);</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    wp<span class="op">-&gt;</span>setObjectName<span class="op">(</span>name<span class="op">);</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    _pages<span class="op">[</span>name<span class="op">]</span> <span class="op">=</span> <span class="op">{</span>wp<span class="op">,</span> <span class="op">-</span><span class="dv">1</span><span class="op">,</span> edges<span class="op">};</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    _view<span class="op">-&gt;</span>addWidget<span class="op">(</span>wp<span class="op">);</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>view - это QStacketWidget - место размещения страниц и является основной сущностью пейджера. Также, класс содержит перегруженный метод добавления корневой страницы. Она необходима для построения путей к страницы.</p>
+<p>За построение пути отвечает агрегируемый класс PagePathFrame, наследуемый от QFrame, является второй основной сущность пейджера. Основным методом класса явяется методод:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>PagePathFrame<span class="op">::</span>changePath<span class="op">(</span><span class="dt">const</span> QVector<span class="op">&lt;</span>QString<span class="op">&gt;&amp;</span> path<span class="op">)</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    reset<span class="op">();</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">auto</span> node <span class="op">:</span> path<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>        QWidget <span class="op">*</span> lbl <span class="op">=</span> new QLabel<span class="op">(</span>_delemiter<span class="op">,</span> this<span class="op">);</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>        lbl<span class="op">-&gt;</span>setFont<span class="op">(</span>QFont<span class="op">(</span><span class="st">&quot;Jet Brains Mono&quot;</span><span class="op">,</span> <span class="dv">9</span><span class="op">));</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>        lbl<span class="op">-&gt;</span>setSizePolicy<span class="op">(</span>QSizePolicy<span class="op">::</span>Maximum<span class="op">,</span> QSizePolicy<span class="op">::</span>Maximum<span class="op">);</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>        _layout<span class="op">-&gt;</span>addWidget<span class="op">(</span>lbl<span class="op">);</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>        ClickableLabel <span class="op">*</span> clbl <span class="op">=</span> new ClickableLabel<span class="op">(</span>node<span class="op">,</span> this<span class="op">);</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>        clbl<span class="op">-&gt;</span>setSizePolicy<span class="op">(</span>QSizePolicy<span class="op">::</span>Maximum<span class="op">,</span> QSizePolicy<span class="op">::</span>Maximum<span class="op">);</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>        clbl<span class="op">-&gt;</span>setCursor<span class="op">(</span>QCursor<span class="op">(</span>Qt<span class="op">::</span>CursorShape<span class="op">::</span>PointingHandCursor<span class="op">));</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>        clbl<span class="op">-&gt;</span>setStyleSheet<span class="op">(</span><span class="st">&quot;color: #b78620&quot;</span><span class="op">);</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>        connect<span class="op">(</span>clbl<span class="op">,</span> <span class="op">&amp;</span>ClickableLabel<span class="op">::</span>clicked<span class="op">,</span> <span class="op">[</span>this<span class="op">,</span> node<span class="op">]</span> <span class="op">{</span> Q_EMIT clicked<span class="op">(</span>node<span class="op">);</span>  <span class="op">});</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>        _layout<span class="op">-&gt;</span>addWidget<span class="op">(</span>clbl<span class="op">);</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    adjustSize<span class="op">();</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Путь к страницы вычисляется в методе пейджера:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>QVector<span class="op">&lt;</span>QString<span class="op">&gt;</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>PagesManager<span class="op">::</span>pagePath<span class="op">(</span><span class="dt">const</span> QString<span class="op">&amp;</span> page<span class="op">)</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    QVector<span class="op">&lt;</span>QString<span class="op">&gt;</span> path <span class="op">{</span> page  <span class="op">};</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    QString search <span class="op">=</span> page<span class="op">;</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> done <span class="op">=</span> false<span class="op">;</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> tries <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(!</span>done <span class="op">&amp;&amp;</span> tries <span class="op">&lt;</span> _pages<span class="op">.</span>size<span class="op">()</span> <span class="op">+</span> <span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="dt">auto</span> i <span class="op">:</span> _pages<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>search <span class="op">==</span> _root<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>                done <span class="op">=</span> true<span class="op">;</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> <span class="op">(</span><span class="dt">auto</span> node <span class="op">:</span> i<span class="op">.</span>edges<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span>node <span class="op">==</span> search<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>                    search <span class="op">=</span> i<span class="op">.</span>widget<span class="op">-&gt;</span>objectName<span class="op">();</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>                    path<span class="op">.</span>push_front<span class="op">(</span>search<span class="op">);</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>                    <span class="co">// exit outer?</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>        tries<span class="op">++;</span></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> path<span class="op">;</span></span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Не самый эффективный метод, можно было бы хранить сразу все возможные пути в массиве. Метод основан на поиск в глубину в графе, если я не ошибаюсь.</p>
+<p>Как видно, каждый элемент фрейма, при нажатии генерирует сигнал о нажатии, для отправки PagesManager. При получении пейджер меняет страницу.</p>
+<p>Третьей сущностью явялется навигационная панель - NavWidget. Содержит связаные с данной страницей ссылки в виде кнопок. Гланый метод добавления навигационного меню:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>NavWidget<span class="op">::</span>addNav<span class="op">(</span><span class="dt">const</span> QVector<span class="op">&lt;</span>QString<span class="op">&gt;&amp;</span> pages<span class="op">,</span> <span class="dt">bool</span> createBack<span class="op">)</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    NavFrame <span class="op">*</span> fnav <span class="op">=</span> new NavFrame<span class="op">(</span>pages<span class="op">,</span> createBack<span class="op">,</span> this<span class="op">);</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    this<span class="op">-&gt;</span>addWidget<span class="op">(</span>fnav<span class="op">);</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    connect<span class="op">(</span>fnav<span class="op">,</span> SIGNAL<span class="op">(</span>clicked<span class="op">(</span>QString<span class="op">)),</span> this<span class="op">,</span> SIGNAL<span class="op">(</span>clicked<span class="op">(</span>QString<span class="op">)));</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    adjustSize<span class="op">();</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> this<span class="op">-&gt;</span>count<span class="op">()-</span><span class="dv">1</span><span class="op">;</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Так же при нажатии меняет страницу.</p>
+<p>Для того, чтобы связать страницы и навигационное меню используется рекурсивный метод:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>PagesManager<span class="op">::</span>bindPages<span class="op">(</span><span class="dt">const</span> QString<span class="op">&amp;</span> parent<span class="op">,</span> <span class="dt">const</span> QVector<span class="op">&lt;</span>QString<span class="op">&gt;&amp;</span> childs<span class="op">)</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> nid <span class="op">=</span> _nav<span class="op">-&gt;</span>addNav<span class="op">(</span>childs<span class="op">,</span> parent <span class="op">!=</span> _root<span class="op">);</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    _pages<span class="op">[</span>parent<span class="op">].</span>navId <span class="op">=</span> nid<span class="op">;</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">auto</span> child <span class="op">:</span> childs<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>_pages<span class="op">[</span>child<span class="op">].</span>edges<span class="op">.</span>length<span class="op">()</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>            bindPages<span class="op">(</span>child<span class="op">,</span> _pages<span class="op">[</span>child<span class="op">].</span>edges<span class="op">);</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>            _pages<span class="op">[</span>child<span class="op">].</span>navId <span class="op">=</span> nid<span class="op">;</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>PagesManager<span class="op">::</span>finalize<span class="op">()</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>_root <span class="op">==</span> QString<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>        throw <span class="st">&quot;Cannot finalize PagesManager without root page&quot;</span><span class="op">;</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>    bindPages<span class="op">(</span>_root<span class="op">,</span> _pages<span class="op">[</span>_root<span class="op">].</span>edges<span class="op">);</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>    changePage<span class="op">(</span>_root<span class="op">);</span></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <h3 id="notifymanager">NotifyManager</h3>
 <p>TODO</p>
-<h2 id="драйвер-базы-данных">Драйвер базы данных</h2>
-<h2 id="iiserver">iiServer</h2>
+<h2 id="логгер">Логгер</h2>
+<h2 id="iinpack">iiNPack</h2>
+<h2 id="сервер">Сервер</h2>
+<h3 id="драйвер-базы-данных">Драйвер базы данных</h3>
+<h4 id="криптография">Криптография</h4>
+<h3 id="iiserver">iiServer</h3>
+<h4 id="clientlink">ClientLink</h4>
+<h4 id="процессор-подключений">Процессор подключений</h4>
+<h2 id="клиент">Клиент</h2>
+<h3 id="service">Service</h3>
+<p>…</p>
 <h1 id="заключение">Заключение</h1>
 <p>TODO</p>
 <h1 id="список-литиратуры">Список литиратуры</h1>
