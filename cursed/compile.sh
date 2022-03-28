@@ -2,7 +2,7 @@
 
 input="cursed.md"
 pdfHeaderInput="header.pdf"
-indexedMdOut="../docs/cursed.md"
+indexedMdOut="../docs/index.md"
 htmlOut="../docs/index.html"
 pdfOut="../docs/cursed.pdf"
 pdfHederedOut="../docs/cursedHeadered.pdf"
