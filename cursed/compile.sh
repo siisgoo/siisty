@@ -67,27 +67,20 @@ function pdfHeaderedGen() {
     pdftk "$1" "$2" cat output "$3"
 }
 
+function umlf() { [[ -d "$imgDirOut" ]] || mkdir -p "$imgDirOut"; umlGen "$umlDir" "$imgDirOut";}
+function mdf() { indexGen "$input" "$indexedMdOut" ;}
+function htmlf() { htmlGen "$indexedMdOut" "$htmlOut" ;}
+function pdff() { pdfGen "$pdfFont" "$indexedMdOut" "$pdfOut"; pdfHeaderedGen "$pdfHeaderInput" "$pdfOut" "$pdfHeaderedOut" ;}
+
 case $1 in
-    uml)
-        [[ -d "$imgDirOut" ]] || mkdir -p "$imgDirOut"
-        umlGen "$umlDir" "$imgDirOut"
-        ;;
-    md)
-        indexGen "$input" "$indexedMdOut"
-        ;;
-    html)
-        htmlGen "$input" "$htmlOut"
-        ;;
-    pdf)
-        pdfGen "$pdfFont" "$indexedMdOut" "$pdfOut"
-        pdfHeaderedGen "$pdfHeaderInput" "$pdfOut" "$pdfHeaderedOut"
-        ;;
+    uml)  umlf ;;
+    md)   mdf ;;
+    html) htmlf ;;
+    pdf)  pdff ;;
     *)
-        [[ -d "$imgDirOut" ]] || mkdir -p "$imgDirOut"
-        umlGen "$umlDir" "$imgDirOut"
-        indexGen "$input" "$indexedMdOut"
-        htmlGen "$input" "$htmlOut"
-        pdfGen "$pdfFont" "$indexedMdOut" "$pdfOut"
-        pdfHeaderedGen "$pdfHeaderInput" "$pdfOut" "$pdfHeaderedOut"
+        umlf
+        mdf
+        htmlf
+        pdff
         ;;
 esac
