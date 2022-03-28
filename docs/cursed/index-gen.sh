@@ -1,6 +1,6 @@
 #!/bin/bash
 
-out="$1".indexed
+out="${1/.md/}".indexed.md
 
 cp "$1" "$out"
 
