@@ -216,11 +216,87 @@
 <h1 id="содержание">Содержание</h1>
 <ol type="1">
 <li><a href="#0069f25aafeaa88b5a5038c61e019a29">Введение</a></li>
-<li><a href="#58423f3301dee86e5a6dd4564805721f">Теоритическая часть</a> 1. <a href="#a66c7beef7ee05ce09ccd305758a4b34">Организация ЧОП</a> 2. <a href="#644c422e8bfdc2ee8d075ef63b6ab7de">Информационные потоки ЧОП</a> 3. <a href="#bd328bb371cabcf61a023dd89284d430">Процессы внутри ЧОП</a></li>
-<li><a href="#f61c3d8237771dae61110cd55542d40f">Описание средстд разработки</a> 1. <a href="#2211f9a30f64e3adc7a68fb612f8a384">Утилиты для разработки баз данных</a> 1. <a href="#15c7d3fb026a6b7191009b2aba592007">SQLite v3.35.5 stable</a> 2. <a href="#d9107f160c4cbd3769c9deef66bb16b0">SQLiteBrowser v3.12.2</a> 3. <a href="#c5cd767e2d7140d75b7479628ef2625d">DBVisualizer v12.1.8</a> 2. <a href="#5f7ed236cf861ab160476bb878a8e29d">Библиотеки</a> 1. <a href="#3724285fc23f07a780bf1b90d1b08737">Qt v6.2.4</a> 3. <a href="#c41121e7ff1f037c52c40f6800344b60">Системы сборки и компиляторы</a> 1. <a href="#d769a93d450808dd2699e4d277b38a96">CMake v3.22.3</a> 2. <a href="#072c9837bf4124a78e8d64761c791708">Ninja c1.10.2</a> 3. <a href="#066437d5c1c42dc540ef7b8b089593f5">clang v13.0.1</a> 4. <a href="#a9d5433c4ced0429602d686763b511c0">IDE</a> 1. <a href="#791bce00c1a5112cb0a8e83f8ea43dfd">QtCreator v6.0.2</a> 2. <a href="#be86898d7ac3847f7ca9aa4e09d807c7">VIM v8.2</a> 1. <a href="#678d92de681d726153a189bfe47a6ffe">Плагины</a> 5. <a href="#5336cc1e18a44fcbcdcaf76434a9dbc1">Разное</a> 1. <a href="#1260d8308ede6b806d35e4d84021378e">Plantuml v1.2021.16</a> 2. <a href="#a7809f369ead5a4aba1407bab398c327">BASH v5.1.16</a> 6. <a href="#99db6cf9ec16fd66532911909e4ea007">Отладка</a> 1. <a href="#3ecb9ddef9a2dddb3a2a67100b188eb6">Valgrind v3.18</a> 7. <a href="#b7249081aeaa3bc1b21f5a8f16eeb88e">VCS</a> 1. <a href="#be9c09aacbde6d23d67f89a3fca38c08">GIT v2.35.1</a></li>
-<li><a href="#eb1fa9a0c02763fe5749637a8d16ac3a">Разработы базы данных ЧОП</a> 1. <a href="#28439b214a63ddabf081fe52b79e17ad">Таблицы</a> 2. <a href="#851980d29e4e343f67c61f95cea40cfa">Визуализация базы данных</a></li>
-<li><a href="#142c5c1c8f822ab1538b7817a180b7ab">Разработка архитектуры приложения</a> 1. <a href="#721f411e2bde409ec1037acdea3d0f8c">Основа</a> 1. <a href="#29ab5dc5f90003f2ab99e9f7e97299ac">Информационные потоки ЧОП с учетом сервера</a> 2. <a href="#503aa110ff5e803702414f90c5c5ebd6">Обращение к базе данных</a> 1. <a href="#32bde6e6debc82c0610a99d90127ac67">Система безопасности</a> 1. <a href="#c6725059f1407364b5c9cae3833a0b92">Система идентификации и авторизации</a> 2. <a href="#86fb03765331149de407516aaeb0b09d">Система команд</a> 3. <a href="#2ee3341b6480f3fef26e52e6aa3642cd">Клиен-Сервер</a> 1. <a href="#047d272a34a43782c51918621461b8f2">Протокол</a> 2. <a href="#6a255c9653f902d73d96ad1b4fcc0d4e">Клиент</a> 3. <a href="#5b8e943bc4beaee5458ad082d6f1b630">Сервер</a> 4. <a href="#bfd028419917154b7a8120e6afe90bb3">Модель создания GUI</a></li>
-<li><a href="#ad12d5b6aeddf84d8c72205610cfaf39">Реализация приложения</a> 1. <a href="#86798bf223d43272c3136ba329fbf9b3">Пользовательский интерфейс</a> 1. <a href="#84643a8881036d8725be23faf5bfaccc">PagesManager</a> 2. <a href="#2c70e6e799cd133b94067ebe0f920217">NotifyManager</a></li>
+<li><a href="#58423f3301dee86e5a6dd4564805721f">Теоритическая часть</a>
+<ol type="1">
+<li><a href="#a66c7beef7ee05ce09ccd305758a4b34">Организация ЧОП</a></li>
+<li><a href="#644c422e8bfdc2ee8d075ef63b6ab7de">Информационные потоки ЧОП</a></li>
+<li><a href="#bd328bb371cabcf61a023dd89284d430">Процессы внутри ЧОП</a></li>
+</ol></li>
+<li><a href="#f61c3d8237771dae61110cd55542d40f">Описание средстд разработки</a>
+<ol type="1">
+<li><a href="#2211f9a30f64e3adc7a68fb612f8a384">Утилиты для разработки баз данных</a>
+<ol type="1">
+<li><a href="#15c7d3fb026a6b7191009b2aba592007">SQLite v3.35.5 stable</a></li>
+<li><a href="#d9107f160c4cbd3769c9deef66bb16b0">SQLiteBrowser v3.12.2</a></li>
+<li><a href="#c5cd767e2d7140d75b7479628ef2625d">DBVisualizer v12.1.8</a></li>
+</ol></li>
+<li><a href="#5f7ed236cf861ab160476bb878a8e29d">Библиотеки</a>
+<ol type="1">
+<li><a href="#3724285fc23f07a780bf1b90d1b08737">Qt v6.2.4</a></li>
+</ol></li>
+<li><a href="#c41121e7ff1f037c52c40f6800344b60">Системы сборки и компиляторы</a>
+<ol type="1">
+<li><a href="#d769a93d450808dd2699e4d277b38a96">CMake v3.22.3</a></li>
+<li><a href="#072c9837bf4124a78e8d64761c791708">Ninja c1.10.2</a></li>
+<li><a href="#066437d5c1c42dc540ef7b8b089593f5">clang v13.0.1</a></li>
+</ol></li>
+<li><a href="#a9d5433c4ced0429602d686763b511c0">IDE</a>
+<ol type="1">
+<li><a href="#791bce00c1a5112cb0a8e83f8ea43dfd">QtCreator v6.0.2</a></li>
+<li><a href="#be86898d7ac3847f7ca9aa4e09d807c7">VIM v8.2</a>
+<ol type="1">
+<li><a href="#678d92de681d726153a189bfe47a6ffe">Плагины</a></li>
+</ol></li>
+</ol></li>
+<li><a href="#5336cc1e18a44fcbcdcaf76434a9dbc1">Разное</a>
+<ol type="1">
+<li><a href="#1260d8308ede6b806d35e4d84021378e">Plantuml v1.2021.16</a></li>
+<li><a href="#a7809f369ead5a4aba1407bab398c327">BASH v5.1.16</a></li>
+</ol></li>
+<li><a href="#99db6cf9ec16fd66532911909e4ea007">Отладка</a>
+<ol type="1">
+<li><a href="#3ecb9ddef9a2dddb3a2a67100b188eb6">Valgrind v3.18</a></li>
+</ol></li>
+<li><a href="#b7249081aeaa3bc1b21f5a8f16eeb88e">VCS</a>
+<ol type="1">
+<li><a href="#be9c09aacbde6d23d67f89a3fca38c08">GIT v2.35.1</a></li>
+</ol></li>
+</ol></li>
+<li><a href="#eb1fa9a0c02763fe5749637a8d16ac3a">Разработы базы данных ЧОП</a>
+<ol type="1">
+<li><a href="#28439b214a63ddabf081fe52b79e17ad">Таблицы</a></li>
+<li><a href="#851980d29e4e343f67c61f95cea40cfa">Визуализация базы данных</a></li>
+</ol></li>
+<li><a href="#142c5c1c8f822ab1538b7817a180b7ab">Разработка архитектуры приложения</a>
+<ol type="1">
+<li><a href="#721f411e2bde409ec1037acdea3d0f8c">Основа</a>
+<ol type="1">
+<li><a href="#29ab5dc5f90003f2ab99e9f7e97299ac">Информационные потоки ЧОП с учетом сервера</a></li>
+</ol></li>
+<li><a href="#503aa110ff5e803702414f90c5c5ebd6">Обращение к базе данных</a>
+<ol type="1">
+<li><a href="#32bde6e6debc82c0610a99d90127ac67">Система безопасности</a>
+<ol type="1">
+<li><a href="#c6725059f1407364b5c9cae3833a0b92">Система идентификации и авторизации</a></li>
+<li><a href="#86fb03765331149de407516aaeb0b09d">Система команд</a></li>
+</ol></li>
+</ol></li>
+<li><a href="#2ee3341b6480f3fef26e52e6aa3642cd">Клиен-Сервер</a>
+<ol type="1">
+<li><a href="#047d272a34a43782c51918621461b8f2">Протокол</a></li>
+<li><a href="#6a255c9653f902d73d96ad1b4fcc0d4e">Клиент</a></li>
+<li><a href="#5b8e943bc4beaee5458ad082d6f1b630">Сервер</a></li>
+</ol></li>
+<li><a href="#bfd028419917154b7a8120e6afe90bb3">Модель создания GUI</a></li>
+</ol></li>
+<li><a href="#ad12d5b6aeddf84d8c72205610cfaf39">Реализация приложения</a>
+<ol type="1">
+<li><a href="#86798bf223d43272c3136ba329fbf9b3">Пользовательский интерфейс</a>
+<ol type="1">
+<li><a href="#84643a8881036d8725be23faf5bfaccc">PagesManager</a></li>
+<li><a href="#2c70e6e799cd133b94067ebe0f920217">NotifyManager</a></li>
+</ol></li>
+</ol></li>
 <li><a href="#e1c1d994d00e4e7a44fcd5d029d3548d">Заключение</a></li>
 <li><a href="#bc5e99ae74607750379b50c9e11d0695">Список литиратуры</a></li>
 </ol>

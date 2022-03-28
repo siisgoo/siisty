@@ -6,6 +6,7 @@ cp "$1" "$out"
 
 > index
 
+tab='\t'
 i=(-1 1)
 prevLen=0
 while read -r line; do
@@ -18,7 +19,7 @@ while read -r line; do
     mv "${out}.tmp" "$out"
     hdrLen=$(awk -F'#' '{print NF-1}' <<< "$line")
     hdrTxt=$(echo "${line//#/}")
-    (( $hdrLen > 1 )) && for (( j=1; j<$hdrLen*4; j++ )); do printf ' '; done
+    (( $hdrLen > 1 )) && for (( j=1; j<$hdrLen; j++ )); do printf "$tab"; done
     (( $prevLen < $hdrLen )) && i[$hdrLen]=1
     printf "%d. [%s ](#%s)\n" ${i[$hdrLen]} "$hdrTxt" "$hash"
     prevLen=$hdrLen
