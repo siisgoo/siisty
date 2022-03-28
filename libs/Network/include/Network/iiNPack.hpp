@@ -47,11 +47,11 @@ struct iiNPack {
 
     struct Header
     {
-/* 0x0  - 0x4  */ quint32 Size;           /* Overall packet load size in bytes */
-/* 0x4  - 0x12 */ qint64  ServerStamp;    /* Send time on server; using QDateTime SecsSinceEpoch */
-/* 0x4  - 0x12 */ qint64  ClientStamp;    /* Send time on client; using QDateTime SecsSinceEpoch */
-/* 0x12 - 0x13 */ quint8  PacketType;     /* Type of packet; enum class PacketType */
-/* 0x13 - 0x14 */ quint8  PacketLoadType; /* Operation type, see enum class PacketLoadType */
+/* 0x0  - 0x3  */ quint32 Size;           /* Overall packet load size in bytes */
+/* 0x4  - 0x11 */ qint64  ServerStamp;    /* Send time on server; using QDateTime SecsSinceEpoch */
+/* 0x12 - 0x19 */ qint64  ClientStamp;    /* Send time on client; using QDateTime SecsSinceEpoch */
+/* 0x20 - 0x21 */ quint8  PacketType;     /* Type of packet; enum class PacketType */
+/* 0x22 - 0x23 */ quint8  PacketLoadType; /* Operation type, see enum class PacketLoadType */
     };
 
     static const qsizetype HeaderSize;
