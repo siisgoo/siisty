@@ -8,7 +8,7 @@ interface "User event" as uEvent
 
 database "SQLite" {
 top to bottom direction
-[Tables]
+collections Tables
 }
 
 node "Pages manager" as pageman {
