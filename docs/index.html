@@ -641,7 +641,7 @@
 <p><a id="851980d29e4e343f67c61f95cea40cfa"/></p>
 <h2 id="визуализация-базы-данных">Визуализация базы данных</h2>
 <figure>
-<img src="img/databaseReferences.png" alt="Datbase visualization" /><figcaption aria-hidden="true">Datbase visualization</figcaption>
+<img src="img/databaseReferences.svg" alt="Datbase visualization" /><figcaption aria-hidden="true">Datbase visualization</figcaption>
 </figure>
 <p><a id="142c5c1c8f822ab1538b7817a180b7ab"/></p>
 <h1 id="разработка-архитектуры-приложения">Разработка архитектуры приложения</h1>
@@ -882,16 +882,423 @@
 <p>Обращение к созданому уведомлению происходит по выделеному uid, который возвращает createNotifyItem.</p>
 <p>Все существующие уведомления храняться в именованом массиве:</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>QMap<span class="op">&lt;</span><span class="dt">int</span><span class="op">,</span> NotifyItem<span class="op">*&gt;</span> _items<span class="op">;</span></span></code></pre></div>
+<p>Но лучше было бы хранить их в связаном списке, так бы сохронялся их порядок появления и упрощалась перегрупировка с возможностью более быстрой обработки анимации движения появления и скрытия, пока что единственная доступная анимация - изменение прозрачности.</p>
+<p>Существующие уведомления перегрупировываются при заверении, изменении размера окна. При изменении максимальной ширины уведобления</p>
+<p>Для управления поп-апами из вне используется система QProperty в мета объекте.</p>
+<p>Класс является <em>thread-safe</em>.</p>
 <p><a id="1273e0f44063343112756ce23b2d6f2b"/></p>
 <h2 id="логгер">Логгер</h2>
+<p>Логер реализован по простой модели работы в отдельном потоке. Использует систмему уровней уведомления, для фильтрации вывода. Для вывода в лог используется система событий Qt. Для фильтрации доступны уровни:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">enum</span> LoggingLevel <span class="op">{</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    Trace <span class="op">=</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    Debug<span class="op">,</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    Info<span class="op">,</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    Warning<span class="op">,</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    Error<span class="op">,</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    Fatal<span class="op">,</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
 <p><a id="1801c85ec3a13ae99bc3fe8a25db50fb"/></p>
 <h2 id="iinpack">iiNPack</h2>
+<p>Класс реализующий протокол описанный выше, включает методы упаковки данных для упрощения процесса передачи данных.</p>
+<p>Главные определения в классе:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">enum</span> PacketType <span class="op">:</span> quint8</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    AUTORIZATION_REQUEST<span class="op">,</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    REQUEST<span class="op">,</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    RESPONSE<span class="op">,</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    ERROR_MESSAGE<span class="op">,</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="kw">enum</span> PacketLoadType <span class="op">:</span> quint8</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    JSON <span class="op">=</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    XML<span class="op">,</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>    RAW<span class="op">,</span></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a><span class="co">// </span><span class="al">TODO</span><span class="co"> create error map</span></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a><span class="kw">enum</span> ResponseError <span class="op">:</span> quint8</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>    ACCESS_DENIED <span class="op">=</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>    NETWORK_ERROR<span class="op">,</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>    REQUEST_ERROR<span class="op">,</span></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>    UNSUPPORTED_FORMAT<span class="op">,</span></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>    UNSUPPORTED_TYPE<span class="op">,</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>    PARSE_ERROR<span class="op">,</span></span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> Header</span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a><span class="co">/* 0x0  - 0x3  */</span> quint32 Size<span class="op">;</span>           <span class="co">/* Overall packet load size in bytes */</span></span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a><span class="co">/* 0x4  - 0x11 */</span> qint64  ServerStamp<span class="op">;</span>    <span class="co">/* Send time on server; using QDateTime SecsSinceEpoch */</span></span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a><span class="co">/* 0x12 - 0x19 */</span> qint64  ClientStamp<span class="op">;</span>    <span class="co">/* Send time on client; using QDateTime SecsSinceEpoch */</span></span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a><span class="co">/* 0x20 - 0x21 */</span> quint8  PacketType<span class="op">;</span>     <span class="co">/* Type of packet; enum class PacketType */</span></span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a><span class="co">/* 0x22 - 0x23 */</span> quint8  PacketLoadType<span class="op">;</span> <span class="co">/* Load format, see enum class PacketLoadType */</span></span>
+<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
 <p><a id="1739f69cead8bb7ff41563dcc748a072"/></p>
 <h2 id="сервер">Сервер</h2>
+<p>В данном подразделе будут описанны пути реализации приложения-сервера.</p>
 <p><a id="2a334021979df79f54f0a8f48367c12c"/></p>
 <h3 id="драйвер-базы-данных">Драйвер базы данных</h3>
+<p>По сути, драйвер базы данных - это декоратор QSqlDatabase класса преднозначенный для работы в отдельном потоке. По мимо доступа к базе данных, класс реализует систему идентификации и атунтификации.</p>
+<p>Т.к. драйвер будет работать в отдельном потоке, чтобы не тормозить дргие потоки, из которых вызываются методы драйвера, он имеет в себе очередь команд на выполнение:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> DatabaseCmd <span class="op">{</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> executorRole<span class="op">;</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    QJsonObject data<span class="op">;</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    DriverAssistant <span class="op">*</span> waiter<span class="op">;</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>DatabaseCmd cmd <span class="op">=</span> _cmdQueue<span class="op">.</span>dequeue<span class="op">();</span></span></code></pre></div>
+<p>Т.к. передача команды в очередь на исполнение драйверу реализована с помощью сигналов, данный объект DatabaseCmd необходимо ввести в систему мета компиляции:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>Q_DECLARE_METATYPE<span class="op">(</span>Database<span class="op">::</span>DatabaseCmd<span class="op">)</span></span></code></pre></div>
+<p>Обработка происходит в такой незамысловатой петле:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>Driver<span class="op">::</span>worker<span class="op">()</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    QMutexLocker lock<span class="op">(&amp;</span>_queueMtx<span class="op">);</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>_cmdQueue<span class="op">.</span>length<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>        DatabaseCmd cmd <span class="op">=</span> _cmdQueue<span class="op">.</span>dequeue<span class="op">();</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>        this<span class="op">-&gt;</span>executeCommand<span class="op">((</span>RoleId<span class="op">)</span>cmd<span class="op">.</span>executorRole<span class="op">,</span> cmd<span class="op">.</span>data<span class="op">,</span> cmd<span class="op">.</span>waiter<span class="op">);</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>_running<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>        QTimer<span class="op">::</span>singleShot<span class="op">((</span>_cmdQueue<span class="op">.</span>length<span class="op">()</span> <span class="op">?</span> <span class="dv">100</span><span class="op">,</span> <span class="dv">0</span><span class="op">),</span> this<span class="op">,</span> SLOT<span class="op">(</span>worker<span class="op">()));</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>И наконец, функция которая реализует механизм аутентификации:</p>
+<pre><code>void
+Driver::executeCommand(Database::RoleId role, QJsonObject obj, DriverAssistant* waiter) {
+    if (!waiter) {
+        throw QString(&quot;Driver::&quot; + QString(__func__) + &quot;: Null waiter passed!&quot;);
+    }
+
+    if (role != ROLE_AUTO) {
+        if (role &gt; ROLES_COUNT || role &lt; (RoleId)0) {
+            waiter-&gt;Failed(CmdError(AccessDenied, &quot;Invalid Role ID passed&quot;));
+                return;
+        }
+    }
+
+    int command_n;
+    if (auto val = obj[&quot;command&quot;]; val.isDouble()) {
+        command_n = val.toInt();
+    } else {
+        waiter-&gt;Failed(CmdError(InvalidCommand, &quot;No command passed&quot;));
+        return;
+    }
+
+    if (command_n &gt; COMMANDS_COUNT || command_n &lt; 0) {
+        waiter-&gt;Failed(CmdError(InvalidCommand, &quot;Command not exists&quot;));
+        return;
+    }
+
+    if (role != ROLE_AUTO) {
+        // check permission for execute command
+        if (!_roles[role].commands.contains(command_n)) {
+            waiter-&gt;Failed(CmdError(AccessDenied, &quot;You not have access to execute this command&quot;));
+            return;
+        }
+    }
+
+    if (auto val = obj[&quot;arg&quot;]; val.isObject()) {
+        QJsonObject target = val.toObject();
+        auto cmd = _commands[command_n];
+        CmdError rc = cmd.executor(target);
+        if (rc.Ok()) {
+            waiter-&gt;Success(target);
+        } else {
+            waiter-&gt;Failed(rc);
+        }
+    } else {
+        waiter-&gt;Failed(CmdError(InvalidParam, &quot;No parameters passed&quot;));
+    }
+}</code></pre>
+<p>DriverAssistant - это отдельный класс, который уведомляет объект, который ожидает данные от драйвера, содержить два метода и два сигнала, описывающих успешное или не успешное завершение выполнение команды.</p>
+<p>Роли и команды храняться статично в объекте драйвера в объектах:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> role_set <span class="op">{</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> id<span class="op">;</span> <span class="co">// equal to index</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span> name<span class="op">;</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    QVector<span class="op">&lt;</span>CommandId<span class="op">&gt;</span> commands<span class="op">;</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> command_set <span class="op">{</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> id<span class="op">;</span> <span class="co">// equal to index</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span> name<span class="op">;</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    command_exec_t executor<span class="op">;</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> sendback<span class="op">;</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p>Команды храняться в массиве, роли - именованом массиве. И заполняются в конструкторе драйвера таким образом:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define XX(num, name, query) { TABLE_ ##name, QUOTE(name), query  },</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    _tables <span class="op">=</span> <span class="op">{</span> TABLES_MAP<span class="op">(</span>XX<span class="op">)</span>  <span class="op">};</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#undef XX</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define XX(id, val, cmds) { ROLE_ ##val, { ROLE_ ##val, QUOTE(val), cmds  }  },</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    _roles <span class="op">=</span> <span class="op">{</span> ROLE_MAP<span class="op">(</span>XX<span class="op">)</span>  <span class="op">};</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#undef XX</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#define XX(id, n, exe) { CMD_ ##n, QUOTE(n), exe  },</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>    _commands <span class="op">=</span> <span class="op">{</span> COMMANDS_MAP<span class="op">(</span>XX<span class="op">)</span>  <span class="op">};</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="pp">#undef XX</span></span></code></pre></div>
+<p>Данные ролей и команд:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define AdminCommands { \</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="pp">    CMD_EDIT_OBJECT_TYPE,     \</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="pp">    CMD_MAKE_DUTY_SCHEDULE,   \</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="pp">    CMD_REGISTER_ACCIDENT,    \</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="pp">    CMD_REGISTER_EMPLOYEE,    \</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="pp">    CMD_GET_USER_INFO,        \</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="pp">    CMD_REGISTER_OBJECT_TYPE, \</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="pp">    CMD_UPDATE_ROLE,          \</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="pp">    CMD_GET_ROLE_DETAILS,     \</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="pp">    CMD_GET_OBJECT_DETAILS,   \</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="pp">    CMD_GET_DUTY_SCHEDULE,    \</span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a><span class="pp">    }</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a><span class="pp">#define SecurityCommands { \</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a><span class="pp">    CMD_PAY_ACCIDENT,      \</span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a><span class="op">...</span></span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a><span class="co">// id, name, commands, privilegyID, payMult, payPeriod</span></span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a><span class="co">// AUTO - only initiated by server logic automaticaly and have all permissions</span></span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a><span class="pp">#define ROLE_MAP(XX) \</span></span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( -1, AUTO,         {}  ) \</span></span>
+<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 0,  Admin,        AdminCommands  ) \</span></span>
+<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 1,  Security,     SecurityCommands  ) \</span></span>
+<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 2,  Inkosor,      InkosorCommands  ) \</span></span>
+<span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 3,  Recruter,     RecruterCommands  ) \</span></span>
+<span id="cb31-27"><a href="#cb31-27" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 4,  WaponManager, WaponManagerCommands  ) \</span></span>
+<span id="cb31-28"><a href="#cb31-28" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 5,  Customer,     CusomerCommands  ) \</span></span>
+<span id="cb31-29"><a href="#cb31-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-30"><a href="#cb31-30" aria-hidden="true" tabindex="-1"></a><span class="pp">#define XX(id, name, commands) ROLE_ ##name = id,</span></span>
+<span id="cb31-31"><a href="#cb31-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">enum</span> RoleId <span class="op">{</span></span>
+<span id="cb31-32"><a href="#cb31-32" aria-hidden="true" tabindex="-1"></a>        ROLE_MAP<span class="op">(</span>XX<span class="op">)</span></span>
+<span id="cb31-33"><a href="#cb31-33" aria-hidden="true" tabindex="-1"></a>        ROLES_COUNT</span>
+<span id="cb31-34"><a href="#cb31-34" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb31-35"><a href="#cb31-35" aria-hidden="true" tabindex="-1"></a><span class="pp">#undef XX</span></span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co">// id, name, executor</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#define COMMANDS_MAP(XX) \</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 0,  MAKE_CONTRACT,        exec_make_contract       ) \</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 1,  MAKE_DUTY_SCHEDULE,   exec_make_duty_schedule  ) \</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 2,  REGISTER_ACCIDENT,    exec_register_accident   ) \</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 3,  REGISTER_EMPLOYEE,    exec_register_employee   ) \</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 4,  REGISTER_CUSTOMER,    exec_register_customer   ) \</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 5,  REGISTER_OBJECT_TYPE, exec_register_object_type ) \</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 6,  REGISTER_WAPON,       exec_register_wapon      ) \</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 7,  ASSIGN_WAPON,         exec_assign_wapon        ) \</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 8,  PAY_AMMO,             exec_pay_ammo            ) \</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 9,  PAY_EMPLOYEE,         exec_pay_employee        ) \</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 10, PAY_ACCIDENT,         exec_pay_accident        ) \</span></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 11, EDIT_OBJECT_TYPE,     exec_edit_object_type    ) \</span></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 12, UPDATE_ROLE,          exec_update_role         ) \</span></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 13, GET_USER_INFO,        exec_get_user_info       ) \</span></span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 14, GET_ACCIDENT_DETAILS, exec_get_accident_details ) \</span></span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 15, GET_ACCOUNTING_ENTRY, exec_get_accounting_entry ) \</span></span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 16, GET_OBJECT_DETAILS,   exec_get_object_detalils ) \</span></span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 17, GET_ROLE_DETAILS,     exec_get_role_details    ) \</span></span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 18, GET_WAPON_DETAILS,    exec_get_wapon_details   ) \</span></span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 19, GET_DUTY_SCHEDULE,    exec_get_duty_schedule   ) \</span></span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 20, CREATE_TABLE,         exec_create_table        ) \</span></span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 21, IDENTIFY,             exec_identify            ) \</span></span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a><span class="pp">#define XX(id, name, e) CMD_ ##name = id,</span></span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a><span class="kw">enum</span> CommandId <span class="op">{</span></span>
+<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a>    COMMANDS_MAP<span class="op">(</span>XX<span class="op">)</span></span>
+<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a>    COMMANDS_COUNT</span>
+<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a><span class="pp">#undef XX</span></span></code></pre></div>
+<p>Сами команды, они же executor, - это обычные функции c-style:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co">// AUTO only commands</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>CmdError exec_create_table<span class="op">(</span>QJsonObject<span class="op">&amp;</span> obj<span class="op">);</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>CmdError exec_identify<span class="op">(</span>QJsonObject<span class="op">&amp;</span> obj<span class="op">);</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Role avalible commands</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>CmdError exec_make_contract<span class="op">(</span>QJsonObject<span class="op">&amp;</span> obj<span class="op">);</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>CmdError exec_make_duty_schedule<span class="op">(</span>QJsonObject<span class="op">&amp;</span> obj<span class="op">);</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>CmdError exec_register_accident<span class="op">(</span>QJsonObject<span class="op">&amp;</span> obj<span class="op">);</span></span></code></pre></div>
+<p>Команды(executor) напрямую получают данные переданные клиент-программами, и возвращают значение в том же переданном аргументе, практически без обработки, таким образом на них ложиться задача валидации переданных аргументов и само исполнение. Пример команды:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co">/*</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co"> * login: string</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co"> * password: string</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="co"> */</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>CmdError</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>exec_identify<span class="op">(</span>QJsonObject<span class="op">&amp;</span> obj<span class="op">)</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>    QSqlQuery q<span class="op">;</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>    QString login<span class="op">;</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>    QString password<span class="op">;</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>    login <span class="op">=</span> obj<span class="op">.</span>take<span class="op">(</span><span class="st">&quot;login&quot;</span><span class="op">).</span>toString<span class="op">();</span></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>    password <span class="op">=</span> obj<span class="op">.</span>take<span class="op">(</span><span class="st">&quot;password&quot;</span><span class="op">).</span>toString<span class="op">();</span></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(!</span>login<span class="op">.</span>length<span class="op">()</span> <span class="op">||</span> <span class="op">!</span>password<span class="op">.</span>length<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> CmdError<span class="op">(</span>InvalidParam<span class="op">,</span> <span class="st">&quot;Passed empty parameters&quot;</span><span class="op">);</span></span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>    q<span class="op">.</span>prepare<span class="op">(</span><span class="st">&quot;SELECT id, name, role_id, password, salt FROM Users &quot;</span></span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;WHERE login = :login&quot;</span><span class="op">);</span></span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>    q<span class="op">.</span>bindValue<span class="op">(</span><span class="st">&quot;:login&quot;</span><span class="op">,</span> login<span class="op">);</span></span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(!</span>q<span class="op">.</span>exec<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> CmdError<span class="op">(</span>SQLError<span class="op">,</span> q<span class="op">.</span>lastQuery<span class="op">()</span> <span class="op">+</span> <span class="st">&quot; &quot;</span> <span class="op">+</span> q<span class="op">.</span>lastError<span class="op">().</span>text<span class="op">());</span></span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(!</span>q<span class="op">.</span>next<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> CmdError<span class="op">(</span>AccessDenied<span class="op">,</span> <span class="st">&quot;No user registreted with login: &quot;</span> <span class="op">+</span> login<span class="op">);</span></span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a>    QByteArray salt <span class="op">=</span> q<span class="op">.</span>record<span class="op">().</span>value<span class="op">(</span><span class="st">&quot;salt&quot;</span><span class="op">).</span>toByteArray<span class="op">();</span></span>
+<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a>    QByteArray real_passwordHash <span class="op">=</span> q<span class="op">.</span>record<span class="op">().</span>value<span class="op">(</span><span class="st">&quot;password&quot;</span><span class="op">).</span>toByteArray<span class="op">();</span></span>
+<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a>    QByteArray passed_passwordHash <span class="op">=</span> encryptPassword<span class="op">(</span>password<span class="op">.</span>toLatin1<span class="op">(),</span> salt<span class="op">);</span></span>
+<span id="cb34-33"><a href="#cb34-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-34"><a href="#cb34-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>real_passwordHash <span class="op">!=</span> passed_passwordHash<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb34-35"><a href="#cb34-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> CmdError<span class="op">(</span>AccessDenied<span class="op">,</span> <span class="st">&quot;Invalid password&quot;</span><span class="op">);</span></span>
+<span id="cb34-36"><a href="#cb34-36" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb34-37"><a href="#cb34-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-38"><a href="#cb34-38" aria-hidden="true" tabindex="-1"></a>    obj<span class="op">[</span><span class="st">&quot;role_id&quot;</span><span class="op">]</span> <span class="op">=</span> q<span class="op">.</span>record<span class="op">().</span>value<span class="op">(</span><span class="st">&quot;role&quot;</span><span class="op">).</span>toInt<span class="op">();</span></span>
+<span id="cb34-39"><a href="#cb34-39" aria-hidden="true" tabindex="-1"></a>    obj<span class="op">[</span><span class="st">&quot;name&quot;</span><span class="op">]</span> <span class="op">=</span> q<span class="op">.</span>record<span class="op">().</span>value<span class="op">(</span><span class="st">&quot;name&quot;</span><span class="op">).</span>toString<span class="op">();</span></span>
+<span id="cb34-40"><a href="#cb34-40" aria-hidden="true" tabindex="-1"></a>    obj<span class="op">[</span><span class="st">&quot;id&quot;</span><span class="op">]</span> <span class="op">=</span> q<span class="op">.</span>record<span class="op">().</span>value<span class="op">(</span><span class="st">&quot;id&quot;</span><span class="op">).</span>toString<span class="op">();</span></span>
+<span id="cb34-41"><a href="#cb34-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-42"><a href="#cb34-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> CmdError<span class="op">();</span></span>
+<span id="cb34-43"><a href="#cb34-43" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<blockquote>
+<p>Факт: на этом этапе я обнаружил баг, который заставил меня сидеть час с надутым лицом. Значение “id” сохраняется как строка, а в програме клиенте я разархивировал это значение как целочисленое, в итоге получал стандартное значение “0”.</p>
+</blockquote>
 <p><a id="99ed80269db632accc22cace769ff223"/></p>
 <h4 id="криптография">Криптография</h4>
+<p>При регистрации пользователя, как было сказано ранее, используется функция хэширования пароля, для большей безопасности учетных записей. Можно было бы использовать просто функцию хэширования, но я выбрал более сложный и надежный путь.</p>
+<p>Кроме того, что при хешировании используется динамическая соль, так она еще и “умная”, написана так, чтобы максимально увеличивать энтропию пароля, но и “умная” вставка соли в строку пароля. Алгоритм был найден мной в журнале <a href="http://www.iaeng.org/IJCS/issues_v43/issue_1/IJCS_43_1_04.pdf">IAENG International Journal of Computer Science</a> 2016 года.</p>
+<p>Суть алгоритма в том, чтобы приводить пароль к максимальной энтропии с использованием динамической умной соли и использования особого метода вставки соли в пароль по одному из 4 или 5 правил на выбор. Умная вставка, по мнению автора, должна свести радужные таблицы к эффективному минимуму, что при тестах он и продемонстрировал.</p>
+<p>Чтобы определить слабые стороны пароля мы просто перебераем символы пароля в 3 группы:</p>
+<ul>
+<li>Буквы</li>
+<li>Цыфры</li>
+<li>Специальные знаки</li>
+</ul>
+<p>и исходя из из процентного содержания в исходной строке выбираем алфавит для генерации соли:</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">void</span> countChars<span class="op">(</span><span class="dt">int</span><span class="op">&amp;</span> spec<span class="op">,</span> <span class="dt">int</span><span class="op">&amp;</span> dig<span class="op">,</span> <span class="dt">int</span><span class="op">&amp;</span> alph<span class="op">,</span> <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span> str<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    spec <span class="op">=</span> dig <span class="op">=</span> alph <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> strlen<span class="op">(</span>str<span class="op">);</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>        <span class="dt">char</span> ch <span class="op">=</span> str<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>isalpha<span class="op">(</span>ch<span class="op">))</span> <span class="op">{</span> alph<span class="op">++;</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>isdigit<span class="op">(</span>ch<span class="op">))</span> <span class="op">{</span> dig<span class="op">++;</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>isgraph<span class="op">(</span>ch<span class="op">)</span> <span class="op">||</span> isspace<span class="op">(</span>ch<span class="op">))</span> <span class="op">{</span> spec<span class="op">++;</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>quint8 passWeaknesses<span class="op">(</span><span class="dt">const</span> QByteArray<span class="op">&amp;</span> data<span class="op">)</span></span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> len <span class="op">=</span> data<span class="op">.</span>length<span class="op">();</span></span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> spec<span class="op">,</span> nums<span class="op">,</span> alph<span class="op">;</span></span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>    countChars<span class="op">(</span>spec<span class="op">,</span> nums<span class="op">,</span> alph<span class="op">,</span> data<span class="op">.</span>data<span class="op">());</span></span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> spec_c <span class="op">=</span> static_cast<span class="op">&lt;</span><span class="dt">double</span><span class="op">&gt;(</span>spec<span class="op">)/</span>len<span class="op">,</span></span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>           nums_c <span class="op">=</span> static_cast<span class="op">&lt;</span><span class="dt">double</span><span class="op">&gt;(</span>nums<span class="op">)/</span>len<span class="op">,</span></span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>           alph_c <span class="op">=</span> static_cast<span class="op">&lt;</span><span class="dt">double</span><span class="op">&gt;(</span>alph<span class="op">)/</span>len<span class="op">;</span></span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a>    <span class="co">// weakness determinission algo:</span></span>
+<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a>    <span class="co">//  1. find max coef char type - mostch</span></span>
+<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">//  2. if mostch count grater then 50% of password mean that weak in both other char types;</span></span>
+<span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a>    <span class="co">//  3. if diff of other char types grater then 10% mean that weak only in one min char type;</span></span>
+<span id="cb35-25"><a href="#cb35-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">//  4. if diff less or eq to 10% - weak in both;</span></span>
+<span id="cb35-26"><a href="#cb35-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">auto</span> determWeakness <span class="op">=</span> <span class="op">[](</span><span class="dt">double</span> f<span class="op">,</span> <span class="dt">double</span> s<span class="op">,</span> <span class="dt">double</span> t<span class="op">,</span> quint8 wf<span class="op">,</span> quint8 ws<span class="op">,</span> quint8 wt<span class="op">)</span> <span class="op">-&gt;</span> quint8 <span class="op">{</span></span>
+<span id="cb35-27"><a href="#cb35-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>f <span class="op">&gt;</span> s <span class="op">&amp;&amp;</span> f <span class="op">&gt;</span> t<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb35-28"><a href="#cb35-28" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>f <span class="op">&gt;</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb35-29"><a href="#cb35-29" aria-hidden="true" tabindex="-1"></a>                <span class="cf">return</span> ws <span class="op">|</span> wt<span class="op">;</span></span>
+<span id="cb35-30"><a href="#cb35-30" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb35-31"><a href="#cb35-31" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span>std<span class="op">::</span>abs<span class="op">(</span>s <span class="op">-</span> t<span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0.1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb35-32"><a href="#cb35-32" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">return</span> <span class="op">(</span>s <span class="op">&gt;</span> t <span class="op">?</span> wt <span class="op">:</span> ws<span class="op">);</span></span>
+<span id="cb35-33"><a href="#cb35-33" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb35-34"><a href="#cb35-34" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">return</span> ws <span class="op">|</span> wt<span class="op">;</span></span>
+<span id="cb35-35"><a href="#cb35-35" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span></span>
+<span id="cb35-36"><a href="#cb35-36" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb35-37"><a href="#cb35-37" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb35-38"><a href="#cb35-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb35-39"><a href="#cb35-39" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb35-40"><a href="#cb35-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-41"><a href="#cb35-41" aria-hidden="true" tabindex="-1"></a>    quint8 w1 <span class="op">=</span> determWeakness<span class="op">(</span>spec_c<span class="op">,</span> nums_c<span class="op">,</span> alph_c<span class="op">,</span> Special<span class="op">,</span> Digit<span class="op">,</span> Alpha<span class="op">);</span></span>
+<span id="cb35-42"><a href="#cb35-42" aria-hidden="true" tabindex="-1"></a>    quint8 w2 <span class="op">=</span> determWeakness<span class="op">(</span>nums_c<span class="op">,</span> spec_c<span class="op">,</span> alph_c<span class="op">,</span> Digit<span class="op">,</span> Special<span class="op">,</span> Alpha<span class="op">);</span></span>
+<span id="cb35-43"><a href="#cb35-43" aria-hidden="true" tabindex="-1"></a>    quint8 w3 <span class="op">=</span> determWeakness<span class="op">(</span>alph_c<span class="op">,</span> spec_c<span class="op">,</span> nums_c<span class="op">,</span> Alpha<span class="op">,</span> Special<span class="op">,</span> Digit<span class="op">);</span></span>
+<span id="cb35-44"><a href="#cb35-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-45"><a href="#cb35-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> std<span class="op">::</span>max<span class="op">(</span>w1<span class="op">,</span> std<span class="op">::</span>max<span class="op">(</span>w2<span class="op">,</span> w3<span class="op">));</span> <span class="co">// only one gr then 0</span></span>
+<span id="cb35-46"><a href="#cb35-46" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Метод создания динамической соли:</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> quint32 strongRand<span class="op">(</span>quint32 min<span class="op">,</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>                          quint32 max <span class="op">=</span> std<span class="op">::</span>numeric_limits<span class="op">&lt;</span>quint32<span class="op">&gt;::</span>max<span class="op">())</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> QRandomGenerator<span class="op">::</span>securelySeeded<span class="op">().</span>generate<span class="op">()</span> <span class="op">%</span> <span class="op">(</span>max<span class="op">+</span><span class="dv">1</span> <span class="op">-</span> min<span class="op">)</span> <span class="op">+</span> min<span class="op">;</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">char</span> randCharFrom<span class="op">(</span><span class="dt">const</span> QLatin1String<span class="op">&amp;</span> d<span class="op">,</span> quint32 rand32<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> d<span class="op">[</span>rand32 <span class="op">%</span> d<span class="op">.</span>size<span class="op">()].</span>toLatin1<span class="op">();</span>  <span class="op">}</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a><span class="kw">enum</span> charWeakness <span class="op">:</span> quint8 <span class="op">{</span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>    Alpha <span class="op">=</span> <span class="bn">0x1</span><span class="op">,</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>    Digit <span class="op">=</span> <span class="bn">0x2</span><span class="op">,</span></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>    Special <span class="op">=</span> <span class="bn">0x4</span><span class="op">,</span></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> QMap<span class="op">&lt;</span>quint8<span class="op">,</span> std<span class="op">::</span>function<span class="op">&lt;</span><span class="dt">char</span><span class="op">(</span>quint32<span class="op">)&gt;&gt;</span> saltCharGen<span class="op">({</span></span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>        <span class="op">{</span> Alpha<span class="op">,</span>           <span class="op">[](</span>quint32 rand32<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> randCharFrom<span class="op">(</span>alphabet<span class="op">,</span> rand32<span class="op">);</span>                                                       <span class="op">}</span> <span class="op">},</span></span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>        <span class="op">{</span> Digit<span class="op">,</span>           <span class="op">[](</span>quint32 rand32<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> randCharFrom<span class="op">(</span>digits<span class="op">,</span> rand32<span class="op">);</span>                                                         <span class="op">}</span> <span class="op">},</span></span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>        <span class="op">{</span> Special<span class="op">,</span>         <span class="op">[](</span>quint32 rand32<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> randCharFrom<span class="op">(</span>specials<span class="op">,</span> rand32<span class="op">);</span>                                                       <span class="op">}</span> <span class="op">},</span></span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>        <span class="op">{</span> Alpha <span class="op">|</span> Digit<span class="op">,</span>   <span class="op">[](</span>quint32 rand32<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> <span class="op">(</span>strongRand<span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">)</span> <span class="op">?</span> randCharFrom<span class="op">(</span>alphabet<span class="op">,</span> rand32<span class="op">)</span> <span class="op">:</span> randCharFrom<span class="op">(</span>digits<span class="op">,</span> rand32<span class="op">));</span>   <span class="op">}</span> <span class="op">},</span></span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a>        <span class="op">{</span> Alpha <span class="op">|</span> Special<span class="op">,</span> <span class="op">[](</span>quint32 rand32<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> <span class="op">(</span>strongRand<span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">)</span> <span class="op">?</span> randCharFrom<span class="op">(</span>alphabet<span class="op">,</span> rand32<span class="op">)</span> <span class="op">:</span> randCharFrom<span class="op">(</span>specials<span class="op">,</span> rand32<span class="op">));</span> <span class="op">}</span> <span class="op">},</span></span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a>        <span class="op">{</span> Special <span class="op">|</span> Digit<span class="op">,</span> <span class="op">[](</span>quint32 rand32<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> <span class="op">(</span>strongRand<span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">)</span> <span class="op">?</span> randCharFrom<span class="op">(</span>specials<span class="op">,</span> rand32<span class="op">)</span> <span class="op">:</span> randCharFrom<span class="op">(</span>digits<span class="op">,</span> rand32<span class="op">));</span>   <span class="op">}</span> <span class="op">},</span></span>
+<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">});</span></span>
+<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a>QByteArray saltGen<span class="op">(</span>quint8 w<span class="op">)</span></span>
+<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a>    QByteArray salt<span class="op">(</span>salt_length<span class="op">,</span> <span class="ch">&#39;\0&#39;</span><span class="op">);</span></span>
+<span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a>    QVector<span class="op">&lt;</span>quint32<span class="op">&gt;</span> rand<span class="op">;</span></span>
+<span id="cb36-28"><a href="#cb36-28" aria-hidden="true" tabindex="-1"></a>    rand<span class="op">.</span>resize<span class="op">(</span>salt_length<span class="op">);</span></span>
+<span id="cb36-29"><a href="#cb36-29" aria-hidden="true" tabindex="-1"></a>    QRandomGenerator<span class="op">::</span>securelySeeded<span class="op">().</span>fillRange<span class="op">(</span>rand<span class="op">.</span>data<span class="op">(),</span> rand<span class="op">.</span>size<span class="op">());</span></span>
+<span id="cb36-30"><a href="#cb36-30" aria-hidden="true" tabindex="-1"></a>    <span class="dt">auto</span> genf <span class="op">=</span> saltCharGen<span class="op">[</span>w<span class="op">];</span></span>
+<span id="cb36-31"><a href="#cb36-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-32"><a href="#cb36-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> salt_length<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb36-33"><a href="#cb36-33" aria-hidden="true" tabindex="-1"></a>        salt<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> genf<span class="op">(</span>rand<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb36-34"><a href="#cb36-34" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb36-35"><a href="#cb36-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-36"><a href="#cb36-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> salt<span class="op">;</span></span>
+<span id="cb36-37"><a href="#cb36-37" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>И заключающим акордом является сама функция генерации хэша пароля:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">void</span> setBit<span class="op">(</span><span class="dt">unsigned</span> <span class="dt">long</span><span class="op">&amp;</span> num<span class="op">,</span> <span class="dt">unsigned</span> <span class="dt">long</span> bit<span class="op">)</span> <span class="op">{</span> num <span class="op">|=</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> bit<span class="op">);</span>  <span class="op">}</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">int</span>  getBit<span class="op">(</span><span class="dt">unsigned</span> <span class="dt">long</span> num<span class="op">,</span> <span class="dt">unsigned</span> <span class="dt">long</span> bit<span class="op">)</span>  <span class="op">{</span> <span class="cf">return</span> <span class="op">(</span>num <span class="op">&amp;</span> <span class="op">(</span> <span class="dv">1</span> <span class="op">&lt;&lt;</span> bit   <span class="op">))</span> <span class="op">&gt;&gt;</span> bit<span class="op">;</span>  <span class="op">}</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="co">// There is no check bit or little endiang, may currupt on db export to another machine :) im not care :)</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Implmented by Algorithm struct published in &quot;Proposed Algorithm from IAENG International Journal of Computer Science, 43:1, IJCS_43_1_04&quot;</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>QByteArray encryptPassword<span class="op">(</span><span class="dt">const</span> QByteArray<span class="op">&amp;</span> pass<span class="op">,</span> <span class="dt">const</span> QByteArray<span class="op">&amp;</span> salt<span class="op">,</span> QCryptographicHash<span class="op">::</span>Algorithm hashAlgo<span class="op">)</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>    QByteArray toCrypt<span class="op">;</span></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>    QByteArray hash <span class="op">=</span> QCryptographicHash<span class="op">::</span>hash<span class="op">(</span>pass<span class="op">,</span> hashAlgo<span class="op">);</span></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> prev <span class="op">=</span> <span class="op">-</span><span class="dv">1</span><span class="op">;</span></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> cur<span class="op">;</span></span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> inserted <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> pass<span class="op">.</span>length<span class="op">();</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>        toCrypt<span class="op">.</span>push_back<span class="op">(</span>pass<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>        <span class="co">// push real password char</span></span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>        <span class="co">// used Rule №2</span></span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>inserted <span class="op">&lt;</span> salt<span class="op">.</span>length<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>            cur <span class="op">=</span> getBit<span class="op">(</span>pass<span class="op">[</span>i<span class="op">],</span> <span class="kw">sizeof</span><span class="op">(</span>pass<span class="op">[</span>i<span class="op">]))</span> <span class="op">^</span></span>
+<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a>                  getBit<span class="op">(</span>hash<span class="op">[</span>i<span class="op">],</span> <span class="kw">sizeof</span><span class="op">(</span>hash<span class="op">[</span>i<span class="op">]));</span></span>
+<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-23"><a href="#cb37-23" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>cur <span class="op">==</span> <span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb37-24"><a href="#cb37-24" aria-hidden="true" tabindex="-1"></a>                toCrypt<span class="op">.</span>push_back<span class="op">(</span>salt<span class="op">[</span>inserted<span class="op">++]);</span></span>
+<span id="cb37-25"><a href="#cb37-25" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>prev <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span> <span class="co">// two consecutive zeros</span></span>
+<span id="cb37-26"><a href="#cb37-26" aria-hidden="true" tabindex="-1"></a>                toCrypt<span class="op">.</span>push_back<span class="op">(</span>salt<span class="op">[</span>inserted<span class="op">++]);</span></span>
+<span id="cb37-27"><a href="#cb37-27" aria-hidden="true" tabindex="-1"></a>                toCrypt<span class="op">.</span>push_back<span class="op">(</span>salt<span class="op">[</span>inserted<span class="op">++]);</span></span>
+<span id="cb37-28"><a href="#cb37-28" aria-hidden="true" tabindex="-1"></a>                i<span class="op">++;</span> <span class="co">//skip 2</span></span>
+<span id="cb37-29"><a href="#cb37-29" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb37-30"><a href="#cb37-30" aria-hidden="true" tabindex="-1"></a>            prev <span class="op">=</span> cur<span class="op">;</span></span>
+<span id="cb37-31"><a href="#cb37-31" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb37-32"><a href="#cb37-32" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb37-33"><a href="#cb37-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-34"><a href="#cb37-34" aria-hidden="true" tabindex="-1"></a>    <span class="co">// append remaining salt</span></span>
+<span id="cb37-35"><a href="#cb37-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>inserted <span class="op">&lt;</span> salt_length<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb37-36"><a href="#cb37-36" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> inserted<span class="op">;</span> i <span class="op">&lt;</span> salt_length<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb37-37"><a href="#cb37-37" aria-hidden="true" tabindex="-1"></a>            toCrypt<span class="op">.</span>push_back<span class="op">(</span>salt<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb37-38"><a href="#cb37-38" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb37-39"><a href="#cb37-39" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb37-40"><a href="#cb37-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-41"><a href="#cb37-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> QCryptographicHash<span class="op">::</span>hash<span class="op">(</span>toCrypt<span class="op">,</span> hashAlgo<span class="op">);</span></span>
+<span id="cb37-42"><a href="#cb37-42" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p><a id="6dcd2956f39ef3cf8ebe3f1a82ebf0fd"/></p>
 <h3 id="мнеденжер-подключений">Мнеденжер подключений</h3>
 <p><a id="4185393f06367e388df7cec7cdea2c9d"/></p>
@@ -913,6 +1320,7 @@
 <ol type="1">
 <li>https://wiki.qt.io - документация Qt</li>
 <li>https://www.sqlite.org/ - документация SQLite</li>
+<li>http://www.iaeng.org/IJCS/issues_v43/issue_1/IJCS_43_1_04.pdf</li>
 </ol>
 </body>
 </html>

@@ -557,7 +557,7 @@ day - это 64х битная цыфра со знаком в формате UN
 
 ## Визуализация базы данных
 
-![Datbase visualization](img/databaseReferences.png)
+![Datbase visualization](img/databaseReferences.svg)
 
 
 <a id="142c5c1c8f822ab1538b7817a180b7ab"/>
@@ -921,36 +921,500 @@ void createNotifyItem(NotifyItemFactory*, int& uid);
 ```c
 QMap<int, NotifyItem*> _items;
 ```
+Но лучше было бы хранить их в связаном списке, так бы сохронялся их порядок появления и упрощалась перегрупировка с возможностью более быстрой обработки анимации движения появления и скрытия, пока что единственная доступная анимация - изменение прозрачности.
+
+Существующие уведомления перегрупировываются при заверении, изменении размера окна. При изменении максимальной ширины уведобления 
+
+Для управления поп-апами из вне используется система QProperty в мета объекте.
+
+Класс является _thread-safe_.
 
 
 <a id="1273e0f44063343112756ce23b2d6f2b"/>
 
 ## Логгер
 
+Логер реализован по простой модели работы в отдельном потоке. Использует систмему уровней уведомления, для фильтрации вывода.
+Для вывода в лог используется система событий Qt.
+Для фильтрации доступны уровни:
+
+```c
+enum LoggingLevel {
+    Trace = 0,
+    Debug,
+    Info,
+    Warning,
+    Error,
+    Fatal,
+};
+```
 
 
 <a id="1801c85ec3a13ae99bc3fe8a25db50fb"/>
 
 ## iiNPack
 
+Класс реализующий протокол описанный выше, включает методы упаковки данных для упрощения процесса передачи данных.
+
+Главные определения в классе:
+```c
+enum PacketType : quint8
+{
+    AUTORIZATION_REQUEST,
+    REQUEST,
+    RESPONSE,
+    ERROR_MESSAGE,
+};
+
+enum PacketLoadType : quint8
+{
+    JSON = 0,
+    XML,
+    RAW,
+};
+
+// TODO create error map
+enum ResponseError : quint8
+{
+    ACCESS_DENIED = 0,
+    NETWORK_ERROR,
+    REQUEST_ERROR,
+    UNSUPPORTED_FORMAT,
+    UNSUPPORTED_TYPE,
+    PARSE_ERROR,
+};
+
+struct Header
+{
+/* 0x0  - 0x3  */ quint32 Size;           /* Overall packet load size in bytes */
+/* 0x4  - 0x11 */ qint64  ServerStamp;    /* Send time on server; using QDateTime SecsSinceEpoch */
+/* 0x12 - 0x19 */ qint64  ClientStamp;    /* Send time on client; using QDateTime SecsSinceEpoch */
+/* 0x20 - 0x21 */ quint8  PacketType;     /* Type of packet; enum class PacketType */
+/* 0x22 - 0x23 */ quint8  PacketLoadType; /* Load format, see enum class PacketLoadType */
+};
+```
 
 
 <a id="1739f69cead8bb7ff41563dcc748a072"/>
 
 ## Сервер
 
+В данном подразделе будут описанны пути реализации приложения-сервера.
 
 
 <a id="2a334021979df79f54f0a8f48367c12c"/>
 
 ### Драйвер базы данных
 
+По сути, драйвер базы данных - это декоратор QSqlDatabase класса преднозначенный для работы в отдельном потоке.
+По мимо доступа к базе данных, класс реализует систему идентификации и атунтификации.
+
+Т.к. драйвер будет работать в отдельном потоке, чтобы не тормозить дргие потоки, из которых вызываются методы драйвера, он имеет в себе очередь команд на выполнение:
+```c
+struct DatabaseCmd {
+    int executorRole;
+    QJsonObject data;
+    DriverAssistant * waiter;
+};
+
+DatabaseCmd cmd = _cmdQueue.dequeue();
+```
+
+Т.к. передача команды в очередь на исполнение драйверу реализована с помощью сигналов, данный объект DatabaseCmd необходимо ввести в систему мета компиляции:
+```c
+Q_DECLARE_METATYPE(Database::DatabaseCmd)
+```
+
+Обработка происходит в такой незамысловатой петле:
+```c
+void
+Driver::worker()
+{
+    QMutexLocker lock(&_queueMtx);
+    if (_cmdQueue.length()) {
+        DatabaseCmd cmd = _cmdQueue.dequeue();
+        this->executeCommand((RoleId)cmd.executorRole, cmd.data, cmd.waiter);
+    }
+
+    if (_running) {
+        QTimer::singleShot((_cmdQueue.length() ? 100, 0), this, SLOT(worker()));
+    }
+}
+```
+
+И наконец, функция которая реализует механизм аутентификации:
+```
+void
+Driver::executeCommand(Database::RoleId role, QJsonObject obj, DriverAssistant* waiter) {
+    if (!waiter) {
+        throw QString("Driver::" + QString(__func__) + ": Null waiter passed!");
+    }
+
+    if (role != ROLE_AUTO) {
+        if (role > ROLES_COUNT || role < (RoleId)0) {
+            waiter->Failed(CmdError(AccessDenied, "Invalid Role ID passed"));
+                return;
+        }
+    }
+
+    int command_n;
+    if (auto val = obj["command"]; val.isDouble()) {
+        command_n = val.toInt();
+    } else {
+        waiter->Failed(CmdError(InvalidCommand, "No command passed"));
+        return;
+    }
+
+    if (command_n > COMMANDS_COUNT || command_n < 0) {
+        waiter->Failed(CmdError(InvalidCommand, "Command not exists"));
+        return;
+    }
+
+    if (role != ROLE_AUTO) {
+        // check permission for execute command
+        if (!_roles[role].commands.contains(command_n)) {
+            waiter->Failed(CmdError(AccessDenied, "You not have access to execute this command"));
+            return;
+        }
+    }
+
+    if (auto val = obj["arg"]; val.isObject()) {
+        QJsonObject target = val.toObject();
+        auto cmd = _commands[command_n];
+        CmdError rc = cmd.executor(target);
+        if (rc.Ok()) {
+            waiter->Success(target);
+        } else {
+            waiter->Failed(rc);
+        }
+    } else {
+        waiter->Failed(CmdError(InvalidParam, "No parameters passed"));
+    }
+}
+```
+DriverAssistant - это отдельный класс, который уведомляет объект, который ожидает данные от драйвера, содержить два метода и два сигнала, описывающих успешное или не успешное завершение выполнение команды.
+
+Роли и команды храняться статично в объекте драйвера в объектах:
+```c
+struct role_set {
+    int id; // equal to index
+    const char * name;
+    QVector<CommandId> commands;
+};
+
+struct command_set {
+    int id; // equal to index
+    const char * name;
+    command_exec_t executor;
+    bool sendback;
+};
+```
+
+Команды храняться в массиве, роли - именованом массиве.
+И заполняются в конструкторе драйвера таким образом:
+```c
+#define XX(num, name, query) { TABLE_ ##name, QUOTE(name), query  },
+    _tables = { TABLES_MAP(XX)  };
+#undef XX
+#define XX(id, val, cmds) { ROLE_ ##val, { ROLE_ ##val, QUOTE(val), cmds  }  },
+    _roles = { ROLE_MAP(XX)  };
+#undef XX
+#define XX(id, n, exe) { CMD_ ##n, QUOTE(n), exe  },
+    _commands = { COMMANDS_MAP(XX)  };
+#undef XX
+```
+
+Данные ролей и команд:
+```c
+#define AdminCommands { \
+    CMD_EDIT_OBJECT_TYPE,     \
+    CMD_MAKE_DUTY_SCHEDULE,   \
+    CMD_REGISTER_ACCIDENT,    \
+    CMD_REGISTER_EMPLOYEE,    \
+    CMD_GET_USER_INFO,        \
+    CMD_REGISTER_OBJECT_TYPE, \
+    CMD_UPDATE_ROLE,          \
+    CMD_GET_ROLE_DETAILS,     \
+    CMD_GET_OBJECT_DETAILS,   \
+    CMD_GET_DUTY_SCHEDULE,    \
+    }
+
+#define SecurityCommands { \
+    CMD_PAY_ACCIDENT,      \
+
+...
+
+// id, name, commands, privilegyID, payMult, payPeriod
+// AUTO - only initiated by server logic automaticaly and have all permissions
+#define ROLE_MAP(XX) \
+    XX( -1, AUTO,         {}  ) \
+    XX( 0,  Admin,        AdminCommands  ) \
+    XX( 1,  Security,     SecurityCommands  ) \
+    XX( 2,  Inkosor,      InkosorCommands  ) \
+    XX( 3,  Recruter,     RecruterCommands  ) \
+    XX( 4,  WaponManager, WaponManagerCommands  ) \
+    XX( 5,  Customer,     CusomerCommands  ) \
+
+#define XX(id, name, commands) ROLE_ ##name = id,
+    enum RoleId {
+        ROLE_MAP(XX)
+        ROLES_COUNT
+    };
+#undef XX
+```
+
+```c
+// id, name, executor
+#define COMMANDS_MAP(XX) \
+    XX( 0,  MAKE_CONTRACT,        exec_make_contract       ) \
+    XX( 1,  MAKE_DUTY_SCHEDULE,   exec_make_duty_schedule  ) \
+    XX( 2,  REGISTER_ACCIDENT,    exec_register_accident   ) \
+    XX( 3,  REGISTER_EMPLOYEE,    exec_register_employee   ) \
+    XX( 4,  REGISTER_CUSTOMER,    exec_register_customer   ) \
+    XX( 5,  REGISTER_OBJECT_TYPE, exec_register_object_type ) \
+    XX( 6,  REGISTER_WAPON,       exec_register_wapon      ) \
+    XX( 7,  ASSIGN_WAPON,         exec_assign_wapon        ) \
+    XX( 8,  PAY_AMMO,             exec_pay_ammo            ) \
+    XX( 9,  PAY_EMPLOYEE,         exec_pay_employee        ) \
+    XX( 10, PAY_ACCIDENT,         exec_pay_accident        ) \
+    XX( 11, EDIT_OBJECT_TYPE,     exec_edit_object_type    ) \
+    XX( 12, UPDATE_ROLE,          exec_update_role         ) \
+    XX( 13, GET_USER_INFO,        exec_get_user_info       ) \
+    XX( 14, GET_ACCIDENT_DETAILS, exec_get_accident_details ) \
+    XX( 15, GET_ACCOUNTING_ENTRY, exec_get_accounting_entry ) \
+    XX( 16, GET_OBJECT_DETAILS,   exec_get_object_detalils ) \
+    XX( 17, GET_ROLE_DETAILS,     exec_get_role_details    ) \
+    XX( 18, GET_WAPON_DETAILS,    exec_get_wapon_details   ) \
+    XX( 19, GET_DUTY_SCHEDULE,    exec_get_duty_schedule   ) \
+    XX( 20, CREATE_TABLE,         exec_create_table        ) \
+    XX( 21, IDENTIFY,             exec_identify            ) \
+
+#define XX(id, name, e) CMD_ ##name = id,
+enum CommandId {
+    COMMANDS_MAP(XX)
+    COMMANDS_COUNT
+};
+#undef XX
+```
+
+Сами команды, они же executor, - это обычные функции c-style:
+```c
+// AUTO only commands
+CmdError exec_create_table(QJsonObject& obj);
+CmdError exec_identify(QJsonObject& obj);
+
+// Role avalible commands
+CmdError exec_make_contract(QJsonObject& obj);
+CmdError exec_make_duty_schedule(QJsonObject& obj);
+CmdError exec_register_accident(QJsonObject& obj);
+```
+
+Команды(executor) напрямую получают данные переданные клиент-программами, и возвращают значение в том же переданном аргументе, практически без обработки, таким образом на них ложиться задача валидации переданных аргументов и само исполнение.
+Пример команды:
+```c
+/*
+ * login: string
+ * password: string
+ */
+CmdError
+exec_identify(QJsonObject& obj)
+{
+    QSqlQuery q;
+    QString login;
+    QString password;
+
+    login = obj.take("login").toString();
+    password = obj.take("password").toString();
+
+    if (!login.length() || !password.length()) {
+        return CmdError(InvalidParam, "Passed empty parameters");
+    }
+
+    q.prepare("SELECT id, name, role_id, password, salt FROM Users "
+              "WHERE login = :login");
+    q.bindValue(":login", login);
+
+    if (!q.exec()) {
+        return CmdError(SQLError, q.lastQuery() + " " + q.lastError().text());
+    }
+    if (!q.next()) {
+        return CmdError(AccessDenied, "No user registreted with login: " + login);
+    }
+
+    QByteArray salt = q.record().value("salt").toByteArray();
+    QByteArray real_passwordHash = q.record().value("password").toByteArray();
+    QByteArray passed_passwordHash = encryptPassword(password.toLatin1(), salt);
+
+    if (real_passwordHash != passed_passwordHash) {
+        return CmdError(AccessDenied, "Invalid password");
+    }
+
+    obj["role_id"] = q.record().value("role").toInt();
+    obj["name"] = q.record().value("name").toString();
+    obj["id"] = q.record().value("id").toString();
+
+    return CmdError();
+}
+```
+
+> Факт: на этом этапе я обнаружил баг, который заставил меня сидеть час с надутым лицом. Значение "id" сохраняется как строка, а в програме клиенте я разархивировал это значение как целочисленое, в итоге получал стандартное значение "0".
 
 
 <a id="99ed80269db632accc22cace769ff223"/>
 
 #### Криптография
 
+При регистрации пользователя, как было сказано ранее, используется функция хэширования пароля, для большей безопасности учетных записей.
+Можно было бы использовать просто функцию хэширования, но я выбрал более сложный и надежный путь.
+
+Кроме того, что при хешировании используется динамическая соль, так она еще и "умная", написана так, чтобы максимально увеличивать энтропию пароля, но и "умная" вставка соли в строку пароля.
+Алгоритм был найден мной в журнале [IAENG International Journal of Computer Science](http://www.iaeng.org/IJCS/issues_v43/issue_1/IJCS_43_1_04.pdf) 2016 года.
+
+Суть алгоритма в том, чтобы приводить пароль к максимальной энтропии с использованием динамической умной соли и использования особого метода вставки соли в пароль по одному из 4 или 5 правил на выбор.
+Умная вставка, по мнению автора, должна свести радужные таблицы к эффективному минимуму, что при тестах он и продемонстрировал.
+
+Чтобы определить слабые стороны пароля мы просто перебераем символы пароля в 3 группы:
+
+- Буквы
+- Цыфры
+- Специальные знаки
+
+и исходя из из процентного содержания в исходной строке выбираем алфавит для генерации соли:
+```c
+static void countChars(int& spec, int& dig, int& alph, const char * str) {
+    spec = dig = alph = 0;
+    for (int i = 0; i < strlen(str); i++) {
+        char ch = str[i];
+        if (isalpha(ch)) { alph++;
+        } else if (isdigit(ch)) { dig++;
+        } else if (isgraph(ch) || isspace(ch)) { spec++;
+        }
+    }
+}
+
+quint8 passWeaknesses(const QByteArray& data)
+{
+    int len = data.length();
+    int spec, nums, alph;
+    countChars(spec, nums, alph, data.data());
+    double spec_c = static_cast<double>(spec)/len,
+           nums_c = static_cast<double>(nums)/len,
+           alph_c = static_cast<double>(alph)/len;
+
+    // weakness determinission algo:
+    //  1. find max coef char type - mostch
+    //  2. if mostch count grater then 50% of password mean that weak in both other char types;
+    //  3. if diff of other char types grater then 10% mean that weak only in one min char type;
+    //  4. if diff less or eq to 10% - weak in both;
+    auto determWeakness = [](double f, double s, double t, quint8 wf, quint8 ws, quint8 wt) -> quint8 {
+        if (f > s && f > t) {
+            if (f > 0.5) {
+                return ws | wt;
+            } else {
+                if (std::abs(s - t) > 0.1) {
+                    return (s > t ? wt : ws);
+                } else {
+                    return ws | wt;
+                }
+            }
+        }
+        return 0;
+    };
+
+    quint8 w1 = determWeakness(spec_c, nums_c, alph_c, Special, Digit, Alpha);
+    quint8 w2 = determWeakness(nums_c, spec_c, alph_c, Digit, Special, Alpha);
+    quint8 w3 = determWeakness(alph_c, spec_c, nums_c, Alpha, Special, Digit);
+
+    return std::max(w1, std::max(w2, w3)); // only one gr then 0
+}
+```
+
+Метод создания динамической соли:
+```c
+static quint32 strongRand(quint32 min,
+                          quint32 max = std::numeric_limits<quint32>::max())
+{
+    return QRandomGenerator::securelySeeded().generate() % (max+1 - min) + min;
+}
+
+static char randCharFrom(const QLatin1String& d, quint32 rand32) { return d[rand32 % d.size()].toLatin1();  }
+
+enum charWeakness : quint8 {
+    Alpha = 0x1,
+    Digit = 0x2,
+    Special = 0x4,
+};
+
+static QMap<quint8, std::function<char(quint32)>> saltCharGen({
+        { Alpha,           [](quint32 rand32) { return randCharFrom(alphabet, rand32);                                                       } },
+        { Digit,           [](quint32 rand32) { return randCharFrom(digits, rand32);                                                         } },
+        { Special,         [](quint32 rand32) { return randCharFrom(specials, rand32);                                                       } },
+        { Alpha | Digit,   [](quint32 rand32) { return (strongRand(0, 1) ? randCharFrom(alphabet, rand32) : randCharFrom(digits, rand32));   } },
+        { Alpha | Special, [](quint32 rand32) { return (strongRand(0, 1) ? randCharFrom(alphabet, rand32) : randCharFrom(specials, rand32)); } },
+        { Special | Digit, [](quint32 rand32) { return (strongRand(0, 1) ? randCharFrom(specials, rand32) : randCharFrom(digits, rand32));   } },
+    });
+
+QByteArray saltGen(quint8 w)
+{
+    QByteArray salt(salt_length, '\0');
+    QVector<quint32> rand;
+    rand.resize(salt_length);
+    QRandomGenerator::securelySeeded().fillRange(rand.data(), rand.size());
+    auto genf = saltCharGen[w];
+
+    for (int i = 0; i < salt_length; i++) {
+        salt[i] = genf(rand[i]);
+    }
+
+    return salt;
+}
+```
+
+И заключающим акордом является сама функция генерации хэша пароля:
+```c
+static void setBit(unsigned long& num, unsigned long bit) { num |= (1 << bit);  }
+static int  getBit(unsigned long num, unsigned long bit)  { return (num & ( 1 << bit   )) >> bit;  }
+
+// There is no check bit or little endiang, may currupt on db export to another machine :) im not care :)
+// Implmented by Algorithm struct published in "Proposed Algorithm from IAENG International Journal of Computer Science, 43:1, IJCS_43_1_04"
+QByteArray encryptPassword(const QByteArray& pass, const QByteArray& salt, QCryptographicHash::Algorithm hashAlgo)
+{
+    QByteArray toCrypt;
+    QByteArray hash = QCryptographicHash::hash(pass, hashAlgo);
+
+    int prev = -1;
+    int cur;
+    int inserted = 0;
+    for (int i = 0; i < pass.length(); i++) {
+        toCrypt.push_back(pass[i]);
+        // push real password char
+
+        // used Rule №2
+        if (inserted < salt.length()) {
+            cur = getBit(pass[i], sizeof(pass[i])) ^
+                  getBit(hash[i], sizeof(hash[i]));
+
+            if (cur == 1) {
+                toCrypt.push_back(salt[inserted++]);
+            } else if (prev == 0) { // two consecutive zeros
+                toCrypt.push_back(salt[inserted++]);
+                toCrypt.push_back(salt[inserted++]);
+                i++; //skip 2
+            }
+            prev = cur;
+        }
+    }
+
+    // append remaining salt
+    if (inserted < salt_length) {
+        for (int i = inserted; i < salt_length; i++) {
+            toCrypt.push_back(salt[i]);
+        }
+    }
+
+    return QCryptographicHash::hash(toCrypt, hashAlgo);
+}
+```
 
 
 <a id="6dcd2956f39ef3cf8ebe3f1a82ebf0fd"/>
@@ -1007,4 +1471,5 @@ QMap<int, NotifyItem*> _items;
 
 1. https://wiki.qt.io - документация Qt
 2. https://www.sqlite.org/ - документация SQLite
+3. http://www.iaeng.org/IJCS/issues_v43/issue_1/IJCS_43_1_04.pdf
 

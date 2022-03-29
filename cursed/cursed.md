@@ -351,7 +351,7 @@ CREATE TABLE
 day - это 64х битная цыфра со знаком в формате UNIX time(secs since epoch). 
 
 ## Визуализация базы данных
-![Datbase visualization](img/databaseReferences.png)
+![Datbase visualization](img/databaseReferences.svg)
 
 # Разработка архитектуры приложения
 Приложение для взаимодействия с моделью ЧОП, построенной ранее, должно предоставлять функционал для реализации всех описанных процессов взаимодействия с моделью ЧОП.
