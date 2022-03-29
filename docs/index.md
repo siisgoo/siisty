@@ -55,11 +55,13 @@
 	4. [ Сервер ](#1739f69cead8bb7ff41563dcc748a072)
 		1. [ Драйвер базы данных ](#2a334021979df79f54f0a8f48367c12c)
 			1. [ Криптография ](#99ed80269db632accc22cace769ff223)
-		2. [ iiServer ](#4a3506dd433b64a601e400e07b2a3b1c)
-			1. [ ClientLink ](#1f7f90d854564597157d657bc7c8968a)
-			2. [ Процессор подключений ](#e3d4a75ceaa1be8d285dacee2bfe4bf1)
+		2. [ Мнеденжер подключений ](#6dcd2956f39ef3cf8ebe3f1a82ebf0fd)
+			1. [ Менеджер сессий ](#4185393f06367e388df7cec7cdea2c9d)
+			2. [ ClientLink ](#1f7f90d854564597157d657bc7c8968a)
+			3. [ Процессор подключения ](#c152088a798c5969e467612ed2109532)
 	5. [ Клиент ](#b99b6558c7cde67d398236bf888d33cb)
 		1. [ Service ](#7eef63514ed827f85a480746eea9b025)
+		2. [ Менеджер групп страниц ](#bb5ea4981f0e9a3be08addcddaef373b)
 7. [ Заключение ](#e1c1d994d00e4e7a44fcd5d029d3548d)
 8. [ Список литиратуры ](#bc5e99ae74607750379b50c9e11d0695)
 
@@ -432,13 +434,13 @@ CREATE TABLE
 ```sql
 CREATE TABLE
     "Roles"("id" INTEGER NOT NULL UNIQUE,
-        "name" TEXT NOT NULL UNIQUE,
-                "commands_id" INTEGER NOT NULL,
-                "payMultipler" DECIMAL(10, 3) NOT NULL,
-                "payPeriod" INTEGER NOT NULL,
-                FOREIGN KEY("commands_id") REFERENCES
-                "roleCommands"("role_id")ON DELETE RESTRICT,
-                PRIMARY KEY("id"))
+            "name" TEXT NOT NULL UNIQUE,
+            "commands_id" INTEGER NOT NULL,
+            "payMultipler" DECIMAL(10, 3) NOT NULL,
+            "payPeriod" INTEGER NOT NULL,
+            FOREIGN KEY("commands_id") REFERENCES
+            "roleCommands"("role_id")ON DELETE RESTRICT,
+            PRIMARY KEY("id"))
 ```
 Роль определяет какие данные и соответственно команды можешь выполнять на сервере. Ссылается на таблицу roleComands - это SQL массив с ID команд, которые может выполнять пользователь с данной ролью, по поэтому я и отказался от других, более тяжелых СУБД, т.к. все необходимые действия делегируются на Сервер, что будет рассмотрено далее, от СУБД требуется только хранить данные и извлекать их.
 Связаная таблица roleCommands:
@@ -453,36 +455,36 @@ CREATE TABLE
 ```sql
 CREATE TABLE
     "Wapons"("id" INTEGER NOT NULL UNIQUE,
-                 "employee_id" INTEGER UNIQUE,
-                 "name" TEXT NOT NULL,
-                 "ammo" INTEGER NOT NULL,
-                 "price" DECIMAL(10, 3) NOT NULL,
-                 "ammoPrice" DECIMAL(10, 3) NOT NULL,
-                 "image" BLOB,
-                 FOREIGN KEY("employee_id") REFERENCES
-                 "Users"("id")ON DELETE RESTRICT,
-                 PRIMARY KEY("id"))
+             "employee_id" INTEGER UNIQUE,
+             "name" TEXT NOT NULL,
+             "ammo" INTEGER NOT NULL,
+             "price" DECIMAL(10, 3) NOT NULL,
+             "ammoPrice" DECIMAL(10, 3) NOT NULL,
+             "image" BLOB,
+             FOREIGN KEY("employee_id") REFERENCES
+             "Users"("id")ON DELETE RESTRICT,
+             PRIMARY KEY("id"))
 ```
 Каждая запись в таблице Wapons - это еденица зарегестрированного оружия, в полной мере описывающяя необходимые характеристики для ЧОП.
 
 Так как организация имеет свои расходы и доходы, нам нужно сохранять эти данные.
 Таблица Accounting:
 ```sql
-CREATE TABLE 
+CREATE TABLE
     "Accounting" ("id" INTEGER NOT NULL UNIQUE,
-              "accountingType_id" INTEGER NOT NULL,
-              "pay" DECIMAL(10, 3) NOT NULL,
-              "date" TEXT NOT NULL,
-              FOREIGN KEY("accountingType_id")
-              REFERENCES "AccountingType"("id") ON DELETE RESTRICT,
-              PRIMARY KEY("id") )
+                  "accountingType_id" INTEGER NOT NULL,
+                  "pay" DECIMAL(10, 3) NOT NULL,
+                  "date" TEXT NOT NULL,
+                  FOREIGN KEY("accountingType_id")
+                  REFERENCES "AccountingType"("id") ON DELETE RESTRICT,
+                  PRIMARY KEY("id") )
 ```
 Зависит от таблицы AccountingType, описывающей какого рода транзакция была совершена.
 ```sql
 CREATE TABLE
     "AccountingType" ("id" INTEGER NOT NULL UNIQUE,
-                  "name" TEXT NOT NULL UNIQUE,
-                  PRIMARY KEY("id","name") )
+                      "name" TEXT NOT NULL UNIQUE,
+                      PRIMARY KEY("id","name") )
 ```
 
 ЧОП получает доход от контрактов, по этому была составлена таблица Contracts:
@@ -530,15 +532,15 @@ CREATE TABLE
 ```sql
 CREATE TABLE
     "Accidents" ("id" INTEGER NOT NULL UNIQUE,
-             "name" TEXT NOT NULL,
-             "contract_id"
-             INTEGER NOT NULL,
-             "usedAmmoCount" INTEGER,
-             "damagePrice" DECIMAL(10, 3),
-             "assignedEmployees_id" INTEGER,
-             FOREIGN KEY("contract_id") REFERENCES "Contracts"("id") ON DELETE RESTRICT,
-             FOREIGN KEY("assignedEmployees_id") REFERENCES "AssignedEmployees"("id") ON DELETE RESTRICT,
-             PRIMARY KEY("id") )
+                 "name" TEXT NOT NULL,
+                 "contract_id"
+                 INTEGER NOT NULL,
+                 "usedAmmoCount" INTEGER,
+                 "damagePrice" DECIMAL(10, 3),
+                 "assignedEmployees_id" INTEGER,
+                 FOREIGN KEY("contract_id") REFERENCES "Contracts"("id") ON DELETE RESTRICT,
+                 FOREIGN KEY("assignedEmployees_id") REFERENCES "AssignedEmployees"("id") ON DELETE RESTRICT,
+                 PRIMARY KEY("id") )
 ```
 Описывает проишествия, произошедшие во время исполнения контракта.
 Если у нас есть контракты, описывающие некую деятельность с учетом выходных и рамок начала и окончания службы, то можно было бы ускорить вычисление рабочего времени по дням с помощью препроцессинга данных из записи Contracts. Таблицей, в которую сохраняются транслированные данные является - DutySchedule:
@@ -555,7 +557,7 @@ day - это 64х битная цыфра со знаком в формате UN
 
 ## Визуализация базы данных
 
-![Datbase visualization](/home/xewii/Documents/TIT/ZXC/databaseReferences.png)
+![Datbase visualization](img/databaseReferences.png)
 
 
 <a id="142c5c1c8f822ab1538b7817a180b7ab"/>
@@ -578,7 +580,7 @@ day - это 64х битная цыфра со знаком в формате UN
 
 ## Информационные потоки ЧОП
 
-![PSC with server info flows](/home/xewii/Documents/TIT/ZXC/infoServiceFlow.png)
+![PSC with server info flows](img/infoServiceFlow.png)
 
 
 <a id="503aa110ff5e803702414f90c5c5ebd6"/>
@@ -903,8 +905,22 @@ PagesManager::finalize()
 
 ### NotifyManager
 
-TODO
+Сущность выполняющая динамическое позиционирование всплывающих уведомлений разного типа.
+В своей основе - это лейаут поверх всего рабочего пространства приложения и процессор, обрабатывающий запросы на создание новых уведомлений и управления существующими, уведомление - это разновидность класса NotifyItem.
+Главная причина почему этот класс существует - возможность создавать thread-safe уведомления из любого потока. Т. к. любой виджет вне потока существования виджета-родителя не будет напрямую связан с его петлей событий.
+Как известно, объект начинает существовать там, где он был создан с помощью оператора new. Поэтому для передачи на обработку NotifyManager'у используюся фабрики NotifyItemFactory.
 
+Таким образом, мне получилось создать простой интерфейс для создания всплывающих уведомлей:
+```c
+void setItemPropery(int uid, const QByteArray& name, const QVariant& value);
+void createNotifyItem(NotifyItemFactory*, int& uid);
+```
+Обращение к созданому уведомлению происходит по выделеному uid, который возвращает createNotifyItem.
+
+Все существующие уведомления храняться в именованом массиве:
+```c
+QMap<int, NotifyItem*> _items;
+```
 
 
 <a id="1273e0f44063343112756ce23b2d6f2b"/>
@@ -937,9 +953,15 @@ TODO
 
 
 
-<a id="4a3506dd433b64a601e400e07b2a3b1c"/>
+<a id="6dcd2956f39ef3cf8ebe3f1a82ebf0fd"/>
 
-### iiServer
+### Мнеденжер подключений
+
+
+
+<a id="4185393f06367e388df7cec7cdea2c9d"/>
+
+#### Менеджер сессий
 
 
 
@@ -949,9 +971,9 @@ TODO
 
 
 
-<a id="e3d4a75ceaa1be8d285dacee2bfe4bf1"/>
+<a id="c152088a798c5969e467612ed2109532"/>
 
-#### Процессор подключений
+#### Процессор подключения
 
 
 
@@ -966,14 +988,17 @@ TODO
 ### Service
 
 
-...
+
+<a id="bb5ea4981f0e9a3be08addcddaef373b"/>
+
+### Менеджер групп страниц
+
 
 
 <a id="e1c1d994d00e4e7a44fcd5d029d3548d"/>
 
 # Заключение
 
-TODO
 
 
 <a id="bc5e99ae74607750379b50c9e11d0695"/>

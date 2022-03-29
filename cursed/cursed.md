@@ -232,13 +232,13 @@ CREATE TABLE
 ```sql
 CREATE TABLE
     "Roles"("id" INTEGER NOT NULL UNIQUE,
-        "name" TEXT NOT NULL UNIQUE,
-                "commands_id" INTEGER NOT NULL,
-                "payMultipler" DECIMAL(10, 3) NOT NULL,
-                "payPeriod" INTEGER NOT NULL,
-                FOREIGN KEY("commands_id") REFERENCES
-                "roleCommands"("role_id")ON DELETE RESTRICT,
-                PRIMARY KEY("id"))
+            "name" TEXT NOT NULL UNIQUE,
+            "commands_id" INTEGER NOT NULL,
+            "payMultipler" DECIMAL(10, 3) NOT NULL,
+            "payPeriod" INTEGER NOT NULL,
+            FOREIGN KEY("commands_id") REFERENCES
+            "roleCommands"("role_id")ON DELETE RESTRICT,
+            PRIMARY KEY("id"))
 ```
 Роль определяет какие данные и соответственно команды можешь выполнять на сервере. Ссылается на таблицу roleComands - это SQL массив с ID команд, которые может выполнять пользователь с данной ролью, по поэтому я и отказался от других, более тяжелых СУБД, т.к. все необходимые действия делегируются на Сервер, что будет рассмотрено далее, от СУБД требуется только хранить данные и извлекать их.
 Связаная таблица roleCommands:
@@ -253,36 +253,36 @@ CREATE TABLE
 ```sql
 CREATE TABLE
     "Wapons"("id" INTEGER NOT NULL UNIQUE,
-                 "employee_id" INTEGER UNIQUE,
-                 "name" TEXT NOT NULL,
-                 "ammo" INTEGER NOT NULL,
-                 "price" DECIMAL(10, 3) NOT NULL,
-                 "ammoPrice" DECIMAL(10, 3) NOT NULL,
-                 "image" BLOB,
-                 FOREIGN KEY("employee_id") REFERENCES
-                 "Users"("id")ON DELETE RESTRICT,
-                 PRIMARY KEY("id"))
+             "employee_id" INTEGER UNIQUE,
+             "name" TEXT NOT NULL,
+             "ammo" INTEGER NOT NULL,
+             "price" DECIMAL(10, 3) NOT NULL,
+             "ammoPrice" DECIMAL(10, 3) NOT NULL,
+             "image" BLOB,
+             FOREIGN KEY("employee_id") REFERENCES
+             "Users"("id")ON DELETE RESTRICT,
+             PRIMARY KEY("id"))
 ```
 Каждая запись в таблице Wapons - это еденица зарегестрированного оружия, в полной мере описывающяя необходимые характеристики для ЧОП.
 
 Так как организация имеет свои расходы и доходы, нам нужно сохранять эти данные.
 Таблица Accounting:
 ```sql
-CREATE TABLE 
+CREATE TABLE
     "Accounting" ("id" INTEGER NOT NULL UNIQUE,
-              "accountingType_id" INTEGER NOT NULL,
-              "pay" DECIMAL(10, 3) NOT NULL,
-              "date" TEXT NOT NULL,
-              FOREIGN KEY("accountingType_id")
-              REFERENCES "AccountingType"("id") ON DELETE RESTRICT,
-              PRIMARY KEY("id") )
+                  "accountingType_id" INTEGER NOT NULL,
+                  "pay" DECIMAL(10, 3) NOT NULL,
+                  "date" TEXT NOT NULL,
+                  FOREIGN KEY("accountingType_id")
+                  REFERENCES "AccountingType"("id") ON DELETE RESTRICT,
+                  PRIMARY KEY("id") )
 ```
 Зависит от таблицы AccountingType, описывающей какого рода транзакция была совершена.
 ```sql
 CREATE TABLE
     "AccountingType" ("id" INTEGER NOT NULL UNIQUE,
-                  "name" TEXT NOT NULL UNIQUE,
-                  PRIMARY KEY("id","name") )
+                      "name" TEXT NOT NULL UNIQUE,
+                      PRIMARY KEY("id","name") )
 ```
 
 ЧОП получает доход от контрактов, по этому была составлена таблица Contracts:
@@ -330,15 +330,15 @@ CREATE TABLE
 ```sql
 CREATE TABLE
     "Accidents" ("id" INTEGER NOT NULL UNIQUE,
-             "name" TEXT NOT NULL,
-             "contract_id"
-             INTEGER NOT NULL,
-             "usedAmmoCount" INTEGER,
-             "damagePrice" DECIMAL(10, 3),
-             "assignedEmployees_id" INTEGER,
-             FOREIGN KEY("contract_id") REFERENCES "Contracts"("id") ON DELETE RESTRICT,
-             FOREIGN KEY("assignedEmployees_id") REFERENCES "AssignedEmployees"("id") ON DELETE RESTRICT,
-             PRIMARY KEY("id") )
+                 "name" TEXT NOT NULL,
+                 "contract_id"
+                 INTEGER NOT NULL,
+                 "usedAmmoCount" INTEGER,
+                 "damagePrice" DECIMAL(10, 3),
+                 "assignedEmployees_id" INTEGER,
+                 FOREIGN KEY("contract_id") REFERENCES "Contracts"("id") ON DELETE RESTRICT,
+                 FOREIGN KEY("assignedEmployees_id") REFERENCES "AssignedEmployees"("id") ON DELETE RESTRICT,
+                 PRIMARY KEY("id") )
 ```
 Описывает проишествия, произошедшие во время исполнения контракта.
 Если у нас есть контракты, описывающие некую деятельность с учетом выходных и рамок начала и окончания службы, то можно было бы ускорить вычисление рабочего времени по дням с помощью препроцессинга данных из записи Contracts. Таблицей, в которую сохраняются транслированные данные является - DutySchedule:
@@ -351,7 +351,7 @@ CREATE TABLE
 day - это 64х битная цыфра со знаком в формате UNIX time(secs since epoch). 
 
 ## Визуализация базы данных
-![Datbase visualization](/home/xewii/Documents/TIT/ZXC/databaseReferences.png)
+![Datbase visualization](img/databaseReferences.png)
 
 # Разработка архитектуры приложения
 Приложение для взаимодействия с моделью ЧОП, построенной ранее, должно предоставлять функционал для реализации всех описанных процессов взаимодействия с моделью ЧОП.
@@ -362,7 +362,7 @@ day - это 64х битная цыфра со знаком в формате UN
 И для персонала ЧОП тоже будет намного удобнее и быстрее использовать унифицированные методы итерации с базой данных и самой организацией.
 
 ### Информационные потоки ЧОП с учетом сервера
-![PSC with server info flows](/home/xewii/Documents/TIT/ZXC/infoServiceFlow.png)
+![PSC with server info flows](img/infoServiceFlow.png)
 
 ## Обращение к базе данных
 Как было сказано ранее, СУБД не будет управлять системой привелегий, этим будет заниматься другой код. Система, которую я разработал основана на ролях, так же как и в обычных "умных" СУБД, к которым привязано некоторое количество возможных к исполнению команд.
@@ -635,8 +635,22 @@ PagesManager::finalize()
 
 
 ### NotifyManager
-TODO
+Сущность выполняющая динамическое позиционирование всплывающих уведомлений разного типа.
+В своей основе - это лейаут поверх всего рабочего пространства приложения и процессор, обрабатывающий запросы на создание новых уведомлений и управления существующими, уведомление - это разновидность класса NotifyItem.
+Главная причина почему этот класс существует - возможность создавать thread-safe уведомления из любого потока. Т. к. любой виджет вне потока существования виджета-родителя не будет напрямую связан с его петлей событий.
+Как известно, объект начинает существовать там, где он был создан с помощью оператора new. Поэтому для передачи на обработку NotifyManager'у используюся фабрики NotifyItemFactory.
 
+Таким образом, мне получилось создать простой интерфейс для создания всплывающих уведомлей:
+```c
+void setItemPropery(int uid, const QByteArray& name, const QVariant& value);
+void createNotifyItem(NotifyItemFactory*, int& uid);
+```
+Обращение к созданому уведомлению происходит по выделеному uid, который возвращает createNotifyItem.
+
+Все существующие уведомления храняться в именованом массиве:
+```c
+QMap<int, NotifyItem*> _items;
+```
 
 ## Логгер
 
@@ -648,20 +662,21 @@ TODO
 
 #### Криптография
 
-### iiServer
+### Мнеденжер подключений
+
+#### Менеджер сессий
 
 #### ClientLink
 
-#### Процессор подключений
+#### Процессор подключения
 
 ## Клиент
 
 ### Service
 
-...
+### Менеджер групп страниц
 
 # Заключение
-TODO
 
 # Список литиратуры
 1. https://wiki.qt.io - документация Qt

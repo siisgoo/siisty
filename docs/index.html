@@ -315,15 +315,17 @@
 <ol type="1">
 <li><a href="#99ed80269db632accc22cace769ff223">Криптография</a></li>
 </ol></li>
-<li><a href="#4a3506dd433b64a601e400e07b2a3b1c">iiServer</a>
+<li><a href="#6dcd2956f39ef3cf8ebe3f1a82ebf0fd">Мнеденжер подключений</a>
 <ol type="1">
+<li><a href="#4185393f06367e388df7cec7cdea2c9d">Менеджер сессий</a></li>
 <li><a href="#1f7f90d854564597157d657bc7c8968a">ClientLink</a></li>
-<li><a href="#e3d4a75ceaa1be8d285dacee2bfe4bf1">Процессор подключений</a></li>
+<li><a href="#c152088a798c5969e467612ed2109532">Процессор подключения</a></li>
 </ol></li>
 </ol></li>
 <li><a href="#b99b6558c7cde67d398236bf888d33cb">Клиент</a>
 <ol type="1">
 <li><a href="#7eef63514ed827f85a480746eea9b025">Service</a></li>
+<li><a href="#bb5ea4981f0e9a3be08addcddaef373b">Менеджер групп страниц</a></li>
 </ol></li>
 </ol></li>
 <li><a href="#e1c1d994d00e4e7a44fcd5d029d3548d">Заключение</a></li>
@@ -546,13 +548,13 @@
 <p>Как видно, таблица Users зависит от таблиц Roles и Wapons, собственно вот они:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;Roles&quot;</span>(<span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;commands_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;payMultipler&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;payPeriod&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;commands_id&quot;</span>) <span class="kw">REFERENCES</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;roleCommands&quot;</span>(<span class="ot">&quot;role_id&quot;</span>)<span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>))</span></code></pre></div>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>            <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>            <span class="ot">&quot;commands_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>            <span class="ot">&quot;payMultipler&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>            <span class="ot">&quot;payPeriod&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>            <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;commands_id&quot;</span>) <span class="kw">REFERENCES</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>            <span class="ot">&quot;roleCommands&quot;</span>(<span class="ot">&quot;role_id&quot;</span>)<span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>            <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>))</span></code></pre></div>
 <p>Роль определяет какие данные и соответственно команды можешь выполнять на сервере. Ссылается на таблицу roleComands - это SQL массив с ID команд, которые может выполнять пользователь с данной ролью, по поэтому я и отказался от других, более тяжелых СУБД, т.к. все необходимые действия делегируются на Сервер, что будет рассмотрено далее, от СУБД требуется только хранить данные и извлекать их. Связаная таблица roleCommands:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;roleCommands&quot;</span>(<span class="ot">&quot;role_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
@@ -562,30 +564,30 @@
 <p>Таблица Wapons:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;Wapons&quot;</span>(<span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;employee_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">UNIQUE</span>,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;ammo&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;price&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;ammoPrice&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;image&quot;</span> <span class="dt">BLOB</span>,</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;employee_id&quot;</span>) <span class="kw">REFERENCES</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;Users&quot;</span>(<span class="ot">&quot;id&quot;</span>)<span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>))</span></code></pre></div>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;employee_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;ammo&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;price&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;ammoPrice&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;image&quot;</span> <span class="dt">BLOB</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>             <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;employee_id&quot;</span>) <span class="kw">REFERENCES</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;Users&quot;</span>(<span class="ot">&quot;id&quot;</span>)<span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>             <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>))</span></code></pre></div>
 <p>Каждая запись в таблице Wapons - это еденица зарегестрированного оружия, в полной мере описывающяя необходимые характеристики для ЧОП.</p>
 <p>Так как организация имеет свои расходы и доходы, нам нужно сохранять эти данные. Таблица Accounting:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> </span>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;Accounting&quot;</span> (<span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>              <span class="ot">&quot;accountingType_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>              <span class="ot">&quot;pay&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>              <span class="ot">&quot;date&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>              <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;accountingType_id&quot;</span>)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>              <span class="kw">REFERENCES</span> <span class="ot">&quot;AccountingType&quot;</span>(<span class="ot">&quot;id&quot;</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>              <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>) )</span></code></pre></div>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                  <span class="ot">&quot;accountingType_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                  <span class="ot">&quot;pay&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                  <span class="ot">&quot;date&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                  <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;accountingType_id&quot;</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                  <span class="kw">REFERENCES</span> <span class="ot">&quot;AccountingType&quot;</span>(<span class="ot">&quot;id&quot;</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>                  <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>) )</span></code></pre></div>
 <p>Зависит от таблицы AccountingType, описывающей какого рода транзакция была совершена.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;AccountingType&quot;</span> (<span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                  <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                  <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>,<span class="ot">&quot;name&quot;</span>) )</span></code></pre></div>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                      <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                      <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>,<span class="ot">&quot;name&quot;</span>) )</span></code></pre></div>
 <p>ЧОП получает доход от контрактов, по этому была составлена таблица Contracts:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;Contracts&quot;</span>(<span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
@@ -621,15 +623,15 @@
 <p>Для создания контракта в данной таблице нужно только 2 поля - id, employee_id. Так так во время исполнения может произойти какой то ицедент, то была создана таблица Accidents:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;Accidents&quot;</span> (<span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;contract_id&quot;</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>             <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;usedAmmoCount&quot;</span> <span class="dt">INTEGER</span>,</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;damagePrice&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>),</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;assignedEmployees_id&quot;</span> <span class="dt">INTEGER</span>,</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>             <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;contract_id&quot;</span>) <span class="kw">REFERENCES</span> <span class="ot">&quot;Contracts&quot;</span>(<span class="ot">&quot;id&quot;</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>             <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;assignedEmployees_id&quot;</span>) <span class="kw">REFERENCES</span> <span class="ot">&quot;AssignedEmployees&quot;</span>(<span class="ot">&quot;id&quot;</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>             <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>) )</span></code></pre></div>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;contract_id&quot;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                 <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;usedAmmoCount&quot;</span> <span class="dt">INTEGER</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;damagePrice&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>),</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;assignedEmployees_id&quot;</span> <span class="dt">INTEGER</span>,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;contract_id&quot;</span>) <span class="kw">REFERENCES</span> <span class="ot">&quot;Contracts&quot;</span>(<span class="ot">&quot;id&quot;</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;assignedEmployees_id&quot;</span>) <span class="kw">REFERENCES</span> <span class="ot">&quot;AssignedEmployees&quot;</span>(<span class="ot">&quot;id&quot;</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>) )</span></code></pre></div>
 <p>Описывает проишествия, произошедшие во время исполнения контракта. Если у нас есть контракты, описывающие некую деятельность с учетом выходных и рамок начала и окончания службы, то можно было бы ускорить вычисление рабочего времени по дням с помощью препроцессинга данных из записи Contracts. Таблицей, в которую сохраняются транслированные данные является - DutySchedule:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;DutySchedule&quot;</span> ( <span class="ot">&quot;emploee_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
@@ -639,7 +641,7 @@
 <p><a id="851980d29e4e343f67c61f95cea40cfa"/></p>
 <h2 id="визуализация-базы-данных">Визуализация базы данных</h2>
 <figure>
-<img src="/home/xewii/Documents/TIT/ZXC/databaseReferences.png" alt="Datbase visualization" /><figcaption aria-hidden="true">Datbase visualization</figcaption>
+<img src="img/databaseReferences.png" alt="Datbase visualization" /><figcaption aria-hidden="true">Datbase visualization</figcaption>
 </figure>
 <p><a id="142c5c1c8f822ab1538b7817a180b7ab"/></p>
 <h1 id="разработка-архитектуры-приложения">Разработка архитектуры приложения</h1>
@@ -651,7 +653,7 @@
 <p><a id="644c422e8bfdc2ee8d075ef63b6ab7de"/></p>
 <h2 id="информационные-потоки-чоп-2">Информационные потоки ЧОП</h2>
 <figure>
-<img src="/home/xewii/Documents/TIT/ZXC/infoServiceFlow.png" alt="PSC with server info flows" /><figcaption aria-hidden="true">PSC with server info flows</figcaption>
+<img src="img/infoServiceFlow.png" alt="PSC with server info flows" /><figcaption aria-hidden="true">PSC with server info flows</figcaption>
 </figure>
 <p><a id="503aa110ff5e803702414f90c5c5ebd6"/></p>
 <h2 id="обращение-к-базе-данных">Обращение к базе данных</h2>
@@ -873,7 +875,13 @@
 <span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p><a id="2c70e6e799cd133b94067ebe0f920217"/></p>
 <h3 id="notifymanager">NotifyManager</h3>
-<p>TODO</p>
+<p>Сущность выполняющая динамическое позиционирование всплывающих уведомлений разного типа. В своей основе - это лейаут поверх всего рабочего пространства приложения и процессор, обрабатывающий запросы на создание новых уведомлений и управления существующими, уведомление - это разновидность класса NotifyItem. Главная причина почему этот класс существует - возможность создавать thread-safe уведомления из любого потока. Т. к. любой виджет вне потока существования виджета-родителя не будет напрямую связан с его петлей событий. Как известно, объект начинает существовать там, где он был создан с помощью оператора new. Поэтому для передачи на обработку NotifyManager’у используюся фабрики NotifyItemFactory.</p>
+<p>Таким образом, мне получилось создать простой интерфейс для создания всплывающих уведомлей:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> setItemPropery<span class="op">(</span><span class="dt">int</span> uid<span class="op">,</span> <span class="dt">const</span> QByteArray<span class="op">&amp;</span> name<span class="op">,</span> <span class="dt">const</span> QVariant<span class="op">&amp;</span> value<span class="op">);</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> createNotifyItem<span class="op">(</span>NotifyItemFactory<span class="op">*,</span> <span class="dt">int</span><span class="op">&amp;</span> uid<span class="op">);</span></span></code></pre></div>
+<p>Обращение к созданому уведомлению происходит по выделеному uid, который возвращает createNotifyItem.</p>
+<p>Все существующие уведомления храняться в именованом массиве:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>QMap<span class="op">&lt;</span><span class="dt">int</span><span class="op">,</span> NotifyItem<span class="op">*&gt;</span> _items<span class="op">;</span></span></code></pre></div>
 <p><a id="1273e0f44063343112756ce23b2d6f2b"/></p>
 <h2 id="логгер">Логгер</h2>
 <p><a id="1801c85ec3a13ae99bc3fe8a25db50fb"/></p>
@@ -884,20 +892,22 @@
 <h3 id="драйвер-базы-данных">Драйвер базы данных</h3>
 <p><a id="99ed80269db632accc22cace769ff223"/></p>
 <h4 id="криптография">Криптография</h4>
-<p><a id="4a3506dd433b64a601e400e07b2a3b1c"/></p>
-<h3 id="iiserver">iiServer</h3>
+<p><a id="6dcd2956f39ef3cf8ebe3f1a82ebf0fd"/></p>
+<h3 id="мнеденжер-подключений">Мнеденжер подключений</h3>
+<p><a id="4185393f06367e388df7cec7cdea2c9d"/></p>
+<h4 id="менеджер-сессий">Менеджер сессий</h4>
 <p><a id="1f7f90d854564597157d657bc7c8968a"/></p>
 <h4 id="clientlink">ClientLink</h4>
-<p><a id="e3d4a75ceaa1be8d285dacee2bfe4bf1"/></p>
-<h4 id="процессор-подключений">Процессор подключений</h4>
+<p><a id="c152088a798c5969e467612ed2109532"/></p>
+<h4 id="процессор-подключения">Процессор подключения</h4>
 <p><a id="b99b6558c7cde67d398236bf888d33cb"/></p>
 <h2 id="клиент">Клиент</h2>
 <p><a id="7eef63514ed827f85a480746eea9b025"/></p>
 <h3 id="service">Service</h3>
-<p>…</p>
+<p><a id="bb5ea4981f0e9a3be08addcddaef373b"/></p>
+<h3 id="менеджер-групп-страниц">Менеджер групп страниц</h3>
 <p><a id="e1c1d994d00e4e7a44fcd5d029d3548d"/></p>
 <h1 id="заключение">Заключение</h1>
-<p>TODO</p>
 <p><a id="bc5e99ae74607750379b50c9e11d0695"/></p>
 <h1 id="список-литиратуры">Список литиратуры</h1>
 <ol type="1">
