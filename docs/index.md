@@ -25,12 +25,14 @@
 		2. [ VIM v8.2 ](#be86898d7ac3847f7ca9aa4e09d807c7)
 			1. [ Плагины ](#678d92de681d726153a189bfe47a6ffe)
 	5. [ Разное ](#5336cc1e18a44fcbcdcaf76434a9dbc1)
-		1. [ Plantuml v1.2021.16 ](#1260d8308ede6b806d35e4d84021378e)
-		2. [ BASH v5.1.16 ](#a7809f369ead5a4aba1407bab398c327)
+		1. [ Pandoc ](#e9585a13fb650b9f3c9eeef243be6d8e)
+		2. [ Plantuml v1.2021.16 ](#1260d8308ede6b806d35e4d84021378e)
+		3. [ BASH v5.1.16 ](#a7809f369ead5a4aba1407bab398c327)
 	6. [ Отладка ](#99db6cf9ec16fd66532911909e4ea007)
 		1. [ Valgrind v3.18 ](#3ecb9ddef9a2dddb3a2a67100b188eb6)
 	7. [ VCS ](#b7249081aeaa3bc1b21f5a8f16eeb88e)
 		1. [ GIT v2.35.1 ](#be9c09aacbde6d23d67f89a3fca38c08)
+		2. [ GitHub ](#71355799c1d5a8aa146082b68d057619)
 4. [ Разработы базы данных ЧОП ](#eb1fa9a0c02763fe5749637a8d16ac3a)
 	1. [ Таблицы ](#28439b214a63ddabf081fe52b79e17ad)
 	2. [ Визуализация базы данных ](#851980d29e4e343f67c61f95cea40cfa)
@@ -90,6 +92,12 @@
 5. Разработка архитектуры приложения для взаимодействия с ЧОП.
 6. Реализация архитектурных решений
 7. Тестирование.
+
+Отследить прогресс проекта и найти исходный код можно на github: https://github.com/siisgoo/siisty
+
+Так же данную курсовую можно прочитать оналйн по адресу: https://siisgoo.github.io/siisty
+
+Исходный текст курсовой расположен по адресу: https://github.com/siisgoo/siisty/tree/main/cursed
 
 
 <a id="58423f3301dee86e5a6dd4564805721f"/>
@@ -318,53 +326,71 @@ IDE от компинии The Qt Company, использованный толь�
 
 
 
+<a id="e9585a13fb650b9f3c9eeef243be6d8e"/>
+
+### Pandoc
+
+![pandoc logo]()
+
+Работа была трансирована в други форматы с помощью данной утилиты.
+
+
 <a id="1260d8308ede6b806d35e4d84021378e"/>
 
 ### Plantuml v1.2021.16
 
-![plantuml]()
+![plantuml logo]()
+
 Средство создания UML диаграм. Использовано для визуализации объектов и просецссов.
+
 
 <a id="a7809f369ead5a4aba1407bab398c327"/>
 
 ### BASH v5.1.16
 
-![bash]()
+![bash logo]()
+
 Bourne Again Shell - интерпритатор, использован для автоматизации некотерых процессов.
-> Примечание:
+
 > Оглавления данной работы было автоматически сгенерерованно данным bash-скриптом:
+
 ```bash
-cat "$1" > "$1".indexed
+function indexGen() {
+    out="${1/.md/}".indexed.md
+    cp "$1" "$out"
+    > index
 
->index
+    tab='\t'
+    i=(-1 1)
+    prevLen=0
+    while read -r line; do
+        hash="$(md5sum <<< "$line" | cut -d ' ' -f 1)"
+        printf "<a id=\"%s\"/>\n\n%s\n\n" "$hash" "$line" > tmp
+        sed "/$line/ {
+                x
+                r tmp
+            }" "$out" > "${out}.tmp"
+        mv "${out}.tmp" "$out"
+        hdrLen=$(awk -F'#' '{print NF-1}' <<< "$line")
+        hdrTxt="${line//#/}"
+        (( hdrLen > 1 )) && for (( j=1; j<hdrLen; j++ )); do echo -en "$tab"; done
+        (( prevLen < hdrLen )) && i[$hdrLen]=1
+        printf "%d. [%s ](#%s)\n" ${i[$hdrLen]} "$hdrTxt" "$hash"
+        prevLen=$hdrLen
+        let i[$hdrLen]++
+    done <<< "$(grep --color=no -E "^#+ " "$1")" > index
 
-i=(-1 1)
-prevLen=0
-while read -r line; do
-    hash="$(md5sum <<< "$line" | cut -d ' ' -f 1)"
-    printf "<a id=\"%s\"></a>\n%s\n" "$hash" "$line" > tmp
-    sed "/$line/ {
-        x
-        r /home/xewii/Documents/TIT/ZXC/tmp
-    }" "$1".indexed > "$1".indexed.tmp
-    mv "$1".indexed.tmp "$1".indexed
-    hdrLen=$(awk -F'#' '{print NF-1}' <<< "$line")
-    hdrTxt=$(echo "${line//#/}")
-    (( $hdrLen > 1 )) && for (( j=1; j<$hdrLen*4; j++ )); do printf ' '; done
-    (( $prevLen < $hdrLen )) && i[$hdrLen]=1
-    printf "%d.[%s](#%s)\n" ${i[$hdrLen]} "$hdrTxt" "$hash"
-    prevLen=$hdrLen
-    let i[$hdrLen]++
-done <<< "$(grep --color=no -E "^#+" "$1")" > index
+    cat "$out" > "$out".tmp
+    printf "# Содержание\n" > "$out"
+    cat index >> "$out"
+    cat "$out".tmp >> "$out"
 
-mv "$1".indexed tmp
-printf "# Содержание\n" > "$1".indexed
-cat index >> "$1".indexed
-cat tmp >> "$1".indexed
+    rm index
+    rm tmp
+    rm "$out".tmp
 
-rm tmp
-rm index
-
+    mv "$out" "$2"
+}
 ```
 
 
@@ -391,6 +417,13 @@ rm index
 ### GIT v2.35.1
 
 GIT - система контроля версий, сомо о себе говрит. Использовался в основном для перенесения кода между машинами и как средство дистрибъюции.
+
+
+<a id="71355799c1d5a8aa146082b68d057619"/>
+
+### GitHub
+
+Ресурс, на котором была размещена работа.
 
 
 <a id="eb1fa9a0c02763fe5749637a8d16ac3a"/>
@@ -1043,7 +1076,7 @@ Driver::worker()
 ```
 
 И наконец, функция которая реализует механизм аутентификации:
-```
+```c
 void
 Driver::executeCommand(Database::RoleId role, QJsonObject obj, DriverAssistant* waiter) {
     if (!waiter) {

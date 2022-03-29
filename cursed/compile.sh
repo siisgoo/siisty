@@ -75,12 +75,12 @@ function pdff() { pdfGen "$pdfFont" "$indexedMdOut" "$pdfOut"; pdfHeaderedGen "$
 case $1 in
     uml)  umlf ;;
     md)   mdf ;;
-    html) htmlf ;;
+    # html) htmlf ;;
     pdf)  pdff ;;
     *)
         umlf
         mdf
-        htmlf
+        # htmlf
         pdff
         ;;
 esac
