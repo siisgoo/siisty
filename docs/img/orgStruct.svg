@@ -1,53 +1,19 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="631.25px" preserveAspectRatio="none" style="width:677px;height:631px;background:#00000000;" version="1.1" viewBox="0 0 677 631" width="677.0833px" zoomAndPan="magnify"><defs><linearGradient id="gv39576hof2bc0" x1="50%" x2="50%" y1="0%" y2="100%"><stop offset="0%" stop-color="#4DABF5"/><stop offset="100%" stop-color="#2196F3"/></linearGradient><filter height="300%" id="fv39576hof2bc" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0833333333333335"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.166666666666667" dy="4.166666666666667" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><!--MD5=[773eb571fde6ee03a00dd7634db690eb]
-entity cus--><ellipse cx="50.5208" cy="534.375" fill="url(#gv39576hof2bc0)" filter="url(#fv39576hof2bc)" rx="8.3333" ry="8.3333" style="stroke:#2196F3;stroke-width:1.0416666666666667;"/><path d="M50.5208,542.7083 L50.5208,570.8333 M36.9792,551.0417 L64.0625,551.0417 M50.5208,570.8333 L36.9792,586.4583 M50.5208,570.8333 L64.0625,586.4583 " fill="none" filter="url(#fv39576hof2bc)" style="stroke:#2196F3;stroke-width:1.0416666666666667;"/><text fill="#222222" font-family="&quot;Verdana&quot;" font-size="14.5833" lengthAdjust="spacing" textLength="67.7083" x="16.6667" y="617.6728">Customer</text><!--MD5=[9877f6724d1a276f2a95363da75a191d]
-entity adm--><ellipse cx="194.2708" cy="534.375" fill="url(#gv39576hof2bc0)" filter="url(#fv39576hof2bc)" rx="8.3333" ry="8.3333" style="stroke:#2196F3;stroke-width:1.0416666666666667;"/><path d="M194.2708,542.7083 L194.2708,570.8333 M180.7292,551.0417 L207.8125,551.0417 M194.2708,570.8333 L180.7292,586.4583 M194.2708,570.8333 L207.8125,586.4583 " fill="none" filter="url(#fv39576hof2bc)" style="stroke:#2196F3;stroke-width:1.0416666666666667;"/><text fill="#222222" font-family="&quot;Verdana&quot;" font-size="14.5833" lengthAdjust="spacing" textLength="104.1667" x="142.1875" y="617.6728">Administration</text><!--MD5=[25fdbc256ceb9e3bdcb330150c9533c0]
-entity sec--><ellipse cx="375.5208" cy="534.375" fill="url(#gv39576hof2bc0)" filter="url(#fv39576hof2bc)" rx="8.3333" ry="8.3333" style="stroke:#2196F3;stroke-width:1.0416666666666667;"/><path d="M375.5208,542.7083 L375.5208,570.8333 M361.9792,551.0417 L389.0625,551.0417 M375.5208,570.8333 L361.9792,586.4583 M375.5208,570.8333 L389.0625,586.4583 " fill="none" filter="url(#fv39576hof2bc)" style="stroke:#2196F3;stroke-width:1.0416666666666667;"/><text fill="#222222" font-family="&quot;Verdana&quot;" font-size="14.5833" lengthAdjust="spacing" textLength="143.75" x="303.6458" y="617.6728">Security department</text><!--MD5=[3173f5c488fc7caa7cbc2980bfdb2303]
-entity ink--><ellipse cx="584.8958" cy="534.375" fill="url(#gv39576hof2bc0)" filter="url(#fv39576hof2bc)" rx="8.3333" ry="8.3333" style="stroke:#2196F3;stroke-width:1.0416666666666667;"/><path d="M584.8958,542.7083 L584.8958,570.8333 M571.3542,551.0417 L598.4375,551.0417 M584.8958,570.8333 L571.3542,586.4583 M584.8958,570.8333 L598.4375,586.4583 " fill="none" filter="url(#fv39576hof2bc)" style="stroke:#2196F3;stroke-width:1.0416666666666667;"/><text fill="#222222" font-family="&quot;Verdana&quot;" font-size="14.5833" lengthAdjust="spacing" textLength="160.4167" x="504.6875" y="617.6728">Inkosation department</text><!--MD5=[596ab71e12396e6d88b59b99bd679e81]
-entity wpn--><ellipse cx="450.5208" cy="364.5833" fill="url(#gv39576hof2bc0)" filter="url(#fv39576hof2bc)" rx="8.3333" ry="8.3333" style="stroke:#2196F3;stroke-width:1.0416666666666667;"/><path d="M450.5208,372.9167 L450.5208,401.0417 M436.9792,381.25 L464.0625,381.25 M450.5208,401.0417 L436.9792,416.6667 M450.5208,401.0417 L464.0625,416.6667 " fill="none" filter="url(#fv39576hof2bc)" style="stroke:#2196F3;stroke-width:1.0416666666666667;"/><text fill="#222222" font-family="&quot;Verdana&quot;" font-size="14.5833" lengthAdjust="spacing" textLength="136.4583" x="382.2917" y="447.8812">Wapon department</text><!--MD5=[c8bd106169e92d1cec7d5e24ed4a2f44]
-entity acc--><ellipse cx="317.1875" cy="194.7917" fill="url(#gv39576hof2bc0)" filter="url(#fv39576hof2bc)" rx="8.3333" ry="8.3333" style="stroke:#2196F3;stroke-width:1.0416666666666667;"/><path d="M317.1875,203.125 L317.1875,231.25 M303.6458,211.4583 L330.7292,211.4583 M317.1875,231.25 L303.6458,246.875 M317.1875,231.25 L330.7292,246.875 " fill="none" filter="url(#fv39576hof2bc)" style="stroke:#2196F3;stroke-width:1.0416666666666667;"/><text fill="#222222" font-family="&quot;Verdana&quot;" font-size="14.5833" lengthAdjust="spacing" textLength="166.6667" x="233.8542" y="278.0895">Accounting department</text><!--MD5=[0330432914290acc6fa0b9d79f63f330]
-entity rec--><ellipse cx="242.1875" cy="25" fill="url(#gv39576hof2bc0)" filter="url(#fv39576hof2bc)" rx="8.3333" ry="8.3333" style="stroke:#2196F3;stroke-width:1.0416666666666667;"/><path d="M242.1875,33.3333 L242.1875,61.4583 M228.6458,41.6667 L255.7292,41.6667 M242.1875,61.4583 L228.6458,77.0833 M242.1875,61.4583 L255.7292,77.0833 " fill="none" filter="url(#fv39576hof2bc)" style="stroke:#2196F3;stroke-width:1.0416666666666667;"/><text fill="#222222" font-family="&quot;Verdana&quot;" font-size="14.5833" lengthAdjust="spacing" textLength="137.5" x="173.4375" y="108.2978">Recruit department</text><!--MD5=[227bedc7735f68c7883d1bfdbf28007e]
-link cus to adm--><path d="M94.8854,578.6458 C107.1771,578.6458 119.4688,578.6458 131.7604,578.6458 " fill="none" id="cus-adm" style="stroke:#2196F3;stroke-width:3.125;"/><!--MD5=[25fd0c75c9436062c52d5554bb396bc1]
-link adm to rec--><path d="M190.8958,524.8021 C187.125,449.0313 184,305.3958 204.6875,185.4167 C208.2813,164.6042 214.8229,142.3854 221.4583,123.0833 " fill="none" id="adm-rec" style="stroke:#2196F3;stroke-width:3.125;"/><!--MD5=[7775fd5a2dc67f8cf1f18ea819eb83fe]
-link adm to sec--><path d="M256.9271,578.6458 C268.9688,578.6458 281.0208,578.6458 293.0625,578.6458 " fill="none" id="adm-sec" style="stroke:#2196F3;stroke-width:3.125;"/><!--MD5=[61330fe7c5f88abecc01d60f4017f27e]
-link adm to acc--><path d="M213.4479,524.9583 C236.4896,461.6875 274.9271,356.1458 297.9792,292.8333 " fill="none" id="adm-acc" style="stroke:#2196F3;stroke-width:3.125;"/><!--MD5=[5d2254a5b16fcc1d2131931d0e2e2905]
-link adm to ink--><path d="M243.2917,524.5625 C257.8333,512.0417 274.7292,500.4375 292.7083,493.75 C361.2708,468.2708 387.2708,472.5833 457.2917,493.75 C479.1979,500.375 500.7813,512.125 519.7917,524.8125 " fill="none" id="adm-ink" style="stroke:#2196F3;stroke-width:3.125;"/><!--MD5=[8894c086f9e472011531e79f1bc280dc]
-link wpn to adm--><path d="M371.6354,461.4375 C341.2604,481.3021 306.25,504.1979 274.4792,525 C268.7708,528.7396 262.8229,532.6354 256.875,536.5313 " fill="none" id="wpn-adm" style="stroke:#2196F3;stroke-width:3.125;"/><!--MD5=[ec839d2c4d8f330ffaf2ea7c31a1aa32]
-link wpn to sec--><path d="M426.7917,462.9583 C417.9479,482.7292 407.9271,505.1458 399.0938,524.8854 " fill="none" id="wpn-sec" style="stroke:#2196F3;stroke-width:3.125;"/><!--MD5=[1f20e79d0dba2c69d2c3e816b314d7ea]
-link wpn to ink--><path d="M493.0417,462.9583 C508.875,482.7292 526.8438,505.1458 542.6563,524.8854 " fill="none" id="wpn-ink" style="stroke:#2196F3;stroke-width:3.125;"/><!--MD5=[8e461db7974b8804d72f4b496b869b9c]
-link acc to wpn--><path d="M359.375,293.1667 C375.0938,312.9375 392.9167,335.3542 408.6042,355.0938 " fill="none" id="acc-wpn" style="stroke:#2196F3;stroke-width:3.125;"/><!--MD5=[76587b933946c86717d9be0f36fe7869]
-link acc to sec--><path d="M325.4271,292.7396 C332.5833,337.8438 343.3854,404.5208 353.6458,462.5 C357.2604,482.9271 361.4688,505.3542 365.2188,524.9375 " fill="none" id="acc-sec" style="stroke:#2196F3;stroke-width:3.125;"/><!--MD5=[87b3005246333aa0f02e5502ede11321]
-link rec to acc--><path d="M265.9167,123.375 C274.7604,143.1458 284.7813,165.5625 293.6146,185.3021 " fill="none" id="rec-acc" style="stroke:#2196F3;stroke-width:3.125;"/><!--MD5=[337997b0397f2b85e52570263bd600e5]
-link acc to ink--><path d="M411.1042,264.7188 C459.1771,282.1563 514.3646,310.5833 547.3958,355.2083 C583.7292,404.3125 589.7083,476.1563 588.8333,524.7917 " fill="none" id="acc-ink" style="stroke:#2196F3;stroke-width:3.125;"/><!--MD5=[c9779b00000e1d0dbcd7b21d6dc938e6]
-@startuml
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="393.75px" preserveAspectRatio="none" style="width:876px;height:393px;background:#00000000;" version="1.1" viewBox="0 0 876 393" width="876.0417px" zoomAndPan="magnify"><defs><linearGradient id="g1sbpzwltqyzcl0" x1="50%" x2="50%" y1="0%" y2="100%"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#FFFFFF"/></linearGradient><filter height="300%" id="f1sbpzwltqyzcl" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0833333333333335"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.166666666666667" dy="4.166666666666667" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><rect fill="url(#g1sbpzwltqyzcl0)" filter="url(#f1sbpzwltqyzcl)" height="71.9457" rx="4.1667" ry="4.1667" style="stroke:#222222;stroke-width:1.0416666666666667;" width="156.25" x="189.5833" y="160.002"/><text fill="#222222" font-family="&quot;Verdana&quot;" font-size="14.5833" lengthAdjust="spacing" textLength="104.1667" x="215.625" y="201.6331">Administratoin</text><rect fill="url(#g1sbpzwltqyzcl0)" filter="url(#f1sbpzwltqyzcl)" height="71.9457" rx="4.1667" ry="4.1667" style="stroke:#222222;stroke-width:1.0416666666666667;" width="195.8333" x="397.9167" y="67.2229"/><text fill="#222222" font-family="&quot;Verdana&quot;" font-size="14.5833" lengthAdjust="spacing" textLength="143.75" x="423.9583" y="108.8541">Wapons department</text><rect fill="url(#g1sbpzwltqyzcl0)" filter="url(#f1sbpzwltqyzcl)" height="71.9457" rx="4.1667" ry="4.1667" style="stroke:#222222;stroke-width:1.0416666666666667;" width="195.8333" x="645.8333" y="20.8333"/><text fill="#222222" font-family="&quot;Verdana&quot;" font-size="14.5833" lengthAdjust="spacing" textLength="143.75" x="671.875" y="62.4645">Security department</text><path d="M593.75,103.1957 L604.1667,103.1957 C619.7917,103.1957 619.7917,56.8062 635.4167,56.8062 L645.8333,56.8062 " fill="none" style="stroke:#2196F3;stroke-width:3.125;"/><rect fill="url(#g1sbpzwltqyzcl0)" filter="url(#f1sbpzwltqyzcl)" height="71.9457" rx="4.1667" ry="4.1667" style="stroke:#222222;stroke-width:1.0416666666666667;" width="212.5" x="645.8333" y="113.6124"/><text fill="#222222" font-family="&quot;Verdana&quot;" font-size="14.5833" lengthAdjust="spacing" textLength="160.4167" x="671.875" y="155.2436">Inkosation department</text><path d="M593.75,103.1957 L604.1667,103.1957 C619.7917,103.1957 619.7917,149.5853 635.4167,149.5853 L645.8333,149.5853 " fill="none" style="stroke:#2196F3;stroke-width:3.125;"/><path d="M345.8333,195.9748 L356.25,195.9748 C371.875,195.9748 371.875,103.1957 387.5,103.1957 L397.9167,103.1957 " fill="none" style="stroke:#2196F3;stroke-width:3.125;"/><rect fill="url(#g1sbpzwltqyzcl0)" filter="url(#f1sbpzwltqyzcl)" height="71.9457" rx="4.1667" ry="4.1667" style="stroke:#222222;stroke-width:1.0416666666666667;" width="214.5833" x="397.9167" y="206.3915"/><text fill="#222222" font-family="&quot;Verdana&quot;" font-size="14.5833" lengthAdjust="spacing" textLength="162.5" x="423.9583" y="248.0227">Accountng department</text><path d="M345.8333,195.9748 L356.25,195.9748 C371.875,195.9748 371.875,242.3644 387.5,242.3644 L397.9167,242.3644 " fill="none" style="stroke:#2196F3;stroke-width:3.125;"/><rect fill="url(#g1sbpzwltqyzcl0)" filter="url(#f1sbpzwltqyzcl)" height="71.9457" rx="4.1667" ry="4.1667" style="stroke:#222222;stroke-width:1.0416666666666667;" width="185.4167" x="397.9167" y="299.1706"/><text fill="#222222" font-family="&quot;Verdana&quot;" font-size="14.5833" lengthAdjust="spacing" textLength="133.3333" x="423.9583" y="340.8018">Recrut department</text><path d="M345.8333,195.9748 L356.25,195.9748 C371.875,195.9748 371.875,335.1434 387.5,335.1434 L397.9167,335.1434 " fill="none" style="stroke:#2196F3;stroke-width:3.125;"/><rect fill="url(#g1sbpzwltqyzcl0)" filter="url(#f1sbpzwltqyzcl)" height="71.9457" rx="4.1667" ry="4.1667" style="stroke:#222222;stroke-width:1.0416666666666667;" width="127.0833" x="10.4167" y="113.6124"/><text fill="#222222" font-family="&quot;Verdana&quot;" font-size="14.5833" lengthAdjust="spacing" textLength="75" x="36.4583" y="155.2436">Customers</text><path d="M189.5833,195.9748 L179.1667,195.9748 C163.5417,195.9748 163.5417,149.5853 147.9167,149.5853 L137.5,149.5853 " fill="none" style="stroke:#2196F3;stroke-width:3.125;"/><rect fill="url(#g1sbpzwltqyzcl0)" filter="url(#f1sbpzwltqyzcl)" height="71.9457" rx="4.1667" ry="4.1667" style="stroke:#222222;stroke-width:1.0416666666666667;" width="105.2083" x="32.2917" y="206.3915"/><text fill="#222222" font-family="&quot;Verdana&quot;" font-size="14.5833" lengthAdjust="spacing" textLength="53.125" x="58.3333" y="248.0227">Recruts</text><path d="M189.5833,195.9748 L179.1667,195.9748 C163.5417,195.9748 163.5417,242.3644 147.9167,242.3644 L137.5,242.3644 " fill="none" style="stroke:#2196F3;stroke-width:3.125;"/><!--MD5=[0386fd0c0b0d5a759c94998e038481bb]
+@startmindmap
 !theme materia
-top to bottom direction
 
-actor Customer as cus
-actor Administration as adm
-actor "Security department" as sec
-actor "Inkosation department" as ink
-actor "Wapon department" as wpn
-actor "Accounting department" as acc
-actor "Recruit department" as rec
++ Administratoin
+++ Wapons department
++++ Security department
++++ Inkosation department
+++ Accountng department
+++ Recrut department
+- - Customers
+- - Recruts
 
-cus - adm
+@endmindmap
 
-adm - rec
-adm - sec
-adm - acc
-adm - ink
-adm -up- wpn
-
-wpn -down- sec
-wpn -down- ink
-
-acc -down- wpn
-acc -down- sec
-acc -up- rec
-acc -down- ink
-@enduml
-
-@startuml
+@startmindmap
 
 
 
@@ -484,32 +450,17 @@ skinparam stack {
 	BorderColor #2196F3
 	BackgroundColor #4dabf5-#2196F3
 }
-top to bottom direction
 
-actor Customer as cus
-actor Administration as adm
-actor "Security department" as sec
-actor "Inkosation department" as ink
-actor "Wapon department" as wpn
-actor "Accounting department" as acc
-actor "Recruit department" as rec
++ Administratoin
+++ Wapons department
++++ Security department
++++ Inkosation department
+++ Accountng department
+++ Recrut department
+- - Customers
+- - Recruts
 
-cus - adm
-
-adm - rec
-adm - sec
-adm - acc
-adm - ink
-adm -up- wpn
-
-wpn -down- sec
-wpn -down- ink
-
-acc -down- wpn
-acc -down- sec
-acc -up- rec
-acc -down- ink
-@enduml
+@endmindmap
 
 PlantUML version 1.2021.16(Wed Dec 08 20:25:22 MSK 2021)
 (GPL source distribution)

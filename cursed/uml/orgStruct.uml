@@ -1,28 +1,13 @@
-@startuml
+@startmindmap
 !theme materia
-top to bottom direction
 
-actor Customer as cus
-actor Administration as adm
-actor "Security department" as sec
-actor "Inkosation department" as ink
-actor "Wapon department" as wpn
-actor "Accounting department" as acc
-actor "Recruit department" as rec
++ Administratoin
+++ Wapons department
++++ Security department
++++ Inkosation department
+++ Accountng department
+++ Recrut department
+-- Customers
+-- Recruts
 
-cus - adm
-
-adm - rec
-adm - sec
-adm - acc
-adm - ink
-adm -up- wpn
-
-wpn -down- sec
-wpn -down- ink
-
-acc -down- wpn
-acc -down- sec
-acc -up- rec
-acc -down- ink
-@enduml
+@endmindmap
