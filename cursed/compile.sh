@@ -51,8 +51,8 @@ function indexGen() {
 }
 
 function umlGen() {
-    plantuml "$1"/*
-    mv "$1"/*.png "$2"/
+    plantuml -tsvg "$1"/*
+    mv "$1"/*.svg "$2"/
 }
 
 function htmlGen() {

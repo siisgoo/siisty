@@ -118,21 +118,21 @@
 - Охрана объекта
 - Охрана ценных бумаг или металов(инкосация)
 
-![PSC structure](img/orgStruct.png)
+![PSC structure](img/orgStruct.svg)
 
 
 <a id="644c422e8bfdc2ee8d075ef63b6ab7de"/>
 
 ## Информационные потоки ЧОП
 
-![inside info flows](img/infoFlow.png)
+![inside info flows](img/infoFlow.svg)
 
 
 <a id="bd328bb371cabcf61a023dd89284d430"/>
 
 ## Процессы внутри ЧОП
 
-![PSC Activities](img/insideProcess.png)
+![PSC Activities](img/insideProcess.svg)
 
 
 <a id="55bb6be8b93e93b450e602b5d88f0744"/>
@@ -580,7 +580,7 @@ day - это 64х битная цыфра со знаком в формате UN
 
 ## Информационные потоки ЧОП
 
-![PSC with server info flows](img/infoServiceFlow.png)
+![PSC with server info flows](img/infoServiceFlow.svg)
 
 
 <a id="503aa110ff5e803702414f90c5c5ebd6"/>
@@ -588,7 +588,7 @@ day - это 64х битная цыфра со знаком в формате UN
 ## Обращение к базе данных
 
 Как было сказано ранее, СУБД не будет управлять системой привелегий, этим будет заниматься другой код. Система, которую я разработал основана на ролях, так же как и в обычных "умных" СУБД, к которым привязано некоторое количество возможных к исполнению команд.
-![](img/identificationSystem.png)
+![](img/identificationSystem.svg)
 
 
 <a id="32bde6e6debc82c0610a99d90127ac67"/>
@@ -715,7 +715,7 @@ day - это 64х битная цыфра со знаком в формате UN
 
 Также, развертывание сервера будет означать создание первого Amin пользователя, для управления организационными процессами ЧОП. Следовательно у сервера должен быть интерфейс для создания пользователей, как и у клиента.
 
-![Server abstract model](img/serverStruct.png)
+![Server abstract model](img/serverStruct.svg)
 
 
 <a id="1485f36d1fb2c884ad1ab3d813451dd7"/>
@@ -727,7 +727,7 @@ day - это 64х битная цыфра со знаком в формате UN
 Все что требуется от клиента - это показывать пользовательский интерфейс, предоставить некотерый метод для входа в систему сервера и отправлять команды серверу, и ждать ответа.
 В частности, когда пользватель, который воспользовался клиентом является заказчик - клиент должен предоставить метод регистрации в систему.
 
-![Client abstract mode](img/clientStruct.png)
+![Client abstract mode](img/clientStruct.svg)
 
 
 <a id="46fab2507eadf89755d4aea454bfe185"/>
