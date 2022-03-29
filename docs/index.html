@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>cursed</title>
+  <title>index</title>
   <style>
     html {
       line-height: 1.5;
@@ -213,6 +213,125 @@
   <![endif]-->
 </head>
 <body>
+<h1 id="содержание">Содержание</h1>
+<ol type="1">
+<li><a href="#0069f25aafeaa88b5a5038c61e019a29">Введение</a></li>
+<li><a href="#58423f3301dee86e5a6dd4564805721f">Теоритическая часть</a>
+<ol type="1">
+<li><a href="#a66c7beef7ee05ce09ccd305758a4b34">Организация ЧОП</a></li>
+<li><a href="#644c422e8bfdc2ee8d075ef63b6ab7de">Информационные потоки ЧОП</a></li>
+<li><a href="#bd328bb371cabcf61a023dd89284d430">Процессы внутри ЧОП</a>
+<ol type="1">
+<li><a href="#55bb6be8b93e93b450e602b5d88f0744">Описание процессов</a>
+<ol type="1">
+<li><a href="#a10e8e66a8fb12520c93c572664604c9">Составление контракта</a></li>
+<li><a href="#492dbf93213f4fdd2414b9e35224c200">Прием на работу</a></li>
+<li><a href="#a67dfdaec394ee405cbad740a91f9c25">Регистрация и выдача оружия</a></li>
+<li><a href="#17b28a30349fce25cd658d2188eff4f3">Выплаты</a></li>
+</ol></li>
+</ol></li>
+</ol></li>
+<li><a href="#f61c3d8237771dae61110cd55542d40f">Описание средстд разработки</a>
+<ol type="1">
+<li><a href="#2211f9a30f64e3adc7a68fb612f8a384">Утилиты для разработки баз данных</a>
+<ol type="1">
+<li><a href="#15c7d3fb026a6b7191009b2aba592007">SQLite v3.35.5 stable</a></li>
+<li><a href="#d9107f160c4cbd3769c9deef66bb16b0">SQLiteBrowser v3.12.2</a></li>
+<li><a href="#c5cd767e2d7140d75b7479628ef2625d">DBVisualizer v12.1.8</a></li>
+</ol></li>
+<li><a href="#5f7ed236cf861ab160476bb878a8e29d">Библиотеки</a>
+<ol type="1">
+<li><a href="#3724285fc23f07a780bf1b90d1b08737">Qt v6.2.4</a></li>
+</ol></li>
+<li><a href="#c41121e7ff1f037c52c40f6800344b60">Системы сборки и компиляторы</a>
+<ol type="1">
+<li><a href="#d769a93d450808dd2699e4d277b38a96">CMake v3.22.3</a></li>
+<li><a href="#072c9837bf4124a78e8d64761c791708">Ninja c1.10.2</a></li>
+<li><a href="#066437d5c1c42dc540ef7b8b089593f5">clang v13.0.1</a></li>
+</ol></li>
+<li><a href="#a9d5433c4ced0429602d686763b511c0">IDE</a>
+<ol type="1">
+<li><a href="#791bce00c1a5112cb0a8e83f8ea43dfd">QtCreator v6.0.2</a></li>
+<li><a href="#be86898d7ac3847f7ca9aa4e09d807c7">VIM v8.2</a>
+<ol type="1">
+<li><a href="#678d92de681d726153a189bfe47a6ffe">Плагины</a></li>
+</ol></li>
+</ol></li>
+<li><a href="#5336cc1e18a44fcbcdcaf76434a9dbc1">Разное</a>
+<ol type="1">
+<li><a href="#1260d8308ede6b806d35e4d84021378e">Plantuml v1.2021.16</a></li>
+<li><a href="#a7809f369ead5a4aba1407bab398c327">BASH v5.1.16</a></li>
+</ol></li>
+<li><a href="#99db6cf9ec16fd66532911909e4ea007">Отладка</a>
+<ol type="1">
+<li><a href="#3ecb9ddef9a2dddb3a2a67100b188eb6">Valgrind v3.18</a></li>
+</ol></li>
+<li><a href="#b7249081aeaa3bc1b21f5a8f16eeb88e">VCS</a>
+<ol type="1">
+<li><a href="#be9c09aacbde6d23d67f89a3fca38c08">GIT v2.35.1</a></li>
+</ol></li>
+</ol></li>
+<li><a href="#eb1fa9a0c02763fe5749637a8d16ac3a">Разработы базы данных ЧОП</a>
+<ol type="1">
+<li><a href="#28439b214a63ddabf081fe52b79e17ad">Таблицы</a></li>
+<li><a href="#851980d29e4e343f67c61f95cea40cfa">Визуализация базы данных</a></li>
+</ol></li>
+<li><a href="#142c5c1c8f822ab1538b7817a180b7ab">Разработка архитектуры приложения</a>
+<ol type="1">
+<li><a href="#721f411e2bde409ec1037acdea3d0f8c">Основа</a>
+<ol type="1">
+<li><a href="#29ab5dc5f90003f2ab99e9f7e97299ac">Информационные потоки ЧОП с учетом сервера</a></li>
+</ol></li>
+<li><a href="#503aa110ff5e803702414f90c5c5ebd6">Обращение к базе данных</a>
+<ol type="1">
+<li><a href="#32bde6e6debc82c0610a99d90127ac67">Система безопасности</a>
+<ol type="1">
+<li><a href="#c6725059f1407364b5c9cae3833a0b92">Система идентификации и авторизации</a></li>
+<li><a href="#86fb03765331149de407516aaeb0b09d">Система команд</a></li>
+</ol></li>
+</ol></li>
+<li><a href="#7a8fc1fb6caba045510869990bcae157">Архитектура Клиент-Сервер</a>
+<ol type="1">
+<li><a href="#047d272a34a43782c51918621461b8f2">Протокол</a>
+<ol type="1">
+<li><a href="#d601d1cdf1d51beb692dd2b3f43e5038">Формат сообщений</a></li>
+</ol></li>
+<li><a href="#c6c1ffce38a4e50926edc47be9e48348">Модель сервера</a></li>
+<li><a href="#1485f36d1fb2c884ad1ab3d813451dd7">Модель клиента</a></li>
+</ol></li>
+</ol></li>
+<li><a href="#46fab2507eadf89755d4aea454bfe185">Реализация</a>
+<ol type="1">
+<li><a href="#86798bf223d43272c3136ba329fbf9b3">Пользовательский интерфейс</a>
+<ol type="1">
+<li><a href="#84643a8881036d8725be23faf5bfaccc">PagesManager</a></li>
+<li><a href="#2c70e6e799cd133b94067ebe0f920217">NotifyManager</a></li>
+</ol></li>
+<li><a href="#1273e0f44063343112756ce23b2d6f2b">Логгер</a></li>
+<li><a href="#1801c85ec3a13ae99bc3fe8a25db50fb">iiNPack</a></li>
+<li><a href="#1739f69cead8bb7ff41563dcc748a072">Сервер</a>
+<ol type="1">
+<li><a href="#2a334021979df79f54f0a8f48367c12c">Драйвер базы данных</a>
+<ol type="1">
+<li><a href="#99ed80269db632accc22cace769ff223">Криптография</a></li>
+</ol></li>
+<li><a href="#6dcd2956f39ef3cf8ebe3f1a82ebf0fd">Мнеденжер подключений</a>
+<ol type="1">
+<li><a href="#4185393f06367e388df7cec7cdea2c9d">Менеджер сессий</a></li>
+<li><a href="#1f7f90d854564597157d657bc7c8968a">ClientLink</a></li>
+<li><a href="#c152088a798c5969e467612ed2109532">Процессор подключения</a></li>
+</ol></li>
+</ol></li>
+<li><a href="#b99b6558c7cde67d398236bf888d33cb">Клиент</a>
+<ol type="1">
+<li><a href="#7eef63514ed827f85a480746eea9b025">Service</a></li>
+<li><a href="#bb5ea4981f0e9a3be08addcddaef373b">Менеджер групп страниц</a></li>
+</ol></li>
+</ol></li>
+<li><a href="#e1c1d994d00e4e7a44fcd5d029d3548d">Заключение</a></li>
+<li><a href="#bc5e99ae74607750379b50c9e11d0695">Список литиратуры</a></li>
+</ol>
+<p><a id="0069f25aafeaa88b5a5038c61e019a29"/></p>
 <h1 id="введение">Введение</h1>
 <p>В наше временя оборот информации в бизнес сфере огромен, отцифрованно практически всё. Большая часть информации передаётся по средствам компьютерных сетей, в частности глобальнай – Интернет.</p>
 <p>Технология Интернет приспособленна для передачи любого вида закодированной информации, чем пользуется в преимуществе большая часть бизнес отраслей для получения своей прибыли. Но во время развития Интернет появилась такая ниша как Взломщики, люди посягающии на не санкционированное получения доступа к ресурсам подключенных к Интернет. Вследствии начали стремительно развиваться технологии Криптографии , которые существующие еще со времён древнего Рима, и других методов борьбы с Взломщиками и не только.</p>
@@ -229,7 +348,9 @@
 <li>Реализация архитектурных решений</li>
 <li>Тестирование.</li>
 </ol>
+<p><a id="58423f3301dee86e5a6dd4564805721f"/></p>
 <h1 id="теоритическая-часть">Теоритическая часть</h1>
+<p><a id="a66c7beef7ee05ce09ccd305758a4b34"/></p>
 <h2 id="организация-чоп">Организация ЧОП</h2>
 <p>Охранное предприятие занимается охраной какой либо частной или государственной собственности.</p>
 <p>ЧОП, чаще всего состоит из трех подразделений:</p>
@@ -246,27 +367,71 @@
 <li>Охрана объекта</li>
 <li>Охрана ценных бумаг или металов(инкосация)</li>
 </ul>
+<figure>
+<img src="img/orgStruct.png" alt="PSC structure" /><figcaption aria-hidden="true">PSC structure</figcaption>
+</figure>
+<p><a id="644c422e8bfdc2ee8d075ef63b6ab7de"/></p>
 <h2 id="информационные-потоки-чоп">Информационные потоки ЧОП</h2>
 <figure>
 <img src="img/infoFlow.png" alt="inside info flows" /><figcaption aria-hidden="true">inside info flows</figcaption>
 </figure>
-<h2 id="активности-внутри-чоп">Активности внутри ЧОП</h2>
+<p><a id="bd328bb371cabcf61a023dd89284d430"/></p>
+<h2 id="процессы-внутри-чоп">Процессы внутри ЧОП</h2>
 <figure>
 <img src="img/insideProcess.png" alt="PSC Activities" /><figcaption aria-hidden="true">PSC Activities</figcaption>
 </figure>
+<p><a id="55bb6be8b93e93b450e602b5d88f0744"/></p>
+<h3 id="описание-процессов">Описание процессов</h3>
+<p><a id="a10e8e66a8fb12520c93c572664604c9"/></p>
+<h4 id="составление-контракта">Составление контракта</h4>
+<p><a id="492dbf93213f4fdd2414b9e35224c200"/></p>
+<h4 id="прием-на-работу">Прием на работу</h4>
+<p><a id="a67dfdaec394ee405cbad740a91f9c25"/></p>
+<h4 id="регистрация-и-выдача-оружия">Регистрация и выдача оружия</h4>
+<p><a id="17b28a30349fce25cd658d2188eff4f3"/></p>
+<h4 id="выплаты">Выплаты</h4>
+<p>Выплаты работникам:</p>
+<p>Выплаты за нанесенный ущерб объекту охраны при не нулевом проценте вины сотрудника:</p>
+<p><a id="f61c3d8237771dae61110cd55542d40f"/></p>
 <h1 id="описание-средстд-разработки">Описание средстд разработки</h1>
 <p>В данном разделе будут рассмотрены средства разработки, используемые мной при создании ПС для ЧОП.</p>
+<p><a id="2211f9a30f64e3adc7a68fb612f8a384"/></p>
 <h2 id="утилиты-для-разработки-баз-данных">Утилиты для разработки баз данных</h2>
+<p><a id="15c7d3fb026a6b7191009b2aba592007"/></p>
 <h3 id="sqlite-v3.35.5-stable">SQLite v3.35.5 stable</h3>
-<p><img src="" alt="SQLite logo" /> SQLite — компактная встраиваемая СУБД. Исходный код библиотеки передан в общественное достояние. Данная СУБД работает в безсерверной конфигурации. Если сравнивать с другими СУБД, то в равных условиях запись SQLite осуществляет медленее на 20-30% чем другие СУБД, но чтение превосходит другие на 40-50%. SQLite не имеет привелегий, только систему авторизации, но это и не нужно в моем проекте, об этом будет сказано позже. &gt; Примичание: &gt; <em>Библиотека SQLite не будет использована в чистом виде, а в составе Qt v6.2.4</em> ### SQLiteBrowser v3.12.2 <img src="" alt="SQLite Browser" /> Удобный FOSS браузер баз данных SQLite, использованный для отладки. ### DBVisualizer v12.1.8 <img src="" alt="dbvis" /> Проприетарная утилита для работы с разными СУБД, использован для генерации графа таблиц составленной базы данных ЧОП.</p>
+<p><img src="" alt="SQLite logo" /> SQLite — компактная встраиваемая СУБД. Исходный код библиотеки передан в общественное достояние. Данная СУБД работает в безсерверной конфигурации. Если сравнивать с другими СУБД, то в равных условиях запись SQLite осуществляет медленее на 20-30% чем другие СУБД, но чтение превосходит другие на 40-50%. SQLite не имеет привелегий, только систему авторизации, но это и не нужно в моем проекте, об этом будет сказано позже. &gt; Примичание: &gt; <em>Библиотека SQLite не будет использована в чистом виде, а в составе Qt v6.2.4</em></p>
+<p><a id="d9107f160c4cbd3769c9deef66bb16b0"/></p>
+<h3 id="sqlitebrowser-v3.12.2">SQLiteBrowser v3.12.2</h3>
+<p><img src="" alt="SQLite Browser" /> Удобный FOSS браузер баз данных SQLite, использованный для отладки.</p>
+<p><a id="c5cd767e2d7140d75b7479628ef2625d"/></p>
+<h3 id="dbvisualizer-v12.1.8">DBVisualizer v12.1.8</h3>
+<p><img src="" alt="dbvis" /> Проприетарная утилита для работы с разными СУБД, использован для генерации графа таблиц составленной базы данных ЧОП.</p>
+<p><a id="5f7ed236cf861ab160476bb878a8e29d"/></p>
 <h2 id="библиотеки">Библиотеки</h2>
+<p><a id="3724285fc23f07a780bf1b90d1b08737"/></p>
 <h3 id="qt-v6.2.4">Qt v6.2.4</h3>
-<p><img src="" alt="Qt logo" /> Qt - один из самых популярных и больших фреймворков c++ на рынке. Важная характеристика Qt - переносимость, т.к. я работаю на Linux. ## Системы сборки и компиляторы</p>
+<p><img src="" alt="Qt logo" /> Qt - один из самых популярных и больших фреймворков c++ на рынке. Важная характеристика Qt - переносимость, т.к. я работаю на Linux.</p>
+<p><a id="c41121e7ff1f037c52c40f6800344b60"/></p>
+<h2 id="системы-сборки-и-компиляторы">Системы сборки и компиляторы</h2>
+<p><a id="d769a93d450808dd2699e4d277b38a96"/></p>
 <h3 id="cmake-v3.22.3">CMake v3.22.3</h3>
-<p><img src="" alt="CMake logo" /> Система сборки c++. Сборка проекта и передача более низкоуровневому средству. ### Ninja c1.10.2 Еще одна система сборки, только уже более низкого уровня, чем CMake. Передача исходного кода на компиляцию. ### clang v13.0.1 Компилятор семейства C. Без коментариев.</p>
+<p><img src="" alt="CMake logo" /> Система сборки c++. Сборка проекта и передача более низкоуровневому средству.</p>
+<p><a id="072c9837bf4124a78e8d64761c791708"/></p>
+<h3 id="ninja-c1.10.2">Ninja c1.10.2</h3>
+<p>Еще одна система сборки, только уже более низкого уровня, чем CMake. Передача исходного кода на компиляцию.</p>
+<p><a id="066437d5c1c42dc540ef7b8b089593f5"/></p>
+<h3 id="clang-v13.0.1">clang v13.0.1</h3>
+<p>Компилятор семейства C. Без коментариев.</p>
+<p><a id="a9d5433c4ced0429602d686763b511c0"/></p>
 <h2 id="ide">IDE</h2>
+<p><a id="791bce00c1a5112cb0a8e83f8ea43dfd"/></p>
 <h3 id="qtcreator-v6.0.2">QtCreator v6.0.2</h3>
-<p><img src="" alt="QtCreator logo" /> IDE от компинии The Qt Company, использованный только как средство отладки и создания скелетов форм пользовательского интерфейса. ### VIM v8.2 <img src="" alt="VIM logo" /> Моя любимая IDE, в своей основе так же прост как и каноничный “блокнот” в Windows, только с максимальной степенью кастомизации. Главное достоинство, по моему мнению, - это управление без использования мыши и возможность настройки управляющих комбинаций максимально удобно, что сокращает время на бесполезное перемещение рук по рабочему пространству. #### Плагины</p>
+<p><img src="" alt="QtCreator logo" /> IDE от компинии The Qt Company, использованный только как средство отладки и создания скелетов форм пользовательского интерфейса.</p>
+<p><a id="be86898d7ac3847f7ca9aa4e09d807c7"/></p>
+<h3 id="vim-v8.2">VIM v8.2</h3>
+<p><img src="" alt="VIM logo" /> Моя любимая IDE, в своей основе так же прост как и каноничный “блокнот” в Windows, только с максимальной степенью кастомизации. Главное достоинство, по моему мнению, - это управление без использования мыши и возможность настройки управляющих комбинаций максимально удобно, что сокращает время на бесполезное перемещение рук по рабочему пространству.</p>
+<p><a id="678d92de681d726153a189bfe47a6ffe"/></p>
+<h4 id="плагины">Плагины</h4>
 <pre class="vim"><code>    Plug &#39;https://github.com/xolox/vim-misc&#39;                   &quot; auto load
     Plug &#39;https://github.com/xolox/vim-session&#39;                &quot; session manager
     Plug &#39;wakatime/vim-wakatime&#39;                               &quot; wakatime.com
@@ -305,9 +470,14 @@
     Plug &#39;https://github.com/junegunn/vim-easy-align&#39;
     Plug &#39;https://github.com/fadein/vim-FIGlet&#39;  &quot; figlet
     Plug &#39;https://github.com/scrooloose/syntastic&#39;</code></pre>
+<p><a id="5336cc1e18a44fcbcdcaf76434a9dbc1"/></p>
 <h2 id="разное">Разное</h2>
+<p><a id="1260d8308ede6b806d35e4d84021378e"/></p>
 <h3 id="plantuml-v1.2021.16">Plantuml v1.2021.16</h3>
-<p><img src="" alt="plantuml" /> Средство создания UML диаграм. Использовано для визуализации объектов и просецссов. ### BASH v5.1.16 <img src="" alt="bash" /> Bourne Again Shell - интерпритатор, использован для автоматизации некотерых процессов. &gt; Примечание: &gt; Оглавления данной работы было автоматически сгенерерованно данным bash-скриптом:</p>
+<p><img src="" alt="plantuml" /> Средство создания UML диаграм. Использовано для визуализации объектов и просецссов.</p>
+<p><a id="a7809f369ead5a4aba1407bab398c327"/></p>
+<h3 id="bash-v5.1.16">BASH v5.1.16</h3>
+<p><img src="" alt="bash" /> Bourne Again Shell - интерпритатор, использован для автоматизации некотерых процессов. &gt; Примечание: &gt; Оглавления данной работы было автоматически сгенерерованно данным bash-скриптом:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="st">&quot;</span><span class="va">$1</span><span class="st">&quot;</span> <span class="op">&gt;</span> <span class="st">&quot;</span><span class="va">$1</span><span class="st">&quot;</span>.indexed</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span>index</span>
@@ -338,13 +508,20 @@
 <span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> tmp</span>
 <span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> index</span></code></pre></div>
+<p><a id="99db6cf9ec16fd66532911909e4ea007"/></p>
 <h2 id="отладка">Отладка</h2>
+<p><a id="3ecb9ddef9a2dddb3a2a67100b188eb6"/></p>
 <h3 id="valgrind-v3.18">Valgrind v3.18</h3>
-<p>Утилита профилирования и отладки программы, использовано в основном для обнаружения утечек памяти. ## VCS</p>
+<p>Утилита профилирования и отладки программы, использовано в основном для обнаружения утечек памяти.</p>
+<p><a id="b7249081aeaa3bc1b21f5a8f16eeb88e"/></p>
+<h2 id="vcs">VCS</h2>
+<p><a id="be9c09aacbde6d23d67f89a3fca38c08"/></p>
 <h3 id="git-v2.35.1">GIT v2.35.1</h3>
 <p>GIT - система контроля версий, сомо о себе говрит. Использовался в основном для перенесения кода между машинами и как средство дистрибъюции.</p>
+<p><a id="eb1fa9a0c02763fe5749637a8d16ac3a"/></p>
 <h1 id="разработы-базы-данных-чоп">Разработы базы данных ЧОП</h1>
 <p>База данных ЧОП в пределах данной работы - головная сущность, вокрук которой будет строится весь функционал. База данных будет существовать под управлением SQLite.</p>
+<p><a id="28439b214a63ddabf081fe52b79e17ad"/></p>
 <h2 id="таблицы">Таблицы</h2>
 <p>В компанию, как известно, входит некоторое количество сотрудников, по этому, я создаю таблицу Users. Название выбрано таковым, потому что она будет содержать данные учетных записей сотрудников и клиентов ЧОП.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
@@ -371,13 +548,13 @@
 <p>Как видно, таблица Users зависит от таблиц Roles и Wapons, собственно вот они:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;Roles&quot;</span>(<span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;commands_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;payMultipler&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;payPeriod&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;commands_id&quot;</span>) <span class="kw">REFERENCES</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                <span class="ot">&quot;roleCommands&quot;</span>(<span class="ot">&quot;role_id&quot;</span>)<span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>))</span></code></pre></div>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>            <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>            <span class="ot">&quot;commands_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>            <span class="ot">&quot;payMultipler&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>            <span class="ot">&quot;payPeriod&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>            <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;commands_id&quot;</span>) <span class="kw">REFERENCES</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>            <span class="ot">&quot;roleCommands&quot;</span>(<span class="ot">&quot;role_id&quot;</span>)<span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>            <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>))</span></code></pre></div>
 <p>Роль определяет какие данные и соответственно команды можешь выполнять на сервере. Ссылается на таблицу roleComands - это SQL массив с ID команд, которые может выполнять пользователь с данной ролью, по поэтому я и отказался от других, более тяжелых СУБД, т.к. все необходимые действия делегируются на Сервер, что будет рассмотрено далее, от СУБД требуется только хранить данные и извлекать их. Связаная таблица roleCommands:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;roleCommands&quot;</span>(<span class="ot">&quot;role_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
@@ -387,30 +564,30 @@
 <p>Таблица Wapons:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;Wapons&quot;</span>(<span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;employee_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">UNIQUE</span>,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;ammo&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;price&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;ammoPrice&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;image&quot;</span> <span class="dt">BLOB</span>,</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;employee_id&quot;</span>) <span class="kw">REFERENCES</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;Users&quot;</span>(<span class="ot">&quot;id&quot;</span>)<span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>))</span></code></pre></div>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;employee_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;ammo&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;price&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;ammoPrice&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;image&quot;</span> <span class="dt">BLOB</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>             <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;employee_id&quot;</span>) <span class="kw">REFERENCES</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;Users&quot;</span>(<span class="ot">&quot;id&quot;</span>)<span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>             <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>))</span></code></pre></div>
 <p>Каждая запись в таблице Wapons - это еденица зарегестрированного оружия, в полной мере описывающяя необходимые характеристики для ЧОП.</p>
 <p>Так как организация имеет свои расходы и доходы, нам нужно сохранять эти данные. Таблица Accounting:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> </span>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;Accounting&quot;</span> (<span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>              <span class="ot">&quot;accountingType_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>              <span class="ot">&quot;pay&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>              <span class="ot">&quot;date&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>              <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;accountingType_id&quot;</span>)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>              <span class="kw">REFERENCES</span> <span class="ot">&quot;AccountingType&quot;</span>(<span class="ot">&quot;id&quot;</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>              <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>) )</span></code></pre></div>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                  <span class="ot">&quot;accountingType_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                  <span class="ot">&quot;pay&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                  <span class="ot">&quot;date&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                  <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;accountingType_id&quot;</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                  <span class="kw">REFERENCES</span> <span class="ot">&quot;AccountingType&quot;</span>(<span class="ot">&quot;id&quot;</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>                  <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>) )</span></code></pre></div>
 <p>Зависит от таблицы AccountingType, описывающей какого рода транзакция была совершена.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;AccountingType&quot;</span> (<span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                  <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                  <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>,<span class="ot">&quot;name&quot;</span>) )</span></code></pre></div>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                      <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                      <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>,<span class="ot">&quot;name&quot;</span>) )</span></code></pre></div>
 <p>ЧОП получает доход от контрактов, по этому была составлена таблица Contracts:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;Contracts&quot;</span>(<span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
@@ -446,37 +623,47 @@
 <p>Для создания контракта в данной таблице нужно только 2 поля - id, employee_id. Так так во время исполнения может произойти какой то ицедент, то была создана таблица Accidents:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;Accidents&quot;</span> (<span class="ot">&quot;id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;contract_id&quot;</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>             <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;usedAmmoCount&quot;</span> <span class="dt">INTEGER</span>,</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;damagePrice&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>),</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>             <span class="ot">&quot;assignedEmployees_id&quot;</span> <span class="dt">INTEGER</span>,</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>             <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;contract_id&quot;</span>) <span class="kw">REFERENCES</span> <span class="ot">&quot;Contracts&quot;</span>(<span class="ot">&quot;id&quot;</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>             <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;assignedEmployees_id&quot;</span>) <span class="kw">REFERENCES</span> <span class="ot">&quot;AssignedEmployees&quot;</span>(<span class="ot">&quot;id&quot;</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>             <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>) )</span></code></pre></div>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;name&quot;</span> TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;contract_id&quot;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                 <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;usedAmmoCount&quot;</span> <span class="dt">INTEGER</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;damagePrice&quot;</span> <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">3</span>),</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>                 <span class="ot">&quot;assignedEmployees_id&quot;</span> <span class="dt">INTEGER</span>,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;contract_id&quot;</span>) <span class="kw">REFERENCES</span> <span class="ot">&quot;Contracts&quot;</span>(<span class="ot">&quot;id&quot;</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;assignedEmployees_id&quot;</span>) <span class="kw">REFERENCES</span> <span class="ot">&quot;AssignedEmployees&quot;</span>(<span class="ot">&quot;id&quot;</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">PRIMARY</span> <span class="kw">KEY</span>(<span class="ot">&quot;id&quot;</span>) )</span></code></pre></div>
 <p>Описывает проишествия, произошедшие во время исполнения контракта. Если у нас есть контракты, описывающие некую деятельность с учетом выходных и рамок начала и окончания службы, то можно было бы ускорить вычисление рабочего времени по дням с помощью препроцессинга данных из записи Contracts. Таблицей, в которую сохраняются транслированные данные является - DutySchedule:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&quot;DutySchedule&quot;</span> ( <span class="ot">&quot;emploee_id&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                     <span class="ot">&quot;day&quot;</span> <span class="dt">INTEGER</span> <span class="kw">NOT</span> <span class="kw">NULL</span></span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">FOREIGN</span> <span class="kw">KEY</span>(<span class="ot">&quot;emploee_id&quot;</span>) <span class="kw">REFERENCES</span> <span class="ot">&quot;Users&quot;</span>(<span class="ot">&quot;id&quot;</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span> )</span></code></pre></div>
 <p>day - это 64х битная цыфра со знаком в формате UNIX time(secs since epoch).</p>
+<p><a id="851980d29e4e343f67c61f95cea40cfa"/></p>
 <h2 id="визуализация-базы-данных">Визуализация базы данных</h2>
 <figure>
-<img src="/home/xewii/Documents/TIT/ZXC/databaseReferences.png" alt="Datbase visualization" /><figcaption aria-hidden="true">Datbase visualization</figcaption>
+<img src="img/databaseReferences.png" alt="Datbase visualization" /><figcaption aria-hidden="true">Datbase visualization</figcaption>
 </figure>
+<p><a id="142c5c1c8f822ab1538b7817a180b7ab"/></p>
 <h1 id="разработка-архитектуры-приложения">Разработка архитектуры приложения</h1>
 <p>Приложение для взаимодействия с моделью ЧОП, построенной ранее, должно предоставлять функционал для реализации всех описанных процессов взаимодействия с моделью ЧОП.</p>
+<p><a id="721f411e2bde409ec1037acdea3d0f8c"/></p>
 <h2 id="основа">Основа</h2>
 <p>Основной функцией приложения, как понятно из темы курсовой работы, будет обеспечение безопасности данных. Исходя из этого в голову приходит идея организовать клиент-серверную архитектуру приложения, но это не главная причина почему выбрана такая архитектура. Основная причина - необходимость принимать заказы от клиентов, предоставить им функционал для удобного взаимодействия с персоналом ЧОП, но по большей части он будет взаимодействовать с клавиатурой. И для персонала ЧОП тоже будет намного удобнее и быстрее использовать унифицированные методы итерации с базой данных и самой организацией.</p>
-<h3 id="информационные-потоки-чоп-с-учетом-сервера">Информационные потоки ЧОП с учетом сервера</h3>
+<h2 id="информационные-потоки-чоп-1">Информационные потоки ЧОП</h2>
+<p><a id="644c422e8bfdc2ee8d075ef63b6ab7de"/></p>
+<h2 id="информационные-потоки-чоп-2">Информационные потоки ЧОП</h2>
 <figure>
-<img src="/home/xewii/Documents/TIT/ZXC/infoServiceFlow.png" alt="PSC with server info flows" /><figcaption aria-hidden="true">PSC with server info flows</figcaption>
+<img src="img/infoServiceFlow.png" alt="PSC with server info flows" /><figcaption aria-hidden="true">PSC with server info flows</figcaption>
 </figure>
+<p><a id="503aa110ff5e803702414f90c5c5ebd6"/></p>
 <h2 id="обращение-к-базе-данных">Обращение к базе данных</h2>
 <p>Как было сказано ранее, СУБД не будет управлять системой привелегий, этим будет заниматься другой код. Система, которую я разработал основана на ролях, так же как и в обычных “умных” СУБД, к которым привязано некоторое количество возможных к исполнению команд. <img src="img/identificationSystem.png" /></p>
+<p><a id="32bde6e6debc82c0610a99d90127ac67"/></p>
 <h3 id="система-безопасности">Система безопасности</h3>
-<p>Для обеспечения более высокого уровня защиты команды и роли будут вшиты в программу. При каждом старте будет проверятся валидность первоначальных данных и имеющихся на данный момент в базе данных. Также, как мера безопасности к ПС будут предложены хеш суммы исполняемых файлов. #### Система идентификации и авторизации При регистрации нового пользователя создается новая запись в таблице Users, все поля, короме поля password сохраняются в неизменнов виде. password сохраняется в захешированном виде при использовании хэш функции sha512 с использование динамической соли.</p>
+<p>Для обеспечения более высокого уровня защиты команды и роли будут вшиты в программу. При каждом старте будет проверятся валидность первоначальных данных и имеющихся на данный момент в базе данных. Также, как мера безопасности к ПС будут предложены хеш суммы исполняемых файлов.</p>
+<p><a id="c6725059f1407364b5c9cae3833a0b92"/></p>
+<h4 id="система-идентификации-и-авторизации">Система идентификации и авторизации</h4>
+<p>При регистрации нового пользователя создается новая запись в таблице Users, все поля, короме поля password сохраняются в неизменнов виде. password сохраняется в захешированном виде при использовании хэш функции sha512 с использование динамической соли.</p>
 <p>Алгоритм создания соли:</p>
 <ol type="1">
 <li>Подсчет количества символов разных типов в пароле.</li>
@@ -495,6 +682,7 @@
 </ol>
 <p>Данный алгорит и выбраная хэш функция ограничивают максимальную длину пароля до 64 символов. Длина соли была вабрана 32 байтная. Соль сохраняется вместе с паролем, чтобы обеспечить возможность идентификации.</p>
 <p>Для идентификации проводится сравнивание значение пароля из базы данных с переданным в функцию шифрования с солью данной записи пользователя пароля.</p>
+<p><a id="86fb03765331149de407516aaeb0b09d"/></p>
 <h4 id="система-команд">Система команд</h4>
 <p>Проанализировав информационные потоки и требования ЧОП я составил 22 команды, в исходном коде объявление команд выглядит вот так:</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">// id, name, executor</span></span>
@@ -521,10 +709,13 @@
 <span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 19, GET_DUTY_SCHEDULE,    exec_get_duty_schedule  ) \</span></span>
 <span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 20, CREATE_TABLE,         exec_create_table       ) \</span></span>
 <span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a><span class="pp">    XX( 21, IDENTIFY,             exec_identify           ) \</span></span></code></pre></div>
+<p><a id="7a8fc1fb6caba045510869990bcae157"/></p>
 <h2 id="архитектура-клиент-сервер">Архитектура Клиент-Сервер</h2>
 <p>Архитектура Клиен-Сервер была выбрана не только для обеспечения безопасности базы данных, но и для реализвации удаленного унифицированного доступа к услугам и возможностям ЧОП. Так для сотрудников упрощается способ комуникации с начальством, подчиненными. А заказчики смогут после регистрации в системе могут удаленно составить контракт по охране.</p>
+<p><a id="047d272a34a43782c51918621461b8f2"/></p>
 <h3 id="протокол">Протокол</h3>
 <p>Общение клиентов с сервером будет осуществяться по протоколу TCP опиционально с использованием SSL/TLS(опциональность введена для более удобного тестирования).</p>
+<p><a id="d601d1cdf1d51beb692dd2b3f43e5038"/></p>
 <h4 id="формат-сообщений">Формат сообщений</h4>
 <p>Поверх формата TCP пакета я ввел для ПС дополнительные поля.</p>
 <p>Состоит из заголовка и нагрузки.</p>
@@ -538,6 +729,7 @@
 <li>(0x22 - 0x23) PacketLoadType: Тип формата нагрузки сообщения</li>
 </ul>
 <p>Таким образом, поле Size позволяет считывать последовательность байт в единое сообщение из нескольких пакетов TCP. Поля xxxStamp используются как некий идентификатор сообщения. Тип пакета и формат нагрузки определяют собственно тип нагрузки и сообщения в целом.</p>
+<p><a id="c6c1ffce38a4e50926edc47be9e48348"/></p>
 <h3 id="модель-сервера">Модель сервера</h3>
 <p>Основные задачи сервера:</p>
 <ul>
@@ -551,14 +743,17 @@
 <figure>
 <img src="img/serverStruct.png" alt="Server abstract model" /><figcaption aria-hidden="true">Server abstract model</figcaption>
 </figure>
+<p><a id="1485f36d1fb2c884ad1ab3d813451dd7"/></p>
 <h3 id="модель-клиента">Модель клиента</h3>
 <p>Клиент - это программа, предоставляющая некотерый функционал, в который в любом случае входит пользовательский интерфейс, после успешного входа в систему, функционал будет разниться в зависимости от роли вошедшего в систему.</p>
 <p>Все что требуется от клиента - это показывать пользовательский интерфейс, предоставить некотерый метод для входа в систему сервера и отправлять команды серверу, и ждать ответа. В частности, когда пользватель, который воспользовался клиентом является заказчик - клиент должен предоставить метод регистрации в систему.</p>
 <figure>
 <img src="img/clientStruct.png" alt="Client abstract mode" /><figcaption aria-hidden="true">Client abstract mode</figcaption>
 </figure>
+<p><a id="46fab2507eadf89755d4aea454bfe185"/></p>
 <h1 id="реализация">Реализация</h1>
 <p>Для реализации проекта был выбран язык C++ и фреймвокр Qt6. Выбор лег в сторону C++ только потому что это мной наиболее изученный язык, на много проще было бо всё реализовать на nodejs с express, а Qt - это лучшый кросплатформенный фреймворк лично для меня, он упростил разработку процентов на 60% и сократил зависимости проекта на 100%(используются только библиотеки из пакета Qt). Сборкой проекта будет заниматься CMake с делегацией компиляции Ninja, C++ компилятор - clang. Для отладки буду использовать GDB в составе QtCreator и Valgrind. Создания шаблонов форм так же будет осуществляться в QtCreator в модуле QtDisigner.</p>
+<p><a id="86798bf223d43272c3136ba329fbf9b3"/></p>
 <h2 id="пользовательский-интерфейс">Пользовательский интерфейс</h2>
 <p>За отрисовку GUI будет отвечать модуль Qt - QtGUI.</p>
 <p>Пользовательский интерфейс будут составлять 5 основных сущностей:</p>
@@ -569,14 +764,151 @@
 <li>Пейджер(PagesManager)</li>
 <li>Менеджер уведомлений(NotifyManager)</li>
 </ul>
+<p><a id="84643a8881036d8725be23faf5bfaccc"/></p>
 <h3 id="pagesmanager">PagesManager</h3>
-<p>TODO</p>
+<p>Данный класс отвечает за агрегацию “страниц” GUI и их переключение. &gt; Страница - это отдельный виджет(QWidget) или объект-наследник. Сам класс PagesManager - это тоже виджет, наследуемый от QFrame(он тоже наследник QWidget).</p>
+<p>Содержит в себе именованный массив страниц:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> Page <span class="op">{</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    QWidget <span class="op">*</span> widget <span class="op">=</span> nullptr<span class="op">;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> navId <span class="op">=</span> <span class="op">-</span><span class="dv">1</span><span class="op">;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    QVector<span class="op">&lt;</span>QString<span class="op">&gt;</span> edges <span class="op">=</span> <span class="op">{};</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>QMap<span class="op">&lt;</span>QString<span class="op">,</span> Page<span class="op">&gt;</span> _pages<span class="op">;</span></span></code></pre></div>
+<p>Как видно из данного участка кода, одна страница может быть связана с другими по имени(можно было бы связывать напрямую с другим объектом Page, но выбранный мной подход более прост в реализации). Страница добавляется в общий массив методом:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>PagesManager<span class="op">::</span>addPage<span class="op">(</span><span class="dt">const</span> QString<span class="op">&amp;</span> name<span class="op">,</span> QWidget<span class="op">*</span> wp<span class="op">,</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                      <span class="dt">const</span> QVector<span class="op">&lt;</span>QString<span class="op">&gt;&amp;</span> edges<span class="op">)</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(!</span>wp<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>        throw QString<span class="op">(</span><span class="st">&quot;empty widgt passed&quot;</span><span class="op">);</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    wp<span class="op">-&gt;</span>setObjectName<span class="op">(</span>name<span class="op">);</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    _pages<span class="op">[</span>name<span class="op">]</span> <span class="op">=</span> <span class="op">{</span>wp<span class="op">,</span> <span class="op">-</span><span class="dv">1</span><span class="op">,</span> edges<span class="op">};</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    _view<span class="op">-&gt;</span>addWidget<span class="op">(</span>wp<span class="op">);</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>view - это QStacketWidget - место размещения страниц и является основной сущностью пейджера. Также, класс содержит перегруженный метод добавления корневой страницы. Она необходима для построения путей к страницы.</p>
+<p>За построение пути отвечает агрегируемый класс PagePathFrame, наследуемый от QFrame, является второй основной сущность пейджера. Основным методом класса явяется методод:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>PagePathFrame<span class="op">::</span>changePath<span class="op">(</span><span class="dt">const</span> QVector<span class="op">&lt;</span>QString<span class="op">&gt;&amp;</span> path<span class="op">)</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    reset<span class="op">();</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">auto</span> node <span class="op">:</span> path<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>        QWidget <span class="op">*</span> lbl <span class="op">=</span> new QLabel<span class="op">(</span>_delemiter<span class="op">,</span> this<span class="op">);</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>        lbl<span class="op">-&gt;</span>setFont<span class="op">(</span>QFont<span class="op">(</span><span class="st">&quot;Jet Brains Mono&quot;</span><span class="op">,</span> <span class="dv">9</span><span class="op">));</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>        lbl<span class="op">-&gt;</span>setSizePolicy<span class="op">(</span>QSizePolicy<span class="op">::</span>Maximum<span class="op">,</span> QSizePolicy<span class="op">::</span>Maximum<span class="op">);</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>        _layout<span class="op">-&gt;</span>addWidget<span class="op">(</span>lbl<span class="op">);</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>        ClickableLabel <span class="op">*</span> clbl <span class="op">=</span> new ClickableLabel<span class="op">(</span>node<span class="op">,</span> this<span class="op">);</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>        clbl<span class="op">-&gt;</span>setSizePolicy<span class="op">(</span>QSizePolicy<span class="op">::</span>Maximum<span class="op">,</span> QSizePolicy<span class="op">::</span>Maximum<span class="op">);</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>        clbl<span class="op">-&gt;</span>setCursor<span class="op">(</span>QCursor<span class="op">(</span>Qt<span class="op">::</span>CursorShape<span class="op">::</span>PointingHandCursor<span class="op">));</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>        clbl<span class="op">-&gt;</span>setStyleSheet<span class="op">(</span><span class="st">&quot;color: #b78620&quot;</span><span class="op">);</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>        connect<span class="op">(</span>clbl<span class="op">,</span> <span class="op">&amp;</span>ClickableLabel<span class="op">::</span>clicked<span class="op">,</span> <span class="op">[</span>this<span class="op">,</span> node<span class="op">]</span> <span class="op">{</span> Q_EMIT clicked<span class="op">(</span>node<span class="op">);</span>  <span class="op">});</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>        _layout<span class="op">-&gt;</span>addWidget<span class="op">(</span>clbl<span class="op">);</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    adjustSize<span class="op">();</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Путь к страницы вычисляется в методе пейджера:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>QVector<span class="op">&lt;</span>QString<span class="op">&gt;</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>PagesManager<span class="op">::</span>pagePath<span class="op">(</span><span class="dt">const</span> QString<span class="op">&amp;</span> page<span class="op">)</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    QVector<span class="op">&lt;</span>QString<span class="op">&gt;</span> path <span class="op">{</span> page  <span class="op">};</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    QString search <span class="op">=</span> page<span class="op">;</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> done <span class="op">=</span> false<span class="op">;</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> tries <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(!</span>done <span class="op">&amp;&amp;</span> tries <span class="op">&lt;</span> _pages<span class="op">.</span>size<span class="op">()</span> <span class="op">+</span> <span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="dt">auto</span> i <span class="op">:</span> _pages<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>search <span class="op">==</span> _root<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>                done <span class="op">=</span> true<span class="op">;</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> <span class="op">(</span><span class="dt">auto</span> node <span class="op">:</span> i<span class="op">.</span>edges<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span>node <span class="op">==</span> search<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>                    search <span class="op">=</span> i<span class="op">.</span>widget<span class="op">-&gt;</span>objectName<span class="op">();</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>                    path<span class="op">.</span>push_front<span class="op">(</span>search<span class="op">);</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>                    <span class="co">// exit outer?</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>        tries<span class="op">++;</span></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> path<span class="op">;</span></span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Не самый эффективный метод, можно было бы хранить сразу все возможные пути в массиве. Метод основан на поиск в глубину в графе, если я не ошибаюсь.</p>
+<p>Как видно, каждый элемент фрейма, при нажатии генерирует сигнал о нажатии, для отправки PagesManager. При получении пейджер меняет страницу.</p>
+<p>Третьей сущностью явялется навигационная панель - NavWidget. Содержит связаные с данной страницей ссылки в виде кнопок. Гланый метод добавления навигационного меню:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>NavWidget<span class="op">::</span>addNav<span class="op">(</span><span class="dt">const</span> QVector<span class="op">&lt;</span>QString<span class="op">&gt;&amp;</span> pages<span class="op">,</span> <span class="dt">bool</span> createBack<span class="op">)</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    NavFrame <span class="op">*</span> fnav <span class="op">=</span> new NavFrame<span class="op">(</span>pages<span class="op">,</span> createBack<span class="op">,</span> this<span class="op">);</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    this<span class="op">-&gt;</span>addWidget<span class="op">(</span>fnav<span class="op">);</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    connect<span class="op">(</span>fnav<span class="op">,</span> SIGNAL<span class="op">(</span>clicked<span class="op">(</span>QString<span class="op">)),</span> this<span class="op">,</span> SIGNAL<span class="op">(</span>clicked<span class="op">(</span>QString<span class="op">)));</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    adjustSize<span class="op">();</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> this<span class="op">-&gt;</span>count<span class="op">()-</span><span class="dv">1</span><span class="op">;</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Так же при нажатии меняет страницу.</p>
+<p>Для того, чтобы связать страницы и навигационное меню используется рекурсивный метод:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>PagesManager<span class="op">::</span>bindPages<span class="op">(</span><span class="dt">const</span> QString<span class="op">&amp;</span> parent<span class="op">,</span> <span class="dt">const</span> QVector<span class="op">&lt;</span>QString<span class="op">&gt;&amp;</span> childs<span class="op">)</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> nid <span class="op">=</span> _nav<span class="op">-&gt;</span>addNav<span class="op">(</span>childs<span class="op">,</span> parent <span class="op">!=</span> _root<span class="op">);</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    _pages<span class="op">[</span>parent<span class="op">].</span>navId <span class="op">=</span> nid<span class="op">;</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">auto</span> child <span class="op">:</span> childs<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>_pages<span class="op">[</span>child<span class="op">].</span>edges<span class="op">.</span>length<span class="op">()</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>            bindPages<span class="op">(</span>child<span class="op">,</span> _pages<span class="op">[</span>child<span class="op">].</span>edges<span class="op">);</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>            _pages<span class="op">[</span>child<span class="op">].</span>navId <span class="op">=</span> nid<span class="op">;</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>PagesManager<span class="op">::</span>finalize<span class="op">()</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>_root <span class="op">==</span> QString<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>        throw <span class="st">&quot;Cannot finalize PagesManager without root page&quot;</span><span class="op">;</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>    bindPages<span class="op">(</span>_root<span class="op">,</span> _pages<span class="op">[</span>_root<span class="op">].</span>edges<span class="op">);</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>    changePage<span class="op">(</span>_root<span class="op">);</span></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><a id="2c70e6e799cd133b94067ebe0f920217"/></p>
 <h3 id="notifymanager">NotifyManager</h3>
-<p>TODO</p>
-<h2 id="драйвер-базы-данных">Драйвер базы данных</h2>
-<h2 id="iiserver">iiServer</h2>
+<p>Сущность выполняющая динамическое позиционирование всплывающих уведомлений разного типа. В своей основе - это лейаут поверх всего рабочего пространства приложения и процессор, обрабатывающий запросы на создание новых уведомлений и управления существующими, уведомление - это разновидность класса NotifyItem. Главная причина почему этот класс существует - возможность создавать thread-safe уведомления из любого потока. Т. к. любой виджет вне потока существования виджета-родителя не будет напрямую связан с его петлей событий. Как известно, объект начинает существовать там, где он был создан с помощью оператора new. Поэтому для передачи на обработку NotifyManager’у используюся фабрики NotifyItemFactory.</p>
+<p>Таким образом, мне получилось создать простой интерфейс для создания всплывающих уведомлей:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> setItemPropery<span class="op">(</span><span class="dt">int</span> uid<span class="op">,</span> <span class="dt">const</span> QByteArray<span class="op">&amp;</span> name<span class="op">,</span> <span class="dt">const</span> QVariant<span class="op">&amp;</span> value<span class="op">);</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> createNotifyItem<span class="op">(</span>NotifyItemFactory<span class="op">*,</span> <span class="dt">int</span><span class="op">&amp;</span> uid<span class="op">);</span></span></code></pre></div>
+<p>Обращение к созданому уведомлению происходит по выделеному uid, который возвращает createNotifyItem.</p>
+<p>Все существующие уведомления храняться в именованом массиве:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>QMap<span class="op">&lt;</span><span class="dt">int</span><span class="op">,</span> NotifyItem<span class="op">*&gt;</span> _items<span class="op">;</span></span></code></pre></div>
+<p><a id="1273e0f44063343112756ce23b2d6f2b"/></p>
+<h2 id="логгер">Логгер</h2>
+<p><a id="1801c85ec3a13ae99bc3fe8a25db50fb"/></p>
+<h2 id="iinpack">iiNPack</h2>
+<p><a id="1739f69cead8bb7ff41563dcc748a072"/></p>
+<h2 id="сервер">Сервер</h2>
+<p><a id="2a334021979df79f54f0a8f48367c12c"/></p>
+<h3 id="драйвер-базы-данных">Драйвер базы данных</h3>
+<p><a id="99ed80269db632accc22cace769ff223"/></p>
+<h4 id="криптография">Криптография</h4>
+<p><a id="6dcd2956f39ef3cf8ebe3f1a82ebf0fd"/></p>
+<h3 id="мнеденжер-подключений">Мнеденжер подключений</h3>
+<p><a id="4185393f06367e388df7cec7cdea2c9d"/></p>
+<h4 id="менеджер-сессий">Менеджер сессий</h4>
+<p><a id="1f7f90d854564597157d657bc7c8968a"/></p>
+<h4 id="clientlink">ClientLink</h4>
+<p><a id="c152088a798c5969e467612ed2109532"/></p>
+<h4 id="процессор-подключения">Процессор подключения</h4>
+<p><a id="b99b6558c7cde67d398236bf888d33cb"/></p>
+<h2 id="клиент">Клиент</h2>
+<p><a id="7eef63514ed827f85a480746eea9b025"/></p>
+<h3 id="service">Service</h3>
+<p><a id="bb5ea4981f0e9a3be08addcddaef373b"/></p>
+<h3 id="менеджер-групп-страниц">Менеджер групп страниц</h3>
+<p><a id="e1c1d994d00e4e7a44fcd5d029d3548d"/></p>
 <h1 id="заключение">Заключение</h1>
-<p>TODO</p>
+<p><a id="bc5e99ae74607750379b50c9e11d0695"/></p>
 <h1 id="список-литиратуры">Список литиратуры</h1>
 <ol type="1">
 <li>https://wiki.qt.io - документация Qt</li>

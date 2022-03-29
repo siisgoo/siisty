@@ -1,11 +1,13 @@
 #!/bin/bash
 
+pdfFont="Hack:pixelsize=15:antialias=true:autohint=true:style=Regular"
+
 input="cursed.md"
 pdfHeaderInput="header.pdf"
 indexedMdOut="../docs/index.md"
 htmlOut="../docs/index.html"
 pdfOut="../docs/cursed.pdf"
-pdfHederedOut="../docs/cursedHeadered.pdf"
+pdfHeaderedOut="../docs/cursedHeadered.pdf"
 umlDir="uml"
 imgDirOut="../docs/img"
 
@@ -49,8 +51,8 @@ function indexGen() {
 }
 
 function umlGen() {
-    plantuml uml/*
-    mv uml/*.png "$1"/
+    plantuml "$1"/*
+    mv "$1"/*.png "$2"/
 }
 
 function htmlGen() {
@@ -58,23 +60,27 @@ function htmlGen() {
 }
 
 function pdfGen() {
-    echo not implemented
+    pandoc --pdf-engine xelatex -V mainfont="$1" -f markdown "$2" -o "$pdfOut"
 }
 
+function pdfHeaderedGen() {
+    pdftk "$1" "$2" cat output "$3"
+}
+
+function umlf() { [[ -d "$imgDirOut" ]] || mkdir -p "$imgDirOut"; umlGen "$umlDir" "$imgDirOut";}
+function mdf() { indexGen "$input" "$indexedMdOut" ;}
+function htmlf() { htmlGen "$indexedMdOut" "$htmlOut" ;}
+function pdff() { pdfGen "$pdfFont" "$indexedMdOut" "$pdfOut"; pdfHeaderedGen "$pdfHeaderInput" "$pdfOut" "$pdfHeaderedOut" ;}
+
 case $1 in
-    prepare)
-        [[ -d "$imgDirOut" ]] || mkdir -p "$imgDirOut"
-        umlGen "$imgDirOut"
-        ;;
-    md)
-        indexGen "$input" "$indexedMdOut"
-        ;;
-    html)
-        htmlGen "$input" "$htmlOut"
-        ;;
-    pdf)
-        pdfGen
-        ;;
+    uml)  umlf ;;
+    md)   mdf ;;
+    html) htmlf ;;
+    pdf)  pdff ;;
     *)
+        umlf
+        mdf
+        htmlf
+        pdff
         ;;
 esac
