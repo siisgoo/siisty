@@ -42,7 +42,6 @@ namespace Database {
 using command_exec_t = std::function<CmdError(QJsonObject&)>;
 
 // AUTO only commands
-/* CmdError exec_add_role(QJsonObject& obj); */
 /* CmdError exec_send_moneys(QJsonObject& obj); */
 CmdError exec_create_table(QJsonObject& obj);
 CmdError exec_identify(QJsonObject& obj);

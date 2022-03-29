@@ -211,7 +211,7 @@ Driver::executeCommand(Database::RoleId role, QJsonObject obj, DriverAssistant* 
     QSqlQuery q;
 
     if (!waiter) {
-        throw "Null waiter passed!";
+        throw QString("Driver::" + QString(__func__) + ": Null waiter passed!");
     }
 
     if (role != ROLE_AUTO) {

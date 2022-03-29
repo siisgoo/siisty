@@ -24,7 +24,7 @@ struct iiNPack {
         AUTORIZATION_REQUEST,
         REQUEST,
         RESPONSE,
-        ERROR_MESSAGE, //first byte contain ResponseError, other - errstr
+        ERROR_MESSAGE,
     };
 
     enum PacketLoadType : quint8
@@ -51,7 +51,7 @@ struct iiNPack {
 /* 0x4  - 0x11 */ qint64  ServerStamp;    /* Send time on server; using QDateTime SecsSinceEpoch */
 /* 0x12 - 0x19 */ qint64  ClientStamp;    /* Send time on client; using QDateTime SecsSinceEpoch */
 /* 0x20 - 0x21 */ quint8  PacketType;     /* Type of packet; enum class PacketType */
-/* 0x22 - 0x23 */ quint8  PacketLoadType; /* Operation type, see enum class PacketLoadType */
+/* 0x22 - 0x23 */ quint8  PacketLoadType; /* Load format, see enum class PacketLoadType */
     };
 
     static const qsizetype HeaderSize;

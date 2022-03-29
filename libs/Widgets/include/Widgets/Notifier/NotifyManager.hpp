@@ -8,16 +8,16 @@
 #include <QResizeEvent>
 #include <QTimer>
 #include <QVariant>
+#include <QLinkedList>
+#include <QLinkedListNode>
 
 #include "Widgets/Notifier/NotifyItem.hpp"
 #include "Widgets/Notifier/NotifyItemFactory.hpp"
 
-// TODO reanme as NotifyManager
+// TODO improve with linked list items organization
 // Dont move this in another thread
 class NotifyManager : public QObject {
     Q_OBJECT
-
-    /* Q_PROPERTY(int maxItemWidth MEMBER _prevMaxWidth NOTIFY maxWidthChanged) */
 
     public:
         // TODO
@@ -33,25 +33,19 @@ class NotifyManager : public QObject {
 
         explicit NotifyManager(QWidget* mainWindow,
                                QMargins margins,
-                               QSize _itemSize,
+                               QSize _itemSize, // hixed height and minimum width
                                int maxVisible = 5, //  TODO
-                               StackDirection stacking = StackAbove,
+                               StackDirection stacking = StackAbove, // TODO
                                QObject* p = nullptr);
         virtual ~NotifyManager();
 
         static int freeUID();
 
-        void setDiactivationDur(int ms);
-        void setActivationDur(int ms);
+        /* void setDiactivationDur(int ms); */
+        /* void setActivationDur(int ms); */
 
-        int diactivationDur() const;
-        int activationDur() const;
-
-        void setDiactivationAnimation(QPropertyAnimation* a);
-        void setActivationAnimation(QPropertyAnimation* a);
-
-        const QPropertyAnimation* diactivationAnimation() const;
-        const QPropertyAnimation* activationAnimation() const;
+        /* int diactivationDur() const; */
+        /* int activationDur() const; */
 
     Q_SIGNALS:
         void windowResized(QResizeEvent*);
@@ -64,8 +58,6 @@ class NotifyManager : public QObject {
 
         void setItemPropery(int uid, const QByteArray& name, const QVariant& value);
         void createNotifyItem(NotifyItemFactory*, int& uid);
-            // creates notify item in main thread and return as param
-            // use Qt::BlockingQueuedConnection for connection
 
     private Q_SLOTS:
         int findMaxItemWidth();
@@ -76,22 +68,22 @@ class NotifyManager : public QObject {
         void removeItem();
 
     private:
-        /*const*/ QWidget* _win;  // link
-        QMap<int, NotifyItem*> _items;
-        QMutex _mtx;
-        QWaitCondition _created;
-        QMargins _margins;
-        int _spacing;
-
+        /*const*/ QWidget* _win;  // link, mybe use this->parent() ?
         QSize _winSize;
+        QMutex _mtx;
+
+        QMap<int, NotifyItem*> _items;
+
+        bool _hideOnClick;
 
         int _prevMaxWidth = 0;
 
-        bool _hideOnClick;
+        StackDirection _stackDir;
+        QMargins _margins;
+        int _spacing;
         QSize _itemHints;
             // width - maximum avalible width
             // height - fixed item height
-        StackDirection _stackDir;
         int _maxActiveItems;
         int _activationDur;
         int _diactivationDur;

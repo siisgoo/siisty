@@ -48,6 +48,8 @@ target_link_libraries(
     PUBLIC
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Core
+    PRIVATE
+        Qt${QT_VERSION_MAJOR}::Core5Compat
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)

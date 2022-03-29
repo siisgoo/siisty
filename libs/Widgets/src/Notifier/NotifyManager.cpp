@@ -58,6 +58,7 @@ NotifyManager::setItemPropery(int uid, const QByteArray& name, const QVariant& v
 void
 NotifyManager::createNotifyItem(NotifyItemFactory * factory, int& uid)
 {
+    QList<NotifyItem*> list;
     {
         QMutexLocker lock(&_mtx);
         uid = freeUID();

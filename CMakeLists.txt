@@ -30,9 +30,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT
     NAMES Qt6
-    COMPONENTS Core Widgets Network Sql REQUIRED)
+    COMPONENTS Core Widgets Network Sql Core5Compat REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR}
-    COMPONENTS Core Widgets Network Sql REQUIRED)
+    COMPONENTS Core Widgets Network Sql Core5Compat REQUIRED)
 
 set(GLOBAL_RESOURCES ${CMAKE_SOURCE_DIR}/resources.qrc)
 
