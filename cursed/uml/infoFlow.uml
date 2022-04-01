@@ -3,7 +3,7 @@
 top to bottom direction
 
 actor Customer as cus
-actor "who wants to join the company" as req
+actor "Recrut" as req
 
 package PSC {
     actor Administration as adm

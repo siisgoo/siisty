@@ -38,13 +38,11 @@ class iiServer : public QObject {
 
     protected Q_SLOTS:
 
-        // Slots to receive signals from sockets
         void acceptConnection();
         void handshakeComplete();
 
         void clientDisconnected();
         void recivedMessage(iiNPack::Header, QByteArray);
-            // message from client
 
         /* void pauseListening(); */
 

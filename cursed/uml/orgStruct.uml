@@ -1,13 +1,19 @@
 @startmindmap
 !theme materia
 
-+ Administratoin
-++ Wapons department
-+++ Security department
-+++ Inkosation department
-++ Accountng department
-++ Recrut department
--- Customers
--- Recruts
+legend right
+    Legend
+    Orange - insiders
+    Blue - outsiders
+endlegend
+
++[#Orange] Administratoin
+++[#Orange] Wapons department
++++[#Orange] Security department
++++[#Orange] Inkosation department
+++[#Orange] Accountng department
+++[#Orange] Recrut department
+--[#lightblue] Customers
+--[#lightblue] Recruts
 
 @endmindmap

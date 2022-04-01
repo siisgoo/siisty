@@ -3,20 +3,20 @@
 top to bottom direction
 
 actor Customer as cus
-actor "who wants to join the company" as req
+actor "Recrut" as req
 package PSC {
-actor Administration as adm
-actor Service as serv
-package Departments {
-actor "Security department" as sec
-actor "Inkosation department" as ink
-actor "Wapon department" as wpn
-actor "Accounting department" as acc
-actor "Recruit department" as rec
-}
+    actor Administration as adm
+    actor Service as serv
+    package Departments {
+        actor "Security department" as sec
+        actor "Inkosation department" as ink
+        actor "Wapon department" as wpn
+        actor "Accounting department" as acc
+        actor "Recruit department" as rec
+    }
 }
 
-cus <-down-> serv: Contract request
+cus <-down-> serv: Contract request/response
 req <-down-> serv: Registration request/response
 adm <-> serv: Custom Request/Response
 Departments <-> serv: Custom Request/Response
