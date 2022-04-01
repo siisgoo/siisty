@@ -4,19 +4,19 @@ pdfFont="Hack:pixelsize=15:antialias=true:autohint=true:style=Regular"
 
 input="cursed.md"
 pdfHeaderInput="header.pdf"
-indexedMdOut="../docs/index.md"
+indexedMdOut="$(mktemp).md"
+imaginedMdOut="../docs/index.md"
 htmlOut="../docs/index.html"
-pdfOut="../docs/cursed.pdf"
-pdfHeaderedOut="../docs/cursedHeadered.pdf"
+pdfOut="$(mktemp).pdf"
+pdfHeaderedOut="../docs/cursed.pdf"
 umlDir="uml"
 imgDirOut="../docs/img"
 
 function indexGen() {
-    out="${1/.md/}".indexed.md
+    out=$(mktemp)
+    index=$(mktemp)
 
     cp "$1" "$out"
-
-    > index
 
     tab='\t'
     i=(-1 1)
@@ -36,19 +36,27 @@ function indexGen() {
         printf "%d. [%s ](#%s)\n" ${i[$hdrLen]} "$hdrTxt" "$hash"
         prevLen=$hdrLen
         let i[$hdrLen]++
-    done <<< "$(grep --color=no -E "^#+ " "$1")" > index
+    done <<< "$(grep --color=no -E "^#+ " "$1")" > $index
 
     cat "$out" > "$out".tmp
     printf "# Содержание\n" > "$out"
-    cat index >> "$out"
+    cat $index >> "$out"
     cat "$out".tmp >> "$out"
 
-    rm index
+    rm $index
     rm tmp
     rm "$out".tmp
 
     mv "$out" "$2"
 }
+
+# function imaginizeGen() {
+#     out="$(basename $imgDirOut)"
+#     for img in "$imgDirOut"/*; do
+#         search=${img/.svg/}
+#         sed "/\*[*\]($search)/\![]"
+#     done
+# }
 
 function umlGen() {
     plantuml -tsvg "$1"/*
@@ -60,7 +68,7 @@ function htmlGen() {
 }
 
 function pdfGen() {
-    pandoc --pdf-engine xelatex -V mainfont="$1" -f markdown "$2" -o "$pdfOut"
+    pandoc --pdf-engine xelatex -V mainfont="$1" -f markdown "$2" -o "$3"
 }
 
 function pdfHeaderedGen() {
@@ -68,9 +76,10 @@ function pdfHeaderedGen() {
 }
 
 function umlf() { [[ -d "$imgDirOut" ]] || mkdir -p "$imgDirOut"; umlGen "$umlDir" "$imgDirOut";}
-function mdf() { indexGen "$input" "$indexedMdOut" ;}
-function htmlf() { htmlGen "$indexedMdOut" "$htmlOut" ;}
-function pdff() { pdfGen "$pdfFont" "$indexedMdOut" "$pdfOut"; pdfHeaderedGen "$pdfHeaderInput" "$pdfOut" "$pdfHeaderedOut" ;}
+# function mdf() { indexGen "$input" "$indexedMdOut"; imaginizeGen "$indexedMdOut" "$imaginedMdOut" ;}
+function mdf() { indexGen "$input" "$imaginedMdOut" ;}
+# function htmlf() { htmlGen "$indexedMdOut" "$htmlOut" ;}
+function pdff() { pdfGen "$pdfFont" "$imaginedMdOut" "$pdfOut"; pdfHeaderedGen "$pdfHeaderInput" "$pdfOut" "$pdfHeaderedOut" ;}
 
 case $1 in
     uml)  umlf ;;
@@ -84,3 +93,6 @@ case $1 in
         pdff
         ;;
 esac
+
+rm "$indexedMdOut"
+rm "$pdfOut"
