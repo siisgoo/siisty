@@ -1,20 +1,8 @@
 #!/bin/bash
 
-pdfFont="Hack:pixelsize=15:antialias=true:autohint=true:style=Regular"
-
-input="cursed.md"
-pdfHeaderInput="header.pdf"
-indexedMdOut="$(mktemp).md"
-imaginedMdOut="../docs/index.md"
-htmlOut="../docs/index.html"
-pdfOut="$(mktemp).pdf"
-pdfHeaderedOut="../docs/cursed.pdf"
-umlDir="uml"
-imgDirOut="../docs/img"
-
 function indexGen() {
-    out=$(mktemp)
-    index=$(mktemp)
+    out="tmp.indexed.md"
+    index="tmp.index.md"
 
     cp "$1" "$out"
 
@@ -36,27 +24,19 @@ function indexGen() {
         printf "%d. [%s ](#%s)\n" ${i[$hdrLen]} "$hdrTxt" "$hash"
         prevLen=$hdrLen
         let i[$hdrLen]++
-    done <<< "$(grep --color=no -E "^#+ " "$1")" > $index
+    done <<< "$(grep --color=no -E "^#+ " "$1")" > "$index"
 
     cat "$out" > "$out".tmp
     printf "# Содержание\n" > "$out"
-    cat $index >> "$out"
+    cat "$index" >> "$out"
     cat "$out".tmp >> "$out"
 
-    rm $index
+    rm "$index"
     rm tmp
     rm "$out".tmp
 
     mv "$out" "$2"
 }
-
-# function imaginizeGen() {
-#     out="$(basename $imgDirOut)"
-#     for img in "$imgDirOut"/*; do
-#         search=${img/.svg/}
-#         sed "/\*[*\]($search)/\![]"
-#     done
-# }
 
 function umlGen() {
     plantuml -tsvg "$1"/*
@@ -68,31 +48,33 @@ function htmlGen() {
 }
 
 function pdfGen() {
-    pandoc --pdf-engine xelatex -V mainfont="$1" -f markdown "$2" -o "$3"
+    pandoc -t latex \
+        -V mainfont="$1" \
+        -f markdown \
+        "$2" -o "$3"
 }
 
 function pdfHeaderedGen() {
     pdftk "$1" "$2" cat output "$3"
 }
 
-function umlf() { [[ -d "$imgDirOut" ]] || mkdir -p "$imgDirOut"; umlGen "$umlDir" "$imgDirOut";}
-# function mdf() { indexGen "$input" "$indexedMdOut"; imaginizeGen "$indexedMdOut" "$imaginedMdOut" ;}
-function mdf() { indexGen "$input" "$imaginedMdOut" ;}
-# function htmlf() { htmlGen "$indexedMdOut" "$htmlOut" ;}
-function pdff() { pdfGen "$pdfFont" "$imaginedMdOut" "$pdfOut"; pdfHeaderedGen "$pdfHeaderInput" "$pdfOut" "$pdfHeaderedOut" ;}
+pdfFont="Times New Roman:style=Regular:size=20"
 
-case $1 in
-    uml)  umlf ;;
-    md)   mdf ;;
-    # html) htmlf ;;
-    pdf)  pdff ;;
-    *)
-        umlf
-        mdf
-        # htmlf
-        pdff
-        ;;
-esac
+input="cursed.md"
+pdfHeaderInput="header.pdf"
+umlDir="uml"
+logoDir="logo"
 
-rm "$indexedMdOut"
-rm "$pdfOut"
+mdOut="../docs/index.md"
+pdfTmpOut="pdftmp.pdf"
+pdfOut="../docs/cursed.pdf"
+imgDirOut="../docs/img"
+
+[[ -d "$imgDirOut" ]] || mkdir -p "$imgDirOut"
+umlGen "$umlDir" "$imgDirOut"
+cp "$logoDir"/* "$imgDirOut"/
+indexGen "$input" "$mdOut"
+pdfGen "$pdfFont" "$mdOut" "$pdfTmpOut" &&
+    pdfHeaderedGen "$pdfHeaderInput" "$pdfTmpOut" "$pdfOut"
+
+# rm "$pdfTmpOut"

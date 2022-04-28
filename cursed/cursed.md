@@ -1,3 +1,5 @@
+<style>img[alt=logo] { max-height: 100px; width: auto; }</style>
+
 # Введение
 В наше временя оборот информации в бизнес сфере огромен, отцифрованно практически всё. Большая часть информации передаётся по средствам компьютерных сетей, в частности глобальнай – Интернет.
 
@@ -21,10 +23,10 @@
 6. Реализация архитектурных решений
 7. Тестирование.
 
-Отследить прогресс проекта и найти исходный код можно на github: https://github.com/siisgoo/siisty
-Так же данную курсовую можно прочитать оналйн по адресу: https://siisgoo.github.io/siisty
-Исходный текст курсовой расположен по адресу: https://github.com/siisgoo/siisty/tree/main/cursed
-Остальные ресурсы, связанные с документацие проекта: https://github.com/siisgoo/siisty/tree/main/docs
+Отследить прогресс проекта и найти исходный код можно на github: https://github.com/siisgoo/siisty<br/>
+Так же данную курсовую можно прочитать оналйн по адресу: https://siisgoo.github.io/siisty<br/>
+Исходный текст курсовой расположен по адресу: https://github.com/siisgoo/siisty/tree/main/cursed<br/>
+Остальные ресурсы, связанные с документацие проекта: https://github.com/siisgoo/siisty/tree/main/docs<br/>
 
 # Теоритическая часть
 
@@ -43,11 +45,11 @@
 - Охрану объекта
 - Охрану и транспортировка ценных бумаг или металов(инкосация)
 
-![PSC structure](img/orgStruct.svg)
+![Структура ЧОП](img/orgStruct.svg)
 
 ## Информационные потоки ЧОП
 Проанализировав модель ЧОП, я выявил следующие информационные потоки:
-![inside info flows](img/infoFlow.svg)
+![Информационные потоки внутри ЧОП](img/infoFlow.svg)
 
 ## Процессы внутри ЧОП
 В стандартном ЧОП можно рассматривать следующие группы процессов:
@@ -60,7 +62,7 @@
 Лицами из вне, как было показанно на листинге выше, являются сущности "Заказчик" и "Рекрут".
 > Под рекрутом понимается желающий вступить в организацию.
 
-![PSC Activities](img/insideProcess.svg)
+![Процессы внутри ЧОП](img/insideProcess.svg)
 
 ### Описание процессов
 В данном разделе будут более детально рассмотрены вышеперечисленные процессы.
@@ -74,14 +76,14 @@
 4. И наконец - оплачивает заказ.
 
 В общем виде это выглядит вот так:
-![Create contract sequence](img/createContractSequence.svg)
+![Диограмма процесса составления контракта](img/createContractSequence.svg)
 
 #### Закупка у поставщика оружия
 Зачастую, для обороны объектов сотрудников ЧОП используется оружие, но для этого его нужно откуда-то брать.
 Закупкой будет промышлять Оружейный отдел.
 
 Схема закупки:
-![Purchase wapon sequence](img/purchaseWaponSequence.svg)
+![Диаграма закупки оружия](img/purchaseWaponSequence.svg)
 
 #### Прием на работу
 
@@ -101,101 +103,104 @@
 ## Утилиты для разработки баз данных
 
 ### SQLite v3.35.5 stable
-![SQLite logo](img/logo/sqlite)
+![logo](img/sqlite.jpg)
 
 SQLite — компактная встраиваемая СУБД. Исходный код библиотеки передан в общественное достояние.
 Данная СУБД работает в безсерверной конфигурации. Если сравнивать с другими СУБД, то в равных условиях запись SQLite осуществляет медленее на 20-30% чем другие СУБД, но чтение превосходит другие на 40-50%. SQLite не имеет привелегий, только систему авторизации, но это и не нужно в моем проекте, об этом будет сказано позже.
 > Примичание:
 > *Библиотека SQLite не будет использована в чистом виде, а в составе Qt v6.2.4*
 ### SQLiteBrowser v3.12.2
-![SQLite Browser]()
+![logo](img/sqlitebrowser.png)
 
 Удобный FOSS браузер баз данных SQLite, использованный для отладки.
 ### DBVisualizer v12.1.8
-![dbvis]()
+![logo](img/dbvis.png)
 
 Проприетарная утилита для работы с разными СУБД, использован для генерации графа таблиц составленной базы данных ЧОП.
 
 ## Библиотеки
 ### Qt v6.2.4
-![Qt logo]()
+![logo](img/qt.svg)
 
 Qt - один из самых популярных и больших фреймворков c++ на рынке. Важная характеристика Qt - переносимость, т.к. я работаю на Linux.
+Содержит все необходимые компоненты для создания приложения любой сложности. Имеет одну из самых мощьных систем создания пользовательских интерфейсов, таких как QML+QtQuick и систему QWidget.
 ## Системы сборки и компиляторы
 
 ### CMake v3.22.3
-![CMake logo]()
+![logo](img/cmake.png)
 Система сборки c++. Сборка проекта и передача более низкоуровневому средству.
 ### Ninja c1.10.2
+![logo](img/ninja.png)
 Еще одна система сборки, только уже более низкого уровня, чем CMake. Передача исходного кода на компиляцию.
 ### clang v13.0.1
+![logo](img/clang.png)
 Компилятор семейства C.
 
 ## IDE
 ### QtCreator v6.0.2
-![QtCreator logo]()
+![logo](img/qc.png)
 
 IDE от компинии The Qt Company, использованный только как средство отладки и создания скелетов форм пользовательского интерфейса.
 ### VIM v8.2
-![VIM logo]()
+![VIM logo](img/vim.png)
 
 Моя любимая IDE, в своей основе так же прост как и каноничный "блокнот" в Windows, только с максимальной степенью кастомизации. Главное достоинство, по моему мнению, - это управление без использования мыши и возможность настройки управляющих комбинаций максимально удобно, что сокращает время на бесполезное перемещение рук по рабочему пространству.
 #### Плагины
 ```vim
-    Plug 'https://github.com/xolox/vim-misc'                   " auto load
-    Plug 'https://github.com/xolox/vim-session'                " session manager
-    Plug 'wakatime/vim-wakatime'                               " wakatime.com
-    Plug 'SirVer/ultisnips'                                    " snippets
-    Plug 'https://github.com/honza/vim-snippets'               " snippents files
-    Plug 'https://github.com/pangloss/vim-javascript.git'      " javascript extension
-    Plug 'vim-airline/vim-airline'                             " status line
-    Plug 'vim-airline/vim-airline-themes'                      " themes
-    Plug 'vim-scripts/AfterColors.vim'                         " themes
-    Plug 'rafi/awesome-vim-colorschemes'                       " themes
-    Plug 'sonph/onehalf', { 'rtp': 'vim' }                     " theme
-    Plug 'https://github.com/sjl/badwolf'                      " theme
-    Plug 'https://github.com/joshdick/onedark.vim'             " theme
-    Plug 'https://github.com/plasticboy/vim-markdown'          " markdown format support
-    Plug 'ryanoasis/vim-devicons'                              " icons support
-    Plug 'https://github.com/Yggdroot/indentLine'
-    Plug 'ycm-core/YouCompleteMe'                              " code completer
-    Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
-    Plug 'tpope/vim-commentary'                                " commentary shortcuts
-    Plug 'm-pilia/vim-pkgbuild'                                " archlinux AUR PKGBUILD files support
-    Plug 'https://github.com/tpope/vim-surround'               " html-like tags handle utils
-    Plug 'https://github.com/octol/vim-cpp-enhanced-highlight' " cpp syntax hilightinght
-    Plug 'ctrlpvim/ctrlp.vim'                                  " file finder
-    Plug 'preservim/nerdtree'                                  " dir tree dock
-    Plug 'https://github.com/preservim/tagbar'
-    Plug 'vim-scripts/bufkill.vim'                             " exit buffers without exiting vim
-    Plug 'jreybert/vimagit'                                    " git support
-    Plug 'https://github.com/ap/vim-css-color'                 " HEX-colors hilighting
-    Plug 'https://github.com/matze/vim-move'                   " code moving
-    Plug 'https://github.com/junegunn/vim-easy-align'          " fast text aligning
-    Plug 'https://github.com/ervandew/supertab'
-    Plug 'https://github.com/jiangmiao/auto-pairs'             " completing pairs
-    Plug 'https://github.com/rhysd/vim-clang-format'           " auto formating
-    Plug 'honza/vim-snippets'                                  " set of snippets
-    Plug 'https://github.com/godlygeek/tabular'                " tab extender
-    Plug 'https://github.com/junegunn/vim-easy-align'
-    Plug 'https://github.com/fadein/vim-FIGlet'  " figlet
-    Plug 'https://github.com/scrooloose/syntastic'
+Plug 'https://github.com/xolox/vim-misc'                   " auto load
+Plug 'https://github.com/xolox/vim-session'                " session manager
+Plug 'wakatime/vim-wakatime'                               " wakatime.com
+Plug 'SirVer/ultisnips'                                    " snippets
+Plug 'https://github.com/honza/vim-snippets'               " snippents files
+Plug 'https://github.com/pangloss/vim-javascript.git'      " javascript extension
+Plug 'vim-airline/vim-airline'                             " status line
+Plug 'vim-airline/vim-airline-themes'                      " themes
+Plug 'vim-scripts/AfterColors.vim'                         " themes
+Plug 'rafi/awesome-vim-colorschemes'                       " themes
+Plug 'sonph/onehalf', { 'rtp': 'vim' }                     " theme
+Plug 'https://github.com/sjl/badwolf'                      " theme
+Plug 'https://github.com/joshdick/onedark.vim'             " theme
+Plug 'https://github.com/plasticboy/vim-markdown'          " markdown format support
+Plug 'ryanoasis/vim-devicons'                              " icons support
+Plug 'https://github.com/Yggdroot/indentLine'
+Plug 'ycm-core/YouCompleteMe'                              " code completer
+Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
+Plug 'tpope/vim-commentary'                                " commentary shortcuts
+Plug 'm-pilia/vim-pkgbuild'                                " archlinux AUR PKGBUILD files support
+Plug 'https://github.com/tpope/vim-surround'               " html-like tags handle utils
+Plug 'https://github.com/octol/vim-cpp-enhanced-highlight' " cpp syntax hilightinght
+Plug 'ctrlpvim/ctrlp.vim'                                  " file finder
+Plug 'preservim/nerdtree'                                  " dir tree dock
+Plug 'https://github.com/preservim/tagbar'
+Plug 'vim-scripts/bufkill.vim'                             " exit buffers without exiting vim
+Plug 'jreybert/vimagit'                                    " git support
+Plug 'https://github.com/ap/vim-css-color'                 " HEX-colors hilighting
+Plug 'https://github.com/matze/vim-move'                   " code moving
+Plug 'https://github.com/junegunn/vim-easy-align'          " fast text aligning
+Plug 'https://github.com/ervandew/supertab'
+Plug 'https://github.com/jiangmiao/auto-pairs'             " completing pairs
+Plug 'https://github.com/rhysd/vim-clang-format'           " auto formating
+Plug 'honza/vim-snippets'                                  " set of snippets
+Plug 'https://github.com/godlygeek/tabular'                " tab extender
+Plug 'https://github.com/junegunn/vim-easy-align'
+Plug 'https://github.com/fadein/vim-FIGlet'  " figlet
+Plug 'https://github.com/scrooloose/syntastic'
 ```
 
 ## Разное
 
 ### Pandoc
-![pandoc logo]()
+![logo](img/pandoc.png)
 
 Работа была трансирована в други форматы с помощью данной утилиты.
 
 ### Plantuml v1.2021.16
-![plantuml logo]()
+![logo](img/plantuml.png)
 
 Средство создания UML диаграм. Использовано для визуализации объектов и просецссов.
 
 ### BASH v5.1.16
-![bash logo]()
+![logo](img/bash.png)
 
 Bourne Again Shell - интерпритатор, использован для автоматизации некотерых процессов.
 
@@ -247,9 +252,11 @@ function indexGen() {
 ## VCS
 
 ### GIT v2.35.1
+![logo](img/git.png)
 GIT - система контроля версий, сомо о себе говрит. Использовался в основном для перенесения кода между машинами и как средство дистрибъюции.
 
 #### GitHub
+![logo](img/github.png)
 Ресурс, на котором была размещена работа.
 
 # Разработы базы данных ЧОП
@@ -498,13 +505,13 @@ day - это 64х битная цыфра со знаком в формате UN
 *Заголовок*
 Длина заголовка - 176 бит или 22 байта. Кончно, можно было бы спокойно использовать все 192 бита(3 машинных слова), чтобы выравнять заголовок, но это не сильно повлияет на какой либо процесс.
 
-Поля:
-(занимаемые байты в сообщении) Имя: Описание
-- (0x0  - 0x3)  Size:           суммарный размер сообщения в байтах
-- (0x4  - 0x11) ServerStamp:    Время отправки сообщения сервером
-- (0x12 - 0x19) ClientStamp:    Время отправки сообщения клиентом
-- (0x20 - 0x21) PacketType:     Тип сообщения
-- (0x22 - 0x23) PacketLoadType: Тип формата нагрузки сообщения
+| Байты | Название | Описание |
+|:---:|:---|:---|
+| 0x0 - 0x3 | Size | Суммарный размер сообщения(байт) |
+| 0x4 - 0x11 | ServerStamp | Время оправки сообщения сервером |
+| 0x12 - 0x19 | ClientStamp | Время отправки сообщения клиентом |
+| 0x20 - 0x21 | Type | Тип сообщения |
+| 0x22 - 0x23 | Format | Формат назгрузки сообщения |
 
 Таким образом, поле Size позволяет считывать последовательность байт в единое сообщение из нескольких пакетов TCP.
 Поля xxxStamp используются как некий идентификатор сообщения.
