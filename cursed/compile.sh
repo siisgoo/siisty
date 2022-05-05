@@ -48,7 +48,7 @@ function htmlGen() {
 }
 
 function pdfGen() {
-    pandoc -t latex \
+    pandoc -s -t latex \
         -V mainfont="$1" \
         -f markdown \
         "$2" -o "$3"
@@ -56,6 +56,10 @@ function pdfGen() {
 
 function pdfHeaderedGen() {
     pdftk "$1" "$2" cat output "$3"
+}
+
+function docxGen() {
+    pandoc -s -o "$2" "$1"
 }
 
 pdfFont="Times New Roman:style=Regular:size=20"
@@ -68,6 +72,7 @@ logoDir="logo"
 mdOut="../docs/index.md"
 pdfTmpOut="pdftmp.pdf"
 pdfOut="../docs/cursed.pdf"
+docxOut="../docs/cursed.docx"
 imgDirOut="../docs/img"
 
 [[ -d "$imgDirOut" ]] || mkdir -p "$imgDirOut"
@@ -76,5 +81,6 @@ cp "$logoDir"/* "$imgDirOut"/
 indexGen "$input" "$mdOut"
 pdfGen "$pdfFont" "$mdOut" "$pdfTmpOut" &&
     pdfHeaderedGen "$pdfHeaderInput" "$pdfTmpOut" "$pdfOut"
+docxGen "$mdOut" "$docxOut"
 
 # rm "$pdfTmpOut"

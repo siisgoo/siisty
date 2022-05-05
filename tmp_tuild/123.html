@@ -1,0 +1,197 @@
+# Введение
+В наше временя оборот информации в бизнес сфере огромен, отцифрованно практически всё. Большая часть информации передаётся по средствам компьютерных сетей, в частности глобальнай – Интернет.
+
+Технология Интернет приспособленна для передачи любого вида закодированной информации, чем пользуется в преимуществе большая часть бизнес отраслей для получения своей прибыли. Но во время развития Интернет появилась такая ниша как Взломщики, люди посягающии на не санкционированное получения доступа к ресурсам подключенных к Интернет. Вследствии начали стремительно развиваться технологии Криптографии , которые существующие еще со времён древнего Рима, и других методов борьбы с Взломщиками и не только.
+
+Взломищакам могут быть интересны любые ресурсы: журналы Бухгалтерии, системы управления предприятеим и т.д.
+
+Подходя к теме о ведении бизнеса в сфере ЧОП многие подозрительные личности могут быть заинтересованн в получении запланированных маршрутов инкосации, адресса жительства сотрудников…
+Для пресечения перечисленных выше махинаций можно полностью отказаться от ведения своей деятельности в Интернет. 
+
+Если это не выход – тогда необходимо развертывание системы защиты, чем мы и займемся в пределах данной работы.
+Также самым современным решением будет использование Blockchain – децентрализованный метод хранения данных, но данный вариант не будет рассматриваться, так как всё сильно усложняет и, скорее всего, по просту не приемлем.
+
+Решение будет выполненно в несколько шагов:
+1. Анализ структуры ЧОП.
+2. Анализ проходимых процессов в ЧОП.
+3. Описание средств разработки.
+4. Составление базы данных ЧОП.
+5. Разработка архитектуры приложения для взаимодействия с ЧОП.
+6. Реализация архитектурных решений
+7. Написание исходных кодов.
+8. Тестирование.
+ 
+# Теоритическая часть
+## Организация ЧОП
+Охранное предприятие занимается охраной какой либо частной или государственной собственности.
+
+ЧОП, чаще всего состоит из трех подразделений:
+1. Бухгалтерия
+2. Дирекция(она же администрация)
+3. Отдел кадров
+4. Отдел охраны
+5. Отдел инкосации
+6. Отдел вооружения
+
+![](/home/xewii/Documents/TIT/ZXC/orgStruct.png)
+
+Если говорить о предоствляемых услугах более конкретно, то ЧОП для потребителя предлогает:
+- Охрана объекта
+- Охрана ценных бумаг или металов(инкосация)
+
+## Информационные потоки ЧОП
+![](/home/xewii/Documents/TIT/ZXC/infoFlow.png)
+
+## Процессы внутри ЧОП
+В состав ЧОП входят люди
+
+## Взаимодействие заказчика с ЧОП
+
+...
+
+# Описание средстд разработки
+В данном разделе будут рассмотрены средства разработки, используемые мной при создании ПС для ЧОП.
+## Утилиты для разработки баз данных
+### SQLite v3.35.5 stable
+![SQLite logo]()
+SQLite — компактная встраиваемая СУБД. Исходный код библиотеки передан в общественное достояние.
+Данная СУБД работает в безсерверной конфигурации. Если сравнивать с другими СУБД, то в равных условиях запись SQLite осуществляет медленее на 20-30% чем другие СУБД, но чтение превосходит другие на 40-50%. SQLite не имеет привелегий, только систему авторизации, но это и не нужно в моем проекте, об этом будет сказано позже.
+> Примичание:
+> *Библиотека SQLite не будет использована в чистом виде, а в составе Qt v6.2.4*
+### SQLiteBrowser v3.12.2
+Удобный FOSS браузер баз данных SQLite, использованный для отладки.
+### DBVisualizer
+Проприетарная утилита для работы с разными СУБД, использован для генерации графа таблиц составленной базы данных ЧОП.
+## Библиотеки
+### Qt v6.2.4
+![Qt logo]()
+Qt - один из самых популярных и больших фреймворков c++ на рынке. Важная характеристика Qt - переносимость, т.к. я работаю на Linux.
+## Системы сборки и компиляторы
+### CMake v3.22.3
+![CMake logo]()
+Система сборки c++. Сборка проекта и передача более низкоуровневому средству.
+### Ninja c1.10.2
+Еще одна система сборки, только уже более низкого уровня, чем CMake. Передача исходного кода на компиляцию.
+### clang v13.0.1
+Компилятор семейства C. Без коментариев.
+## IDE
+### QtCreator
+![QtCreator logo]()
+IDE от компинии The Qt Company, использованный только как средство отладки и создания скелетов форм пользовательского интерфейса.
+### VIM v8.2
+![VIM logo]()
+Моя любимая IDE, в своей основе так же прост как и каноничный "блокнот" в Windows, только с максимальной степенью кастомизации. Главное достоинство, по моему мнению, - это управление без использования мыши и возможность настройки управляющих комбинаций максимально удобно, что сокращает время на бесполезное перемещение рук по рабочему пространству.
+#### Плагины
+```vim
+    Plug 'https://github.com/xolox/vim-misc'                   " auto load
+    Plug 'https://github.com/xolox/vim-session'                " session manager
+    Plug 'wakatime/vim-wakatime'                               " wakatime.com
+    " Plug 'vim-scripts/vim-auto-save'                           " files autosave
+    Plug 'SirVer/ultisnips'                                    " snippets
+    Plug 'https://github.com/honza/vim-snippets'               " snippents files
+    Plug 'https://github.com/pangloss/vim-javascript.git'      " javascript extension
+    Plug 'vim-airline/vim-airline'                             " status line
+    Plug 'vim-airline/vim-airline-themes'                      " themes
+    Plug 'vim-scripts/AfterColors.vim'                         " themes
+    Plug 'rafi/awesome-vim-colorschemes'                       " themes
+    Plug 'sonph/onehalf', { 'rtp': 'vim' }                     " theme
+    Plug 'https://github.com/sjl/badwolf'                      " theme
+    Plug 'https://github.com/joshdick/onedark.vim'             " theme
+    " Plug 'https://github.com/plasticboy/vim-markdown'          " markdown format support
+    Plug 'ryanoasis/vim-devicons'                              " icons support
+    " Plug 'powerline/fonts'                                     " powerline fonts
+    Plug 'https://github.com/Yggdroot/indentLine'
+    Plug 'ycm-core/YouCompleteMe'                              " code completer
+    Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
+    Plug 'tpope/vim-commentary'                                " commentary shortcuts
+    " Plug 'm-pilia/vim-pkgbuild'                                " archlinux AUR PKGBUILD files support
+    Plug 'https://github.com/tpope/vim-surround'               " html-like tags handle utils
+    Plug 'https://github.com/octol/vim-cpp-enhanced-highlight' " cpp syntax hilightinght
+    Plug 'ctrlpvim/ctrlp.vim'                                  " file finder
+    Plug 'preservim/nerdtree'                                  " dir tree dock
+    " Plug 'https://github.com/vim-scripts/taglist.vim'
+    Plug 'https://github.com/preservim/tagbar'
+    Plug 'vim-scripts/bufkill.vim'                             " exit buffers without exiting vim
+    Plug 'jreybert/vimagit'                                    " git support
+    Plug 'https://github.com/ap/vim-css-color'                 " HEX-colors hilighting
+    Plug 'https://github.com/matze/vim-move'                   " code moving
+    " Plug 'https://github.com/sjl/gundo.vim'                    " undo tree
+    " Plug 'https://github.com/sheerun/vim-polyglot'             " colors
+    Plug 'https://github.com/junegunn/vim-easy-align'          " fast text aligning
+    Plug 'https://github.com/ervandew/supertab'
+    Plug 'https://github.com/jiangmiao/auto-pairs'             " completing pairs
+    Plug 'https://github.com/rhysd/vim-clang-format'           " auto formating
+    Plug 'honza/vim-snippets'                                  " set of snippets
+    " Plug 'https://github.com/ryanoasis/nerd-fonts'
+    Plug 'https://github.com/godlygeek/tabular'                " tab extender
+    Plug 'https://github.com/junegunn/vim-easy-align'
+    Plug 'https://github.com/fadein/vim-FIGlet'  " figlet
+    Plug 'https://github.com/scrooloose/syntastic'
+    " Plug 'neoclide/coc.nvim', {'branch': 'release'}
+    " Plug 'neoclide/coc-tsserver', {'do': 'yarn install --frozen-lockfile'}
+```
+## Разное
+### Plantuml
+Средство создания UML диаграм. Использовано для визуализации объектов и просецссов.
+### BASH
+Bourne Again Shell - интерпритатор, использован для автоматизации некотерых процессов.
+## Отладка
+### Valgrind v3.18
+Утилита профилирования и отладки программы, использовано в основном для обнаружения утечек памяти.
+## VCS
+### GIT
+GIT - система контроля версий, сомо о себе говрит. Использовался в основном для перенесения кода между машинами и как средство дистрибъюции.
+
+...
+
+# Разработы базы данных ЧОП
+База данных ЧОП в пределах данной работы - головная сущность, вокрук которой будет строится весь функционал.
+База данных будет существовать под управлением SQLite.
+
+## Таблицы
+В компанию, как известно, входит некоторое количество сотрудников, по этому, я создаю таблицу Users. Название выбрано таковым, потому что она будет содержать данные учетных записей сотрудников и клиентов ЧОП.
+```sql
+CREATE TABLE
+    "Users"("id" INTEGER NOT NULL UNIQUE, "name" TEXT NOT NULL,
+            "entryDate" TEXT NOT NULL, "role_id" INTEGER NOT NULL,
+            "wapon_id" INTEGER, "email" TEXT UNIQUE,
+            "login" TEXT NOT NULL UNIQUE, "password" BLOB NOT NULL UNIQUE,
+            "salt" BLOB NOT NULL, "image" BLOB,
+            FOREIGN KEY("wapon_id") REFERENCES "Wapons"("id")ON DELETE RESTRICT,
+            FOREIGN KEY("role_id") REFERENCES "Roles"("id")ON DELETE RESTRICT,
+            PRIMARY KEY("id" AUTOINCREMENT))
+```
+
+## Сылки в таблице
+![](/home/xewii/Documents/TIT/ZXC/databaseReferences.png)
+
+# Разработка архитектуры приложения
+Приложение для взаимодействия с моделью ЧОП, построенной ранее, должно предоставлять функционал для реализации всех описанных процессов взаимодействия с моделью ЧОП.
+## Основа
+Основной функцией приложения, как понятно из темы курсовой работы, будет обеспечение безопасности данных.
+Исходя из этого в голову приходит идея организовать клиент-серверную архитектуру приложения, но это не главная причина почему выбрана такая архитектура. Основная причина - необходимость принимать заказы от клиентов, предоставить им функционал для удобного взаимодействия с персоналом ЧОП, но по большей части он будет взаимодействовать с клавиатурой.
+И для персонала ЧОП тоже будет намного удобнее и быстрее использовать унифицированные методы итерации с базой данных и самой организацией.
+### Информационные потоки ЧОП с учетом сервера
+![](/home/xewii/Documents/TIT/ZXC/infoServiceFlow.png) 
+
+## Обращение к базе данных
+### Система безопасности
+#### Система идентификации и авторизации
+#### Система команд
+
+## Клиен-Сервер
+### Протокол
+### Клиент
+### Сервер
+
+## Пользовательский интерфейс
+
+# Реализация приложения
+
+
+# Заключение
+
+# Список литиратуры
+1. https://wiki.qt.io - документация Qt
+2. https://www.sqlite.org/ - документация SQLite
+

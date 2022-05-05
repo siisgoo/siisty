@@ -8,8 +8,6 @@
 #include <QResizeEvent>
 #include <QTimer>
 #include <QVariant>
-#include <QLinkedList>
-#include <QLinkedListNode>
 
 #include "Widgets/Notifier/NotifyItem.hpp"
 #include "Widgets/Notifier/NotifyItemFactory.hpp"
