@@ -1,6 +1,0 @@
-Math_autogen/timestamp: \
-	/home/xewii/projects/desktop/siisty/libs/Math/CMakeLists.txt \
-	/home/xewii/projects/desktop/siisty/libs/Math/include/Math/Matrix.hpp \
-	/home/xewii/projects/desktop/siisty/libs/Math/include/Math/Vectors.hpp \
-	/usr/share/qtcreator/package-manager/auto-setup.cmake \
-	/usr/bin/cmake

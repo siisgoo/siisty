@@ -1,6 +1,0 @@
-Crypto_autogen/timestamp: \
-	/home/xewii/projects/desktop/siisty/libs/Crypto/CMakeLists.txt \
-	/home/xewii/projects/desktop/siisty/libs/Crypto/include/Crypto/Hash.hpp \
-	/home/xewii/projects/desktop/siisty/libs/Crypto/src/Hash.cpp \
-	/usr/share/qtcreator/package-manager/auto-setup.cmake \
-	/usr/bin/cmake
