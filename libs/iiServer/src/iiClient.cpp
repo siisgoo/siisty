@@ -6,6 +6,75 @@ iiClient::iiClient(QSslSocket * socket, QObject * parent)
         _dbAssistant(new Database::DriverAssistant),
         _identified(false),
         _ident_tries(0)
+{ }
+
+iiClient::~iiClient()
+{
+    delete _dbAssistant;
+}
+
+void
+iiClient::doregister(QJsonObject obj)
+{
+    connect(_dbAssistant, SIGNAL(success(QJsonObject)), this, SIGNAL(registred(QJsonObject)));
+    connect(_dbAssistant, SIGNAL(failed(Database::CmdError)), this, SIGNAL(registerFailed(Database::CmdError)));
+
+    connect(this, SIGNAL(registred(QJsonObject)),
+            this, SLOT(on_registred(QJsonObject)));
+    connect(this, SIGNAL(registerFailed(Database::CmdError)),
+            this, SLOT(on_registerFailed(Database::CmdError)));
+
+    Q_EMIT logMessage("Attempting register user", Debug);
+    Q_EMIT addCommand({Database::ROLE_AUTO,
+            QJsonObject{
+                { "command", Database::CMD_REGISTER_EMPLOYEE },  // at this time all user types have one exec query
+                { "arg", obj }
+            }, _dbAssistant});
+}
+
+void
+iiClient::on_registred(QJsonObject obj)
+{
+    disconnect(_dbAssistant, SIGNAL(success(QJsonObject)), this, SIGNAL(registred(QJsonObject)));
+    disconnect(_dbAssistant, SIGNAL(failed(Database::CmdError)), this, SIGNAL(registerFailed(Database::CmdError)));
+
+    disconnect(this, SIGNAL(registred(QJsonObject)),
+               this, SLOT(on_registred(QJsonObject)));
+    disconnect(this, SIGNAL(registerFailed(Database::CmdError)),
+               this, SLOT(on_registerFailed(Database::CmdError)));
+
+    connect(_dbAssistant, SIGNAL(success(QJsonObject)), this, SLOT(on_requestSuccess(QJsonObject)));
+    connect(_dbAssistant, SIGNAL(failed(Database::CmdError)),  this, SLOT(on_requestFailed(Database::CmdError)));
+
+    _identified = true;
+
+    QJsonDocument doc(obj); // must contain role and basic user information
+    _role = obj["role"].toInt();
+    QByteArray res =
+        iiNPack::pack(doc.toJson(QJsonDocument::Compact), iiNPack::RESPONSE,
+                0, 0);  // login mechanism dont need a stamps
+
+    Q_EMIT logMessage("Registred user: " + obj["name"].toString(), Trace);
+
+    this->sendMessage(res);
+
+    _password.clear();
+}
+
+void
+iiClient::on_registerFailed(Database::CmdError err)
+{
+    Q_EMIT logMessage("User registration error: " + err.String(), Debug);
+
+    QByteArray res = iiNPack::packError(err.String(), iiNPack::ACCESS_DENIED, 0, 0);
+    this->sendMessage(res);
+    QTimer::singleShot(5000, [this] { this->disconnectFromHost(); });
+}
+
+bool iiClient::identified() const { return _identified; }
+
+void
+iiClient::identify(QString login, QString password)
 {
     connect(_dbAssistant, SIGNAL(success(QJsonObject)), this, SIGNAL(identified(QJsonObject)));
     connect(_dbAssistant, SIGNAL(failed(Database::CmdError)),  this, SIGNAL(identificationFailed(Database::CmdError)));
@@ -14,18 +83,7 @@ iiClient::iiClient(QSslSocket * socket, QObject * parent)
             this, SLOT(on_identified(QJsonObject)));
     connect(this, SIGNAL(identificationFailed(Database::CmdError)),
             this, SLOT(on_identificationFailed(Database::CmdError)));
-}
 
-iiClient::~iiClient()
-{
-    delete _dbAssistant;
-}
-
-bool iiClient::identified() const { return _identified; }
-
-void
-iiClient::identify(QString login, QString password)
-{
     _login = login;
     _password = password;
     Q_EMIT logMessage("Trying identify user", Debug);
@@ -62,6 +120,7 @@ iiClient::on_identified(QJsonObject obj)
         iiNPack::pack(doc.toJson(QJsonDocument::Compact), iiNPack::RESPONSE,
                 0, 0);  // login mechanism dont need a stamps
 
+    qDebug() << obj;
     Q_EMIT logMessage("Identified user: " + obj["name"].toString(), Trace);
 
     this->sendMessage(res);
@@ -103,7 +162,7 @@ iiClient::on_requestSuccess(QJsonObject obj)
     QJsonDocument doc(obj); // must contain role and basic user information
     this->sendMessage(iiNPack::pack(doc.toJson(QJsonDocument::Compact),
                                     iiNPack::RESPONSE,
-                                    QDateTime::currentSecsSinceEpoch(), stamp));
+                                    QDateTime::currentMSecsSinceEpoch(), stamp));
 }
 
 void
@@ -113,5 +172,5 @@ iiClient::on_requestFailed(Database::CmdError err)
     _mtx.unlock();
     this->sendMessage(
         iiNPack::packError(err.String(), iiNPack::ResponseError::REQUEST_ERROR,
-                           QDateTime::currentSecsSinceEpoch(), stamp));
+                           QDateTime::currentMSecsSinceEpoch(), stamp));
 }

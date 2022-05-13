@@ -57,6 +57,8 @@ class Driver : public QObject {
         struct role_set {
             int id; // equal to index
             const char * name;
+            double payMult;
+            double payPeriod;
             QVector<CommandId> commands;
         };
 
@@ -65,6 +67,11 @@ class Driver : public QObject {
             const char * name;
             command_exec_t executor;
             bool sendback;
+        };
+
+        struct accounting_set {
+            int id;
+            const char * name;
         };
 
     public:
@@ -107,6 +114,7 @@ class Driver : public QObject {
         QMap<RoleId, role_set> _roles;
         QVector<table_def>     _tables;
         QVector<command_set>   _commands;
+        QVector<accounting_set> _accounting;
 
         QMutex _queueMtx;
         QQueue<DatabaseCmd> _cmdQueue;

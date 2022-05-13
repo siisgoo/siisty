@@ -98,6 +98,8 @@ Controller::showLogin()
     readAuth();
     Login * login = new Login(_conn_s, this);
 
+    _conn_policy_login = true;
+
     connect(login, SIGNAL(tryLogin(ConnectSettings)), this, SLOT(tryLogin(ConnectSettings)), Qt::SingleShotConnection);
 
     login->show();
@@ -105,6 +107,22 @@ Controller::showLogin()
 
     }
     delete login;
+}
+
+void
+Controller::showRegister()
+{
+    Register * reg = new Register(this);
+
+    _conn_policy_login = false;
+
+    connect(reg, SIGNAL(tryRegister(RegisterOpts)), this, SLOT(tryRegister(RegisterOpts)), Qt::SingleShotConnection);
+
+    reg->show();
+    if (reg->exec()) {
+
+    }
+    delete reg;
 }
 
 void
@@ -136,17 +154,59 @@ Controller::tryLogin(ConnectSettings cs)
     }
 }
 
+// TODO merge with tryLogin
 void
-Controller::on_conneted()
+Controller::tryRegister(RegisterOpts opts)
 {
-    _notifier->setItemPropery(_login_puid, "title", "Trying sing up");
-    connect(&_service, SIGNAL(loginSuccess(QString, int, int)), this,
-            SLOT(on_logined(QString, int, int)), Qt::SingleShotConnection);
-    _service.login(_conn_s.login, _conn_s.password);
+    NotifyProgressItemFactory npf;
+    npf.setTitle("Connecting to host");
+    npf.setExitOnCompleted(false);
+    npf.setMaximum(0);
+    _notifier->createNotifyItem(&npf, _login_puid);
+    _notifier->setItemPropery(_login_puid, "progress", 0);
+
+    connect(&_service, SIGNAL(registerFailed(int, QString)),
+            this, SLOT(on_registerFailed(int, QString)),
+            Qt::SingleShotConnection);
+
+    _conn_s.login = opts.login;
+    _conn_s.password = opts.password;
+    _conn_s.host = QHostAddress(opts.conn.host);
+    _conn_s.port = opts.conn.port;
+    _conn_s.protocol = opts.conn.encryption;
+
+    _reg_opts = opts;
+
+    if (opts.conn.encryption > 0) { // QSsl::Protocol::NoProtocol
+        connect(&_service, SIGNAL(encrypted()), this, SLOT(on_conneted()), Qt::SingleShotConnection);
+        _service.connectToHostEncrypted(opts.conn.host, opts.conn.port);
+    } else {
+        connect(&_service, SIGNAL(connected()), this, SLOT(on_conneted()), Qt::SingleShotConnection);
+        _service.connectToHost(opts.conn.host, opts.conn.port);
+    }
+    if (!_service.waitForConnected()) {
+        on_registerFailed(-1, "Connection Timeout");
+    }
 }
 
 void
-Controller::on_logined(QString name, int role, int id)
+Controller::on_conneted()
+{
+    if (_conn_policy_login) {
+        _notifier->setItemPropery(_login_puid, "title", "Trying sing up");
+        connect(&_service, SIGNAL(loginSuccess(QString, int, int)), this,
+                SLOT(on_logined(QString, int, int)), Qt::SingleShotConnection);
+        _service.login(_conn_s.login, _conn_s.password);
+    } else {
+        _notifier->setItemPropery(_login_puid, "title", "Trying register");
+        connect(&_service, SIGNAL(registerSuccess(int, int)), this,
+                SLOT(on_registred(int, int)), Qt::SingleShotConnection);
+        _service.doregister(_reg_opts.login, _reg_opts.password, _reg_opts.name, _reg_opts.email, _reg_opts.avatar_path, _reg_opts.role);
+    }
+}
+
+void
+Controller::on_logined(QString name, int id, int role)
 {
     _notifier->setItemPropery(_login_puid, "title", "Logined");
     QTimer::singleShot(2000, [this]() {
@@ -157,6 +217,7 @@ Controller::on_logined(QString name, int role, int id)
 
     _user_id = id;
 
+    qDebug() << role;
     pagerPresets[role](this, _pageman, &_service);
 }
 
@@ -180,6 +241,45 @@ Controller::on_loginFailed(int err, QString str)
     errmsg.setInformativeText(
             "Error code: " + QString::number(err) + "\n"
             "Reason: " + str);
+    errmsg.setDefaultButton(QMessageBox::Ok);
+    errmsg.exec();
+}
+
+void
+Controller::on_registred(int id, int role)
+{
+    _notifier->setItemPropery(_login_puid, "title", "Registred");
+    QTimer::singleShot(2000, [this]() {
+        _notifier->setItemPropery(_login_puid, "forceComplete", NotifyItem::NotifySuccess);
+    });
+    ui->actionLogin->setEnabled(false);
+    ui->actionLogout->setEnabled(true);
+
+    _user_id = id;
+
+    pagerPresets[role](this, _pageman, &_service);
+}
+
+void
+Controller::on_registerFailed(int code, QString desc)
+{
+    Q_EMIT logMessage(
+        "Registration failed. Error code: " + QString::number(code) + " Reason: " + desc, Error);
+    _notifier->setItemPropery(_login_puid, "title", "Registraction failed");
+    _notifier->setItemPropery(_login_puid, "maxProgress", 1);
+    _notifier->setItemPropery(_login_puid, "progress", 1);
+    QTimer::singleShot(2000, [this]() {
+        _notifier->setItemPropery(_login_puid, "forseComplete", NotifyItem::NotifySuccess);
+    });
+    ui->actionLogin->setEnabled(true);
+    ui->actionLogout->setEnabled(false);
+
+    QMessageBox errmsg(this);
+    errmsg.setIcon(QMessageBox::Critical);
+    errmsg.setText( "Cannot Loging");
+    errmsg.setInformativeText(
+            "Error code: " + QString::number(code) + "\n"
+            "Reason: " + desc);
     errmsg.setDefaultButton(QMessageBox::Ok);
     errmsg.exec();
 }

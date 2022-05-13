@@ -1,0 +1,163 @@
+#include "RoleSetup/Customer/Contracts.hpp"
+#include "ui_Contracts.h"
+
+#include <QFormLayout>
+#include <QComboBox>
+#include <QJsonArray>
+#include <qnamespace.h>
+
+Contracts::Contracts(QWidget *parent) :
+    QFrame(parent),
+        ui(new Ui::Contracts)
+{
+    ui->setupUi(this);
+
+    this->ui->employee_1->addItem("-", -1);
+    connect(this->ui->employee_1, SIGNAL(currentIndexChanged(int)), this, SLOT(onEmployeeAdded(int)));
+
+    _emplsWaiter = new ResponseWaiter(this);
+    _rolesWaiter = new ResponseWaiter(this);
+    _objTypeWaiter = new ResponseWaiter(this);
+    _createWaiter = new ResponseWaiter(this);
+    _contractsWaiter = new ResponseWaiter(this);
+
+    connect(_emplsWaiter, SIGNAL(success(QJsonObject)), this, SLOT(freeEmployeesLoaded(QJsonObject)));
+    /* connect(_waiter, SIGNAL(failed(int, QString)), this, SLOT(personInfoLoadFailed(int, QString))); */
+
+    connect(_rolesWaiter, SIGNAL(success(QJsonObject)), this, SLOT(rolesLoaded(QJsonObject)));
+    /* connect(_waiter, SIGNAL(failed(int, QString)), this, SLOT(personInfoLoadFailed(int, QString))); */
+
+    connect(_objTypeWaiter, SIGNAL(success(QJsonObject)), this, SLOT(objectTypesLoaded(QJsonObject)));
+    /* connect(_waiter, SIGNAL(failed(int, QString)), this, SLOT(personInfoLoadFailed(int, QString))); */
+
+    /* connect(_createWaiter, SIGNAL(success(QJsonObject)), this, SLOT((QJsonObject))); */
+    /* connect(_waiter, SIGNAL(failed(int, QString)), this, SLOT(personInfoLoadFailed(int, QString))); */
+
+    QTimer::singleShot(300, [this] {
+        Q_EMIT loadFreeEmployees(
+            QJsonObject{{"command", Database::CMD_GET_USER_INFO},
+                        {"arg", QJsonObject{{"id", "*"}, {"takeImage", false}}}},
+            _emplsWaiter);
+    });
+}
+
+Contracts::~Contracts()
+{
+    //todo
+    delete ui;
+}
+
+void
+Contracts::myContractsLoaded(QJsonObject obj)
+{
+    this->ui->tableWidget->clear();
+}
+
+void
+Contracts::freeEmployeesLoaded(QJsonObject obj)
+{
+    // do not realy free :) add check
+    QJsonArray arr = obj["users"].toArray();
+    _freeEmpl.clear();
+    for (const auto& user : arr) {
+        QJsonObject cur = user.toObject();
+        empl e;
+        e.id = cur["id"].toInt();
+        e.name = cur["name"].toString();
+        e.role = cur["role"].toInt();
+        e.priceMult = -1;
+        if (e.role != Database::ROLE_Inkosor && e.role != Database::ROLE_Security) {
+            continue;
+        }
+        _freeEmpl.push_back(e);
+    }
+
+    Q_EMIT loadRolesDetails(
+        QJsonObject{{"command", Database::CMD_GET_ROLE_DETAILS},
+                    {"arg", QJsonObject{{"id", "*"}}}},
+        _emplsWaiter);
+}
+
+void
+Contracts::rolesLoaded(QJsonObject obj)
+{
+    QJsonArray arr = obj["roles"].toArray();
+    for (const auto& role : arr) {
+        QJsonObject cur = role.toObject();
+        for (int i = 0; i < _freeEmpl.length(); ++i) {
+            if (cur["id"].toInt() == _freeEmpl[i].role) {
+                _freeEmpl[i].priceMult = cur["mult"].toDouble();
+                break;
+            }
+        }
+    }
+    Q_EMIT loadObjectTypes(
+        QJsonObject{{"command", Database::CMD_GET_OBJECT_DETAILS},
+                    {"arg", QJsonObject{{"id", "*"}}}},
+        _objTypeWaiter);
+}
+
+void
+Contracts::objectTypesLoaded(QJsonObject obj)
+{
+    QJsonArray arr = obj["objects"].toArray();
+    _objT.clear();
+    this->ui->objectType_cb->clear();
+    for (const auto& object : arr) {
+        QJsonObject cur = object.toObject();
+        objT o;
+        o.id = cur["id"].toInt();
+        o.name = cur["name"].toString();
+        o.price = cur["price"].toDouble();
+        _objT.push_back(o);
+        this->ui->objectType_cb->addItem(o.name, o.id);
+    }
+}
+
+void
+Contracts::onInputChaned()
+{
+
+}
+
+void
+Contracts::onEmployeeAdded(int cur)
+{
+    // TODO advanced check
+    if (_freeEmpl.length() == 0) {
+        return;
+    }
+
+    QFormLayout * layout = static_cast<QFormLayout*>(this->ui->employees->layout());
+
+    if (auto item = layout->itemAt(cur, QFormLayout::ItemRole::FieldRole);
+            static_cast<QComboBox*>(item->widget())->currentData(0).toInt() == -1) {
+        return;
+    }
+
+    QComboBox * cb = new QComboBox();
+    connect(cb, SIGNAL(currentIndexChanged(int)), this, SLOT(onEmployeeAdded(int)));
+
+    QVector<empl> empls;
+    int c;
+    for (int i = 0; i < _freeEmpl.length(); ++i) {
+        c = 0;
+        for (int j = 0; j < layout->rowCount(); ++j) {
+            if (auto item = layout->itemAt(j, QFormLayout::ItemRole::FieldRole);
+                    static_cast<QComboBox*>(item->widget())->currentData(0).toInt() != _freeEmpl[i].id) {
+                c++;
+            }
+        }
+        if (c == layout->rowCount()-1) {
+            empls.push_back(_freeEmpl[i]);
+        }
+    }
+
+    cb->addItem("0", -1);
+    for (int i = 0; i < empls.length(); ++i) {
+        cb->addItem(empls[i].name, empls[i].id);
+    }
+
+    layout->setWidget(layout->rowCount(), QFormLayout::ItemRole::LabelRole, new QLabel("Employee"));
+    layout->setWidget(layout->rowCount()-1, QFormLayout::ItemRole::FieldRole, cb);
+}

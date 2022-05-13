@@ -36,7 +36,12 @@ Service::~Service()
 void
 Service::sendCommand(QJsonObject load, ResponseWaiter * waiter)
 {
-    qint64 stamp = QDateTime::currentSecsSinceEpoch();
+    qint64 stamp = QDateTime::currentMSecsSinceEpoch();
+
+    while (_waiters.contains(stamp)) {
+        stamp += 1;
+    }
+
     _waiters[stamp] = waiter;
 
     /* qDebug() << "sending request to server " << load; */
@@ -71,6 +76,7 @@ Service::parseResonce(iiNPack::Header header, QByteArray load)
                             "Parse responce error: " + err.errorString());
                         break;
                     }
+                    qDebug() << res;
                     if (res.isObject()) {
                         _waiters[header.ClientStamp]->set_success(res.object());
                     } else {
@@ -92,6 +98,7 @@ Service::parseResonce(iiNPack::Header header, QByteArray load)
                             "Parse responce error: " + err.errorString());
                         break;
                     }
+                    qDebug() << res;
                     if (res.isObject()) {
                         QJsonObject obj = res.object();
                         _waiters[header.ClientStamp]->set_failed(
@@ -150,7 +157,67 @@ Service::login(const QString& login, const QString& password)
 
     this->sendMessage(iiNPack::pack(doc.toJson(QJsonDocument::Compact),
                                     iiNPack::AUTORIZATION_REQUEST, 0,
-                                    QDateTime::currentSecsSinceEpoch()));
+                                    QDateTime::currentMSecsSinceEpoch()));
+}
+
+void
+Service::doregister(const QString& login, const QString& password,
+                    const QString& name, const QString& email,
+                    const QString& avatar_path, int role)
+{
+    QJsonDocument doc;
+    doc.setObject({
+        { "name", name },
+        { "email", email },
+        { "image", QStringFromQImage(QImage(avatar_path)) },
+        { "role", role },
+        { "login", login },
+        { "password", password }
+    });
+
+    connect(this, SIGNAL(recivedMessage(iiNPack::Header, QByteArray)),
+            this, SLOT(parseRegisterResponce(iiNPack::Header, QByteArray)), Qt::SingleShotConnection);
+
+    this->sendMessage(iiNPack::pack(doc.toJson(QJsonDocument::Compact),
+                                    iiNPack::REGISTRATION_REQUEST, 0,
+                                    QDateTime::currentMSecsSinceEpoch()));
+}
+
+// TODO MERGE WITH LOGINRESP.. XD
+void
+Service::parseRegisterResponce(iiNPack::Header header, QByteArray load)
+{
+    qDebug() << load;
+    if (header.PacketLoadType != iiNPack::JSON) {
+        Q_EMIT registerFailed(iiNPack::UNSUPPORTED_FORMAT, "Resived unsupported load format");
+        return;
+    }
+    QJsonParseError err;
+    QJsonDocument res = QJsonDocument::fromJson(load, &err);
+    if (err.error == QJsonParseError::NoError) {
+        if (res.isObject()) {
+            QJsonObject obj = res.object();
+
+            if (header.PacketType == iiNPack::PacketType::ERROR_MESSAGE) {
+                Q_EMIT registerFailed(obj["errno"].toInt(), obj["details"].toString());
+            } else if (header.PacketType == iiNPack::PacketType::RESPONSE) {
+                // TODO add disconnect on socket disconnected
+                connect(this, SIGNAL(recivedMessage(iiNPack::Header, QByteArray)),
+                        this, SLOT(parseResonce(iiNPack::Header, QByteArray)));
+                qDebug() << res;
+
+                Q_EMIT registerSuccess(obj["id"].toInt(), obj["role"].toInt());
+            } else {
+                qDebug() << "Something wrong...... TODO";
+            }
+        } else {
+            Q_EMIT registerFailed(iiNPack::PARSE_ERROR,
+                                  "Parse responce error: null obj passed");
+        }
+    } else {
+        Q_EMIT registerFailed(iiNPack::PARSE_ERROR,
+                              "Parse responce error: " + err.errorString());
+    }
 }
 
 void
@@ -173,7 +240,8 @@ Service::parseLoginResponce(iiNPack::Header header, QByteArray load)
                 connect(this, SIGNAL(recivedMessage(iiNPack::Header, QByteArray)),
                         this, SLOT(parseResonce(iiNPack::Header, QByteArray)));
 
-                Q_EMIT loginSuccess(obj["name"].toString(), obj["role"].toInt(), obj["id"].toString().toInt());
+                qDebug() << "LOGIN : " << obj;
+                Q_EMIT loginSuccess(obj["name"].toString(), obj["id"].toString().toInt(), obj["role"].toInt());
             } else {
                 qDebug() << "Something wrong...... TODO";
             }

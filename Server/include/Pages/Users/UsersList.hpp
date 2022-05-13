@@ -40,11 +40,14 @@ class UsersList : public QWidget {
 
         void on_usersLoaded(QJsonObject);
         void on_usersLoadError(Database::CmdError);
+        void on_userLoaded(QJsonObject);
+        void on_userLoadError(Database::CmdError);
 
         void on_userClicked(QTableWidgetItem*);
 
     private:
         Database::DriverAssistant * _usersWaiter;
+        Database::DriverAssistant * _userWaiter;
 
         const QMap<Database::RoleId, Database::Driver::role_set>& _roles;
 

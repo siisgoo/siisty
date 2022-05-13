@@ -7,25 +7,12 @@ actor "Recrut" as req
 package PSC {
     actor Administration as adm
     actor Service as serv
-    package Departments {
-        actor "Security department" as sec
-        actor "Inkosation department" as ink
-        actor "Wapon department" as wpn
-        actor "Accounting department" as acc
-        actor "Recruit department" as rec
-    }
+    collections Departments as dep
 }
 
 cus <-down-> serv: Contract request/response
 req <-down-> serv: Registration request/response
 adm <-> serv: Custom Request/Response
-Departments <-> serv: Custom Request/Response
+dep <-> serv: Custom Request/Response
 
-wpn <-down-> sec: Wapon request
-wpn <-down-> ink: Wapon request
-
-acc -down-> wpn: Payment
-acc -down-> sec: Payment
-acc -up-> rec: Payment
-acc -down-> ink: Payment
 @enduml

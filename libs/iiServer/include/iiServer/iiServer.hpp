@@ -3,15 +3,12 @@
 
 #include <QList>
 #include <QSslSocket>
+#include <QThreadPool>
 #include "Database/Database.hpp"
 #include "iiServer/SslServer.hpp"
 #include "iiServer/iiClient.hpp"
 
 #include "Logger/logger.hpp"
-
-enum ServerState {
-
-};
 
 class iiServer : public QObject {
     Q_OBJECT
@@ -47,6 +44,7 @@ class iiServer : public QObject {
         /* void pauseListening(); */
 
     private:
+        QThreadPool * _threadPool;
         QHostAddress _address;
         quint16 _port;
 

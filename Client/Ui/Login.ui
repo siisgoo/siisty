@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>477</width>
+    <width>500</width>
     <height>463</height>
    </rect>
   </property>
@@ -212,6 +212,9 @@
           </item>
           <item>
            <widget class="QLineEdit" name="password">
+            <property name="echoMode">
+             <enum>QLineEdit::PasswordEchoOnEdit</enum>
+            </property>
             <property name="placeholderText">
              <string>Password</string>
             </property>

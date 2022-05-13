@@ -25,7 +25,7 @@ Driver::Driver(const QString& path, QObject * p)
     #define XX(num, name, query) { TABLE_ ##name, QUOTE(name), query },
     _tables = { TABLES_MAP(XX) };
     #undef XX
-    #define XX(id, val, cmds) { ROLE_ ##val, { ROLE_ ##val, QUOTE(val), cmds } },
+    #define XX(id, val, mult, period, cmds) { ROLE_ ##val, { ROLE_ ##val, QUOTE(val), mult, period, cmds } },
     _roles = { ROLE_MAP(XX) };
     #undef XX
     #define XX(id, n, exe) { CMD_ ##n, QUOTE(n), exe },
@@ -128,8 +128,8 @@ Driver::insertDefaultsRoles()
             q.bindValue(":id", role.id);
             q.bindValue(":name", role.name);
             q.bindValue(":commands_id", role.id);
-            q.bindValue(":payMultipler", 0);
-            q.bindValue(":payPeriod", 0);
+            q.bindValue(":payMultipler", role.payMult);
+            q.bindValue(":payPeriod", role.payPeriod);
             if (!q.exec()) {
                 throw q.lastError();
             }

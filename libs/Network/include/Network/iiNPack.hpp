@@ -22,6 +22,7 @@ struct iiNPack {
     enum PacketType : quint8
     {
         AUTORIZATION_REQUEST,
+        REGISTRATION_REQUEST,
         REQUEST,
         RESPONSE,
         ERROR_MESSAGE,

@@ -8,12 +8,15 @@
 #include "iiServer/iiServer.hpp"
 
 iiServer::iiServer(QObject * parent)
-    : QObject(parent)
+    : QObject(parent),
+        _threadPool(new QThreadPool(this))
 {
     if (!QSslSocket::supportsSsl() && _forseUseSsl) {
         Q_EMIT logMessage("Missing SSL. Please install it.", Fatal);
         throw "Missing SSL.";
     }
+
+    _threadPool->setMaxThreadCount(QThread::idealThreadCount());
 
     connect(&_server, SIGNAL(newConnection()), this, SLOT(acceptConnection()));
 }
@@ -23,6 +26,8 @@ iiServer::~iiServer()
     if (_server.isListening()) {
         _server.close();
     }
+
+    delete _threadPool;
 
     _clients.clear();
 }
@@ -155,67 +160,82 @@ iiServer::recivedMessage(iiNPack::Header header, QByteArray msg)
 
     Q_EMIT logMessage("Recived message " + msg, Debug);
 
-    //check send stamp?
-    //add experation time?
+    _threadPool->start([this, client, header, msg]() {
+        //check send stamp?
+        //add experation time?
 
-    if (header.PacketLoadType != iiNPack::JSON) {
-        // dont supported msg
-        Q_EMIT logMessage("Now implemented only json message format", Error);
-        // send it to client
-        return;
-    }
+        if (header.PacketLoadType != iiNPack::JSON) {
+            // dont supported msg
+            Q_EMIT logMessage("Now implemented only json message format", Error);
+            // send it to client
+            return;
+        }
 
-    QByteArray responce;
-    QJsonParseError err;
-    QJsonObject load = QJsonDocument::fromJson(msg, &err).object();
+        QByteArray responce;
+        QJsonParseError err;
+        QJsonObject load = QJsonDocument::fromJson(msg, &err).object();
 
-    switch (header.PacketType) {
-        case iiNPack::AUTORIZATION_REQUEST:
-            {
-                Q_EMIT logMessage("Recived an autorization request", Trace);
-                if (client->identified()) {
-                    Q_EMIT logMessage("Resived double time identification request", Warning);
-                    responce = iiNPack::packError(
-                        "Double time identification request",
-                        iiNPack::REQUEST_ERROR,
-                        QDateTime::currentSecsSinceEpoch(), header.ClientStamp);
-                    client->sendMessage(responce);
-                    return;
+        switch (header.PacketType) {
+            case iiNPack::AUTORIZATION_REQUEST:
+                {
+                    Q_EMIT logMessage("Recived an autorization request", Trace);
+                    if (client->identified()) {
+                        Q_EMIT logMessage("Resived double time identification request", Warning);
+                        responce = iiNPack::packError(
+                            "Double time identification request",
+                            iiNPack::REQUEST_ERROR,
+                            QDateTime::currentMSecsSinceEpoch(), header.ClientStamp);
+                        client->sendMessage(responce);
+                        return;
+                    }
+
+                    if (load["login"].isString() && load["password"].isString()) {
+                        client->identify(load["login"].toString(), load["password"].toString());
+                    } else {
+                        Q_EMIT logMessage("Null param identification request recived", Warning);
+                        // send err msg
+                    }
                 }
-
-                if (load["login"].isString() && load["password"].isString()) {
-                    client->identify(load["login"].toString(), load["password"].toString());
-                } else {
-                    Q_EMIT logMessage("Null param identification request recived", Warning);
-                    // send err msg
+                break;
+            case iiNPack::REGISTRATION_REQUEST:
+                {
+                    Q_EMIT logMessage("Recived an reqistraction request", Trace);
+                    if (client->identified()) {
+                        Q_EMIT logMessage("Recived registraction request from autorized client", Warning);
+                        responce = iiNPack::packError("Your already registred", iiNPack::REQUEST_ERROR,
+                            QDateTime::currentMSecsSinceEpoch(), header.ClientStamp);
+                        client->sendMessage(responce);
+                    } else {
+                        client->doregister(load);
+                    }
+                    break;
                 }
-            }
-            break;
-        case iiNPack::REQUEST: // request from remote
-            {
-                Q_EMIT logMessage("Recived an request", Trace);
-                if (!client->identified()) {
-                    responce = iiNPack::packError(
-                        "Access denied", iiNPack::REQUEST_ERROR,
-                        QDateTime::currentSecsSinceEpoch(), header.ClientStamp);
-                    client->sendMessage(responce);
-                    return;
+            case iiNPack::REQUEST: // request from remote
+                {
+                    Q_EMIT logMessage("Recived an request", Trace);
+                    if (!client->identified()) {
+                        responce = iiNPack::packError(
+                            "Access denied", iiNPack::REQUEST_ERROR,
+                            QDateTime::currentMSecsSinceEpoch(), header.ClientStamp);
+                        client->sendMessage(responce);
+                    } else {
+                        client->processRequest(load, header.ClientStamp);
+                    }
                 }
-                client->processRequest(load, header.ClientStamp);
-            }
-            break;
-        /* case iiNPack::RESPONSE: // responce from remote */
-        /*     if (!client->identified()) { */
-        /*         responce = iiNPack::packError("Access denied", iiNPack::REQUEST_ERROR); */
-        /*         client->sendMessage(responce); */
-        /*         return; */
-        /*     } */
-        /*     client->processResponce(load); */
-        /*     break; */
-        default:
-            Q_EMIT logMessage("Unknown packet: " + QString::number(header.PacketType), Error);
-            break;
-    }
+                break;
+            /* case iiNPack::RESPONSE: // responce from remote */
+            /*     if (!client->identified()) { */
+            /*         responce = iiNPack::packError("Access denied", iiNPack::REQUEST_ERROR); */
+            /*         client->sendMessage(responce); */
+            /*         return; */
+            /*     } */
+            /*     client->processResponce(load); */
+            /*     break; */
+            default:
+                Q_EMIT logMessage("Unknown packet: " + QString::number(header.PacketType), Error);
+                break;
+        }
+    });
 }
 
 void

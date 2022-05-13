@@ -9,6 +9,7 @@ set(CMAKE_INSTALL_RPATH "${BINARY_DIR}/Server/lib")
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Service)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/RoleSetup/Admin)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/RoleSetup/Customer)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/RoleSetup/General)
 
 #####################
@@ -62,6 +63,7 @@ target_link_libraries(
         Database
 
         AdminUi
+        CustomerUi
         GeneralUi
 )
 

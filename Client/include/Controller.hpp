@@ -22,6 +22,7 @@
 #include "Widgets/Notifier/NotifyMsgItemFactory.hpp"
 
 #include "Login.hpp"
+#include "Register.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Controller; }
@@ -60,17 +61,22 @@ class Controller : public QMainWindow {
         void on_actionLogoutTriggered();
 
         void tryLogin(ConnectSettings);
+        void tryRegister(RegisterOpts);
 
         void saveAuth();
         void readAuth();
 
     private Q_SLOTS:
         void showLogin();
+        void showRegister();
 
         void on_conneted();
         void on_logined(QString name, int role, int id);
         void on_loginFailed(int, QString);
         void on_logouted();
+
+        void on_registred(int id, int role);
+        void on_registerFailed(int, QString);
 
         void logMessage(QString _message, int);
 
@@ -82,12 +88,16 @@ class Controller : public QMainWindow {
         logger  _log;
         Service _service;
 
+        bool _conn_policy_login = true;
+            // the crutch for register and login quering
+
         Settings _settings;
 
         PagesManager * _pageman;
         NotifyManager * _notifier;
 
         ConnectSettings _conn_s;
+        RegisterOpts _reg_opts;
         int _login_puid;
 
         int _user_id;

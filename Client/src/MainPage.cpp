@@ -7,12 +7,12 @@ MainPage::MainPage(QWidget *parent) :
 {
     ui->setupUi(this);
     QPixmap userLP = QPixmap(":login/cusomerLogin");
-    userLP.scaled(300, 218);
+    userLP.scaled(64, 64);
     ui->userLogin->setIcon(QIcon(userLP));
-    /* ui->employeeLogin->setIcon(QIcon(employeeLP)); */
+    /* ui->outsiderRegister->setIcon(QIcon(employeeLP)); */
 
     connect(ui->userLogin, SIGNAL(clicked()), this, SIGNAL(loginClicked()));
-    connect(ui->singup, SIGNAL(clicked()), this, SIGNAL(registrationClicked()));
+    connect(ui->outsiderRegister, SIGNAL(clicked()), this, SIGNAL(registerCliecked()));
 }
 
 MainPage::~MainPage()

@@ -6,6 +6,7 @@
 
 #include "Network/SslClientBase.hpp"
 #include "Database/Database.hpp"
+#include "Database/command.hpp"
 
 class ResponseWaiter : public QObject {
     Q_OBJECT
@@ -33,14 +34,19 @@ class Service : public SslClientBase {
         void loginSuccess(QString, int, int); // name, role, id
         void loginFailed(int, QString);
 
+        void registerSuccess(int, int);
+        void registerFailed(int, QString);
+
     public Q_SLOTS:
         void login(const QString& login, const QString& password);
+        void doregister(const QString& login, const QString& password, const QString& name, const QString& email, const QString& avatar_path, int role);
 
         void sendCommand(QJsonObject, ResponseWaiter *);
 
     private Q_SLOTS:
         void parseResonce(iiNPack::Header, QByteArray);
         void parseLoginResponce(iiNPack::Header, QByteArray);
+        void parseRegisterResponce(iiNPack::Header, QByteArray);
 
         void on_sslError(const QList<QSslError>&);
         void on_networkError(QAbstractSocket::SocketError);

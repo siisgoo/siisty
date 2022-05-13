@@ -14,6 +14,7 @@ class iiClient : public SslClientBase {
         bool identified() const;
 
     public Q_SLOTS:
+        void doregister(QJsonObject);
         void identify(QString login, QString password);
         void processRequest(QJsonObject, qint64);
 
@@ -21,11 +22,17 @@ class iiClient : public SslClientBase {
         void identified(QJsonObject);
         void identificationFailed(Database::CmdError);
 
+        void registred(QJsonObject);
+        void registerFailed(Database::CmdError);
+
         void addCommand(Database::DatabaseCmd);
 
     private Q_SLOTS:
         void on_identified(QJsonObject);
         void on_identificationFailed(Database::CmdError err);
+
+        void on_registred(QJsonObject);
+        void on_registerFailed(Database::CmdError err);
 
         void on_requestSuccess(QJsonObject);
         void on_requestFailed(Database::CmdError);

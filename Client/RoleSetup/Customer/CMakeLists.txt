@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(AdminUi LANGUAGES CXX VERSION 0.0.1 DESCRIPTION "siisty Client Admin Role Ui")
+project(CustomerUi LANGUAGES CXX VERSION 0.0.1 DESCRIPTION "siisty Client Customer Role Ui")
 
 set(CMAKE_AUTOUIC_SEARCH_PATHS
     ${CMAKE_CURRENT_SOURCE_DIR}/Ui)
@@ -46,6 +46,7 @@ target_link_libraries(
     PRIVATE
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Core
+        iiService
         Network
         Logger
         Widgets
@@ -53,7 +54,7 @@ target_link_libraries(
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    # qt_finalize_executable(${PROJECT_NAME})
+    qt_finalize_target(${PROJECT_NAME})
 endif()
 
 ################################

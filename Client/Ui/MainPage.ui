@@ -59,7 +59,7 @@
        </widget>
       </item>
       <item alignment="Qt::AlignHCenter">
-       <widget class="QPushButton" name="singup">
+       <widget class="QPushButton" name="outsiderRegister">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -67,7 +67,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>sing up</string>
+         <string>register</string>
         </property>
        </widget>
       </item>

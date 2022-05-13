@@ -268,11 +268,12 @@ Controller::on_databaseInitializationFailed(QSqlError e)
 void
 Controller::logMessage(QString str, int level)
 {
-    /* if (level >= _settings.logginLeve) { */
-        ui->loggingOutput->append(str);
-    /* } */
-        /* // ignore setted logging level, its need? */
-    Q_EMIT send_to_log(str, level);
+    /* /1* if (level >= _settings.logginLeve) { *1/ */
+    /* if (ui->loggingOutput) */
+    /*     ui->loggingOutput->append(str); */
+    /* /1* } *1/ */
+    /*     /1* // ignore setted logging level, its need? *1/ */
+    /* Q_EMIT send_to_log(str, level); */
 }
 
 void Controller::on_clearLogClicked() { ui->loggingOutput->clear(); }

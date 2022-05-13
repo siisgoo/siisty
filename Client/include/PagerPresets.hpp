@@ -22,6 +22,9 @@
 #include "RoleSetup/Admin/RoleManagment.hpp"
 #include "RoleSetup/Admin/UsersList.hpp"
 
+#include "RoleSetup/Customer/CustomerMain.hpp"
+#include "RoleSetup/Customer/Contracts.hpp"
+
 #include "RoleSetup/General/Profile.hpp"
 #include "RoleSetup/General/DebugConsole.hpp"
 #include "RoleSetup/General/DutySchedule.hpp"
@@ -37,7 +40,7 @@ inline pagemanSetuper mainPage = [](Controller * w, PagesManager * pm, Service *
     pm->addRoot("Main", ml);
 
     ml->connect(ml, SIGNAL(loginClicked()), w, SLOT(showLogin()));
-    /* ml->connect(ml, SIGNAL(cusomerLoginClicked()), w, SLOT(showLogin())); */
+    ml->connect(ml, SIGNAL(registerCliecked()), w, SLOT(showRegister()));
 
     pm->finalize();
 };
@@ -75,17 +78,50 @@ inline pagemanSetuper incosor = [](Controller *, PagesManager * , Service *) {
 inline pagemanSetuper waponManager = [](Controller *, PagesManager * , Service *) {
 };
 
-inline pagemanSetuper customer = [](Controller *, PagesManager * , Service *) {
+inline pagemanSetuper customer = [](Controller *w, PagesManager * pm, Service *serv) {
+    pm->reset();
+
+    QWidget * profile = new Profile(w->userId()),
+            * contracts = new Contracts(w);
+
+    w->connect(
+            profile, SIGNAL(loadPersonInfo(QJsonObject, ResponseWaiter *)),
+            serv, SLOT(sendCommand(QJsonObject, ResponseWaiter *)));
+
+    //
+
+    w->connect(
+            contracts, SIGNAL(loadMyContracts(QJsonObject, ResponseWaiter *)),
+            serv, SLOT(sendCommand(QJsonObject, ResponseWaiter *)));
+    w->connect(
+            contracts, SIGNAL(loadRolesDetails(QJsonObject, ResponseWaiter *)),
+            serv, SLOT(sendCommand(QJsonObject, ResponseWaiter *)));
+    w->connect(
+            contracts, SIGNAL(loadFreeEmployees(QJsonObject, ResponseWaiter *)),
+            serv, SLOT(sendCommand(QJsonObject, ResponseWaiter *)));
+    w->connect(
+            contracts, SIGNAL(createNewContract(QJsonObject, ResponseWaiter *)),
+            serv, SLOT(sendCommand(QJsonObject, ResponseWaiter *)));
+    w->connect(
+            contracts, SIGNAL(loadObjectTypes(QJsonObject, ResponseWaiter *)),
+            serv, SLOT(sendCommand(QJsonObject, ResponseWaiter *)));
+
+    pm->addRoot("Customer", new CustomerMain, { "Profile", "Accidents", "Contracts", "Help" });
+    pm->addPage("Profile", profile, { "Accounting" });
+    pm->addPage("Accounting", new PersonalAccounting);
+    pm->addPage("Contracts", contracts);
+
+    pm->finalize();
 };
 
 inline QMap<int, pagemanSetuper> pagerPresets{
     { MAIN_PAGE_ID,                mainPage },
-    { Database::ROLE_Admin,        admin },
-    { Database::ROLE_Security,     security },
-    { Database::ROLE_Recruter,     recruter },
-    { Database::ROLE_Inkosor,      incosor },
-    { Database::ROLE_WaponManager, waponManager },
-    { Database::ROLE_Customer,     customer },
+    { (int)Database::ROLE_Admin,        admin },
+    { (int)Database::ROLE_Security,     security },
+    { (int)Database::ROLE_Recruter,     recruter },
+    { (int)Database::ROLE_Inkosor,      incosor },
+    { (int)Database::ROLE_WaponManager, waponManager },
+    { (int)Database::ROLE_Customer,     customer },
 };
 
 #endif /* end of include guard: PAGERPRESETS_HPP_CCDGDJA4 */
