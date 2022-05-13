@@ -54,10 +54,10 @@
       <item row="1" column="1">
        <widget class="QLabel" name="income">
         <property name="styleSheet">
-         <string notr="true">color: red</string>
+         <string notr="true">color: green</string>
         </property>
         <property name="text">
-         <string>0</string>
+         <string>40241</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -74,10 +74,10 @@
       <item row="1" column="4">
        <widget class="QLabel" name="outcome">
         <property name="styleSheet">
-         <string notr="true">color: green</string>
+         <string notr="true">color: red</string>
         </property>
         <property name="text">
-         <string>0</string>
+         <string>121400</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -89,6 +89,21 @@
         <attribute name="horizontalHeaderDefaultSectionSize">
          <number>126</number>
         </attribute>
+        <row>
+         <property name="text">
+          <string>0</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>1</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>2</string>
+         </property>
+        </row>
         <column>
          <property name="text">
           <string>Pay amount</string>
@@ -104,6 +119,51 @@
           <string>Objective</string>
          </property>
         </column>
+        <item row="0" column="0">
+         <property name="text">
+          <string>13400</string>
+         </property>
+        </item>
+        <item row="0" column="1">
+         <property name="text">
+          <string>4/10/2022</string>
+         </property>
+        </item>
+        <item row="0" column="2">
+         <property name="text">
+          <string>Contract</string>
+         </property>
+        </item>
+        <item row="1" column="0">
+         <property name="text">
+          <string>108000</string>
+         </property>
+        </item>
+        <item row="1" column="1">
+         <property name="text">
+          <string>4/20/2022</string>
+         </property>
+        </item>
+        <item row="1" column="2">
+         <property name="text">
+          <string>Contract</string>
+         </property>
+        </item>
+        <item row="2" column="0">
+         <property name="text">
+          <string>40241</string>
+         </property>
+        </item>
+        <item row="2" column="1">
+         <property name="text">
+          <string>4/21/2022</string>
+         </property>
+        </item>
+        <item row="2" column="2">
+         <property name="text">
+          <string>Accident</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item row="1" column="2">

@@ -223,6 +223,16 @@
       </property>
       <item row="1" column="0">
        <widget class="QTableWidget" name="tableWidget">
+        <row>
+         <property name="text">
+          <string>0</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>1</string>
+         </property>
+        </row>
         <column>
          <property name="text">
           <string>start date</string>
@@ -243,6 +253,46 @@
           <string>assigned employees</string>
          </property>
         </column>
+        <item row="0" column="0">
+         <property name="text">
+          <string>5/13/2022</string>
+         </property>
+        </item>
+        <item row="0" column="1">
+         <property name="text">
+          <string>10/1/2022</string>
+         </property>
+        </item>
+        <item row="0" column="2">
+         <property name="text">
+          <string>House</string>
+         </property>
+        </item>
+        <item row="0" column="3">
+         <property name="text">
+          <string>3</string>
+         </property>
+        </item>
+        <item row="1" column="0">
+         <property name="text">
+          <string>10/1/2022</string>
+         </property>
+        </item>
+        <item row="1" column="1">
+         <property name="text">
+          <string>12/1/2023</string>
+         </property>
+        </item>
+        <item row="1" column="2">
+         <property name="text">
+          <string>Office</string>
+         </property>
+        </item>
+        <item row="1" column="3">
+         <property name="text">
+          <string>8</string>
+         </property>
+        </item>
        </widget>
       </item>
      </layout>

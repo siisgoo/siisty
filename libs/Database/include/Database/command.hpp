@@ -24,14 +24,15 @@
     XX( 12, EDIT_OBJECT_TYPE,     exec_edit_object_type   ) \
     XX( 13, UPDATE_ROLE,          exec_update_role        ) \
     XX( 14, GET_USER_INFO,        exec_get_user_info      ) \
-    XX( 15, GET_ACCIDENT_DETAILS, exec_get_accident_details) \
-    XX( 16, GET_ACCOUNTING_ENTRY, exec_get_accounting_entry) \
-    XX( 17, GET_OBJECT_DETAILS,   exec_get_object_detalils) \
-    XX( 18, GET_ROLE_DETAILS,     exec_get_role_details   ) \
-    XX( 19, GET_WAPON_DETAILS,    exec_get_wapon_details  ) \
-    XX( 20, GET_DUTY_SCHEDULE,    exec_get_duty_schedule  ) \
-    XX( 21, CREATE_TABLE,         exec_create_table       ) \
-    XX( 22, IDENTIFY,             exec_identify           ) \
+    XX( 15, GET_CONTRACT_DETAILS, exec_get_contract_details ) \
+    XX( 16, GET_ACCIDENT_DETAILS, exec_get_accident_details) \
+    XX( 17, GET_ACCOUNTING_ENTRY, exec_get_accounting_entry) \
+    XX( 18, GET_OBJECT_DETAILS,   exec_get_object_detalils) \
+    XX( 19, GET_ROLE_DETAILS,     exec_get_role_details   ) \
+    XX( 20, GET_WAPON_DETAILS,    exec_get_wapon_details  ) \
+    XX( 21, GET_DUTY_SCHEDULE,    exec_get_duty_schedule  ) \
+    XX( 22, CREATE_TABLE,         exec_create_table       ) \
+    XX( 23, IDENTIFY,             exec_identify           ) \
 
 QPixmap QPixmapFromQString(const QString& str);
 QIcon   QIconFromQString(const QString& str);
@@ -62,6 +63,7 @@ CmdError exec_pay_employee(QJsonObject& obj);
 CmdError exec_pay_accident(QJsonObject& obj);
 CmdError exec_edit_object_type(QJsonObject& obj);
 CmdError exec_update_role(QJsonObject& obj);
+CmdError exec_get_contract_details(QJsonObject& obj);
 CmdError exec_get_user_info(QJsonObject& obj);
 CmdError exec_get_accident_details(QJsonObject& obj);
 CmdError exec_get_accounting_entry(QJsonObject& obj);

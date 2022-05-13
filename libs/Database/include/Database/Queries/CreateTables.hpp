@@ -6,8 +6,7 @@ static const auto CREATE_ACCIDENTS_TABLE =
     "Accidents" (
         "id" INTEGER NOT NULL UNIQUE,
         "name" TEXT NOT NULL,
-        "contract_id"
-        INTEGER NOT NULL,
+        "contract_id" INTEGER NOT NULL,
         "usedAmmoCount" INTEGER,
         "damagePrice" DECIMAL(10, 3),
         "assignedEmployees_id" INTEGER,
@@ -22,8 +21,9 @@ static const auto CREATE_ACCOUNTING_TABLE =
         "accountingType_id" INTEGER NOT NULL,
         "pay" DECIMAL(10, 3) NOT NULL,
         "date" TEXT NOT NULL,
-    FOREIGN KEY("accountingType_id")
-    REFERENCES "AccountingType"("id") ON DELETE RESTRICT,
+        "user_id" INTEGER NOT NULL,
+    FOREIGN KEY("accountingType_id") REFERENCES "AccountingType"("id") ON DELETE RESTRICT,
+    FOREIGN KEY("user_id") REFERENCES "Users"("id") ON DELETE RESTRICT,
     PRIMARY KEY("id") ))";
 
 static const auto CREATE_ACCOUNTING_TYPE_TABLE =
@@ -40,8 +40,6 @@ static const auto CREATE_ASSIGNED_EMPLOYEES_TABLE =
         "employee_id" INTEGER NOT NULL,
         "guiltyPercent" DECIMAL(10, 3) NOT NULL,
         "usedAmmo" INTEGER,
-    FOREIGN KEY("employee_id") REFERENCES
-    "Users"("id") ON DELETE RESTRICT,
     PRIMARY KEY("id") ))";
 
 static const auto CREATE_CONTRACTS_TABLE =
@@ -53,11 +51,10 @@ static const auto CREATE_CONTRACTS_TABLE =
         "objectType_id" INTEGER NOT NULL,
         "objectAddress" TEXT NOT NULL,
         "objectWayPoint" TEXT,
-        "date" TEXT NOT NULL,
-        "expirationDate" TEXT NOT NULL,
-        "weekends" TEXT NOT NULL,
-    FOREIGN KEY("customer_id") REFERENCES
-    "Users"("id") ON DELETE RESTRICT,
+        "date" INTEGER NOT NULL,
+        "expirationDate" INTEGER NOT NULL,
+        "weekends" INTEGER NOT NULL,
+    FOREIGN KEY("customer_id") REFERENCES "Users"("id") ON DELETE RESTRICT,
     PRIMARY KEY("id"),
     FOREIGN KEY("assignedEmployees_id") REFERENCES "AssignedEmployees"("employee_id") ON DELETE RESTRICT,
     FOREIGN KEY("objectType_id") REFERENCES "objectType"("id") ON DELETE RESTRICT ))";

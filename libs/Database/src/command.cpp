@@ -2,6 +2,7 @@
 #include "Database/CmdError.hpp"
 #include "Database/Utility.hpp"
 #include "Crypto/Hash.hpp"
+#include "Database/Accounting.hpp"
 
 #include <QLatin1String>
 #include <QtSql>
@@ -67,14 +68,16 @@ static QString extractImg(QVariant const& v) {
 CmdError
 exec_create_table(QJsonObject& obj)
 {
-    QSqlQuery q;
     QString query_s = obj.take("query").toString();
 
     if (!query_s.length()) {
+        qDebug() << "NO QUERY";
         return CmdError(InvalidParam, "No query passed");
     }
 
+    QSqlQuery q;
     if (!q.exec(query_s)) {
+        qDebug() << "CMD: " << q.lastError();
         return CmdError(SQLError, q.lastQuery() + " " + q.lastError().text());
     }
 
@@ -179,6 +182,10 @@ exec_make_contract(QJsonObject& obj)
         return CmdError(InvalidParam, "");
     }
 
+    if (auto val = obj["wayPoint"]; val.isString()) {
+        wayPoint = val.toString();
+    }
+
     if (auto val = obj["start"]; val.isDouble()) {
         start = QDate::fromJulianDay(val.toInt());
     } else {
@@ -216,7 +223,64 @@ exec_make_contract(QJsonObject& obj)
         }
     }
 
-    q.prepare("INSERT INTO ")
+    q.prepare("INSERT INTO Contracts (assignedEmployees_id, customer_id, objectType_id, objectAddress, objectWayPoint, date, experationDate, weekends)"
+              " Values(:employees, :customer, :object, :address, :waypoint, :date, :experation, :weekends)");
+    q.bindValue(":employees", aid);
+    q.bindValue(":customer", customer);
+    q.bindValue(":object", objType);
+    q.bindValue(":address", addr);
+    q.bindValue(":waypoint", wayPoint);
+    q.bindValue(":date", start);
+    q.bindValue(":experation", experation);
+    q.bindValue(":weekends", "");
+    if (!q.exec()) {
+        return CmdError(SQLError, q.lastError().text());
+    }
+
+    QJsonObject objT{{ "id", objType }};
+    CmdError e = exec_get_object_detalils(objT);
+    if (!e.Ok()) {
+        return e;
+    }
+    double o_price = objT["price"].toDouble();
+    double pay = o_price;
+
+    QJsonObject roles{{"id", "*"}};
+    e = exec_get_role_details(roles);
+    if (!e.Ok()) {
+        return e;
+    }
+
+    int days = start.daysTo(experation);
+
+    for (auto& e : employees) {
+        QJsonObject employee{{"id", e}};
+        CmdError err = exec_get_user_info(employee);
+        if (!err.Ok()) {
+            return err;
+        }
+        int mult = 0;
+        int period = 0;
+        for (auto role : roles["roles"].toArray()) {
+            if (role.toObject()["id"].toInt() == employee["role_id"].toInt()) {
+                mult = role.toObject()["mult"].toDouble();
+                period = role.toObject()["payPeriod"].toInt();
+                break;
+            }
+        }
+        pay += mult * o_price * days/period;
+    }
+
+    q.prepare("INSERT INTO Accounting (pay, date, user_id, accountingType_id) VALUES(:pay, :date, :user, :type)");
+    q.bindValue(":pay", pay);
+    q.bindValue(":date", QDate::currentDate().toJulianDay());
+    q.bindValue(":user", customer);
+    q.bindValue(":type", AccountingType::ACC_Contract);
+
+    if (!q.exec()) {
+        // TODO remove CONTRACT !!
+        return CmdError(SQLError, q.lastError().text());
+    }
 
     return CmdError();
 }
@@ -618,11 +682,117 @@ exec_get_accident_details(QJsonObject& obj)
 }
 
 /*
+ * id: num OR "*"
+ */
+CmdError
+exec_get_contract_details(QJsonObject& obj)
+{
+    QSqlQuery q;
+
+    int id;
+    QJsonValue buf = obj.take("id");
+    if (buf.toString() == "*") // Multi select
+    {
+        QJsonArray contracts;
+        QString where = obj.take("where").toString();
+        q.prepare("SELECT *"
+                  " FROM Contracts " + where);
+
+        if (!q.exec()) {
+            return CmdError(SQLError, q.lastQuery() + " " + q.lastError().text());
+        }
+
+        while (q.next()) {
+            contracts.append(QJsonObject{
+                { "id", q.record().value("id").toInt() },
+                { "assignedEmployees_id", q.record().value("assignedEmployees_id").toString() },
+                { "customer_id", q.record().value("customer_id").toString() },
+                { "objectType_id", q.record().value("objectType_id").toString() },
+                { "objectAddress", q.record().value("objectAddress").toString() },
+                { "objectWayPoint", q.record().value("objectWayPoint").toString() },
+                { "date", q.record().value("date").toString() },
+                { "experation", q.record().value("experationDate").toInt() },
+                { "weekends", q.record().value("weekends").toInt() },
+            });
+        }
+
+        obj["contracts"] = contracts;
+    }
+    else if ((id = buf.toInteger(-1)) != -1) // Single selection
+    {
+        q.prepare("SELECT * "
+                  " FROM Contracts WHERE id = :id");
+        q.bindValue(":id", id);
+        if (!q.exec()) {
+            return CmdError(SQLError, q.lastQuery() + " " + q.lastError().text());
+        }
+        q.last();
+        obj = {
+            { "id", q.record().value("id").toInt() },
+            { "name", q.record().value("name").toString() },
+            { "price", q.record().value("price").toDouble() },
+        };
+    }
+    else
+    {
+        return CmdError(InvalidParam, "Unknown employee paramentr passed");
+    }
+
+
+    return CmdError();
+}
+
+/*
  * accounting: int OR date: int OR user: int
  */
 CmdError
 exec_get_accounting_entry(QJsonObject& obj)
 {
+    QSqlQuery q;
+
+    int id;
+    QJsonValue buf = obj.take("id");
+    if (buf.toString() == "*") // Multi select
+    {
+        QJsonArray objcts;
+        QString where = obj.take("where").toString();
+        q.prepare("SELECT id, name, price"
+                  " FROM objectType " + where);
+
+        if (!q.exec()) {
+            return CmdError(SQLError, q.lastQuery() + " " + q.lastError().text());
+        }
+
+        while (q.next()) {
+            objcts.append(QJsonObject{
+                { "id", q.record().value("id").toInt() },
+                { "name", q.record().value("name").toString() },
+                { "price", q.record().value("price").toDouble() },
+            });
+        }
+
+        obj["objects"] = objcts;
+    }
+    else if ((id = buf.toInteger(-1)) != -1) // Single selection
+    {
+        q.prepare("SELECT id, name, price"
+                  " FROM objectType WHERE id = :id");
+        q.bindValue(":id", id);
+        if (!q.exec()) {
+            return CmdError(SQLError, q.lastQuery() + " " + q.lastError().text());
+        }
+        q.last();
+        obj = {
+            { "id", q.record().value("id").toInt() },
+            { "name", q.record().value("name").toString() },
+            { "price", q.record().value("price").toDouble() },
+        };
+    }
+    else
+    {
+        return CmdError(InvalidParam, "Unknown employee paramentr passed");
+    }
+
     return CmdError();
 }
 

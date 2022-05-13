@@ -3,6 +3,7 @@
 #include "Database/tables.hpp"
 #include "Database/Role.hpp"
 #include "Database/Utility.hpp"
+#include "Database/Accounting.hpp"
 
 #include <QMutexLocker>
 #include <functional>
@@ -31,6 +32,9 @@ Driver::Driver(const QString& path, QObject * p)
     #define XX(id, n, exe) { CMD_ ##n, QUOTE(n), exe },
     _commands = { COMMANDS_MAP(XX) };
     #undef XX
+    #define XX(id, n) { ACC_ ##n, QUOTE(n) },
+    _accounting = { ACCOUNTING_TYPE_MAP(XX) };
+    #undef XX
 
     _pf->setExitOnCompleted(true);
 }
@@ -49,7 +53,7 @@ void
 Driver::Initialize()
 {
     _pf->setTitle("Database initialization");
-    _pf->setMaximum(3);
+    _pf->setMaximum(4);
     Q_EMIT createNotifyItem(_pf, _p_uid_main);
 
     _db = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE"));
@@ -62,6 +66,8 @@ Driver::Initialize()
     Q_EMIT setNotifyItemPropery(_p_uid_main, "progress", 2);
     insertDefaultsRoles();
     Q_EMIT setNotifyItemPropery(_p_uid_main, "progress", 3);
+    insertAccounting();
+    Q_EMIT setNotifyItemPropery(_p_uid_main, "progress", 4);
 
     Q_EMIT Inited();
 }
@@ -72,9 +78,8 @@ Driver::checkTables()
     _pf->setTitle("Looking for tables");
     _pf->setMaximum(TABLES_COUNT);
     Q_EMIT createNotifyItem(_pf, _p_uid);
-    int i;
     QStringList tables = _db->tables();
-    for (i = 0; i < TABLES_COUNT; i++) {
+    for (int i = 0; i < TABLES_COUNT; i++) {
         if (!tables.contains(_tables[i].name)) {
             QJsonObject cmd{
                     {"command", CMD_CREATE_TABLE},
@@ -83,7 +88,37 @@ Driver::checkTables()
                     }
             };
             if (!autoExecCommand(cmd)) {
+                qDebug() << cmd;
                 throw _db->lastError();
+            }
+        }
+        Q_EMIT setNotifyItemPropery(_p_uid, "progress", i+1);
+    }
+}
+
+void
+Driver::insertAccounting()
+{
+    _pf->setTitle("Looking for accounting types");
+    _pf->setMaximum(ACC_COUNT);
+    Q_EMIT createNotifyItem(_pf, _p_uid);
+
+    QSqlQuery q;
+    for (int i = 0; i < ACC_COUNT; ++i) {
+        auto acc = _accounting[i];
+        q.prepare("SELECT * FROM Roles WHERE id = :id and name = :name");
+        q.bindValue(":id", acc.id);
+        q.bindValue(":name", acc.name);
+        if (!q.exec()) {
+            throw q.lastError();
+        }
+
+        if (!q.next()) {
+            q.prepare("INSERT INTO AccountingType (id, name) VALUES(:id, :name)");
+            q.bindValue(":id", acc.id);
+            q.bindValue(":name", acc.name);
+            if (!q.exec()) {
+                throw q.lastError();
             }
         }
         Q_EMIT setNotifyItemPropery(_p_uid, "progress", i+1);
@@ -165,15 +200,20 @@ Driver::insertDefaultsRoles()
 void
 Driver::Run()
 {
+    bool failed = false;
     try {
         this->Initialize();
     } catch (QSqlError e) {
+        qDebug() << e;
         // TODO add forse end process
         Q_EMIT InitizlizationFailed(e);
+        failed = true;
     }
 
-    _running=true;
-    this->worker();
+    if (!failed) {
+        _running=true;
+        this->worker();
+    }
 }
 
 void

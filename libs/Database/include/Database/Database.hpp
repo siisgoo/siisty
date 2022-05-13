@@ -110,6 +110,7 @@ class Driver : public QObject {
         void Initialize();
         void checkTables();
         void insertDefaultsRoles();
+        void insertAccounting();
 
         QMap<RoleId, role_set> _roles;
         QVector<table_def>     _tables;

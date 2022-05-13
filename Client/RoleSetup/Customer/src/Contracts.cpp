@@ -50,7 +50,6 @@ Contracts::Contracts(QWidget *parent) :
                     { "command", Database::CMD_MAKE_CONTRACT },
                     { "arg",
                         QJsonObject{
-
                         }
                     }
                     }, _contractsWaiter);
