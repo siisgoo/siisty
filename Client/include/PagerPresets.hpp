@@ -82,7 +82,7 @@ inline pagemanSetuper customer = [](Controller *w, PagesManager * pm, Service *s
     pm->reset();
 
     QWidget * profile = new Profile(w->userId()),
-            * contracts = new Contracts(w);
+            * contracts = new Contracts(w->userId(), w);
 
     w->connect(
             profile, SIGNAL(loadPersonInfo(QJsonObject, ResponseWaiter *)),

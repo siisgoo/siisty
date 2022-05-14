@@ -6,9 +6,10 @@
 #include <QJsonArray>
 #include <qnamespace.h>
 
-Contracts::Contracts(QWidget *parent) :
+Contracts::Contracts(int id, QWidget *parent) :
     QFrame(parent),
-        ui(new Ui::Contracts)
+        ui(new Ui::Contracts),
+        _id(id)
 {
     ui->setupUi(this);
 
@@ -45,14 +46,35 @@ Contracts::Contracts(QWidget *parent) :
     connect(ui->startdate, SIGNAL(dateChanged(QDate)), this, SLOT(onInputChaned()));
     connect(ui->experationdate, SIGNAL(dateChanged(QDate)), this, SLOT(onInputChaned()));
 
-    connect(ui->submitContract, &QPushButton::click, [this]() {
-            Q_EMIT createNewContract(QJsonObject{
-                    { "command", Database::CMD_MAKE_CONTRACT },
-                    { "arg",
-                        QJsonObject{
-                        }
-                    }
+    connect(ui->update, &QPushButton::click, [this]() {
+            Q_EMIT loadMyContracts(QJsonObject{
+                    { "id", "*" },
+                    { "where", QString("customer_id = ") + QString::number(_id) }
                     }, _contractsWaiter);
+    });
+
+    connect(ui->submitContract, &QPushButton::click, [this]() {
+        QFormLayout * layout = static_cast<QFormLayout*>(this->ui->employees->layout());
+        QJsonArray empls;
+        for (int j = 0; j < layout->rowCount(); ++j) {
+            int id = static_cast<QComboBox*>(layout->itemAt(j, QFormLayout::ItemRole::FieldRole)->widget())->currentData().toInt();
+            empls.push_back(id);
+        }
+        Q_EMIT createNewContract(QJsonObject{
+                { "command", Database::CMD_MAKE_CONTRACT },
+                { "arg",
+                    QJsonObject{
+                        { "employees", empls },
+                        { "customer", this->_id },
+                        { "objectType", this->ui->objectType_cb->currentData().toInt() },
+                        { "address", this->ui->address->text() },
+                        { "wayPoint", this->ui->waypoint->text() },
+                        { "experation", this->ui->experationdate->date().toJulianDay() },
+                        { "start", this->ui->startdate->date().toJulianDay() },
+                        { "weekends", 0 }
+                    }
+                }
+                }, _createWaiter);
     });
 
     QTimer::singleShot(300, [this] {
@@ -79,6 +101,22 @@ void
 Contracts::myContractsLoaded(QJsonObject obj)
 {
     this->ui->tableWidget->clear();
+    QJsonArray arr = obj["contracts"].toArray();
+
+    int i = 0;
+    for (auto c : arr) {
+        QJsonObject cur = c.toObject();
+        this->ui->tableWidget->setItem(i, 0, new QTableWidgetItem(QDate::fromJulianDay(cur["date"].toInteger()).toString()));
+        this->ui->tableWidget->setItem(i, 1, new QTableWidgetItem(QDate::fromJulianDay(cur["experation"].toInteger()).toString()));
+        objT o;
+        for (int i = 0; i < _objT.length(); ++i) {
+            if (_objT[i].id == cur["objectType_id"].toInt())
+                o = _objT[i];
+        }
+        this->ui->tableWidget->setItem(i, 2, new QTableWidgetItem(o.name));
+        this->ui->tableWidget->setItem(i, 3, new QTableWidgetItem(cur["assignedEmployees_id"].toInt()));
+        i++;
+    }
 }
 
 void

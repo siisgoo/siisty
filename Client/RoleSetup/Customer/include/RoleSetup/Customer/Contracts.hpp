@@ -14,7 +14,7 @@ class Contracts : public QFrame
     Q_OBJECT
 
     public:
-        explicit Contracts(QWidget *parent = nullptr);
+        explicit Contracts(int id, QWidget *parent = nullptr);
         ~Contracts();
 
     Q_SIGNALS:
@@ -51,6 +51,8 @@ class Contracts : public QFrame
             double priceMult;
             int period;
         };
+
+        int _id;
 
         QVector<int> _selectedEmpl;
 

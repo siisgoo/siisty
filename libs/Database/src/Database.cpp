@@ -103,10 +103,12 @@ Driver::insertAccounting()
     _pf->setMaximum(ACC_COUNT);
     Q_EMIT createNotifyItem(_pf, _p_uid);
 
+    bool deleted = false;
+
     QSqlQuery q;
     for (int i = 0; i < ACC_COUNT; ++i) {
         auto acc = _accounting[i];
-        q.prepare("SELECT * FROM Roles WHERE id = :id and name = :name");
+        q.prepare("SELECT * FROM AccountingType WHERE id = :id and name = :name");
         q.bindValue(":id", acc.id);
         q.bindValue(":name", acc.name);
         if (!q.exec()) {
@@ -114,6 +116,13 @@ Driver::insertAccounting()
         }
 
         if (!q.next()) {
+            if (!deleted) {
+                if (!q.exec("DELETE FROM AccountingType")) {
+                    throw q.lastError();
+                }
+                deleted = true;
+            }
+
             q.prepare("INSERT INTO AccountingType (id, name) VALUES(:id, :name)");
             q.bindValue(":id", acc.id);
             q.bindValue(":name", acc.name);
